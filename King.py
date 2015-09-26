@@ -1,6 +1,7 @@
 __author__ = 'nick.james'
 from Type import Type
 from Piece import Piece
+from Color import Color
 from MoveDirection import MoveDirection
 
 
@@ -16,6 +17,5 @@ class King(Piece):
         self._moves[MoveDirection.b_left_diag] = 1
         self._moves[MoveDirection.b_right_diag] = 1
 
-    def __str__(self):
-        return 'K'
+        self._string_value = 'K' if color == Color.white else 'k'
 

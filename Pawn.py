@@ -1,6 +1,7 @@
 __author__ = 'nick.james'
 from Type import Type
 from Piece import Piece
+from Color import Color
 from MoveDirection import MoveDirection
 
 
@@ -11,5 +12,4 @@ class Pawn(Piece):
         self._moves[MoveDirection.f_left_diag] = 1
         self._moves[MoveDirection.f_right_diag] = 1
 
-    def __str__(self):
-        return 'P'
+        self._string_value = 'P' if color == Color.white else 'p'

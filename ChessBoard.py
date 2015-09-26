@@ -6,7 +6,6 @@ from Bishop import Bishop
 from King import King
 from Queen import Queen
 from Color import Color
-from Move import Move
 from Type import Type
 
 
@@ -49,7 +48,6 @@ class ChessBoard:
 
         self._king_positions = {Color.white: 'e1', Color.black: 'e8'}
 
-
     def get_piece(self, position):
         """
         Get the piece at the specified position
@@ -61,7 +59,7 @@ class ChessBoard:
             index = self._indexes[position]
         except IndexError:
             return None
-        return self._board_positions[index]
+        return self._pieces[self._board_positions[index]]
 
     def is_position_occupied(self, position):
         try:
@@ -77,7 +75,7 @@ class ChessBoard:
 
         # Check file and rank
         file_and_rank_pieces = (Type.queen, Type.rook)
-        for direction in [Move.forward, Move.backward, Move.left, Move.right]:
+        for direction in [self.forward, self.backward, self.left, self.right]:
             tmp_index = self._indexes[king_position] + direction
             while self._is_valid_index(tmp_index):
                 tmp_position = self._pieces[self._board_positions[tmp_index]]
@@ -90,7 +88,7 @@ class ChessBoard:
 
         # Check right forward diagonal
         diagonal_pieces = (Type.queen, Type.bishop)
-        for direction in [Move.f_left_diag, Move.f_right_diag, Move.b_left_diag, Move.b_right_diag]:
+        for direction in [self.f_left_diag, self.f_right_diag, self.b_left_diag, self.b_right_diag]:
             tmp_index = self._indexes[king_position] + direction
             while self._is_valid_index(tmp_index):
                 tmp_position = self._pieces[self._board_positions[tmp_index]]
@@ -119,7 +117,21 @@ class ChessBoard:
         :return:
         """
         piece_on_start_position = self.get_piece(start_position)
-        piece_on_end_position = self.get_piece(end_position)
+
+        self._remove_piece(start_position)
+        self._remove_piece(end_position)
+        self._place_piece(end_position, piece_on_start_position)
+
+    def get_possible_moves(self, position):
+        """
+        Retrieve a list of all valid moes for the piece currently occupying
+        the square at position
+        :param position:
+        :return:
+        """
+        piece_on_start_position = self.get_piece(position)
+        piece_type = piece_on_start_position.get_type()
+
 
 
     def _place_piece(self, position, piece):
@@ -127,14 +139,14 @@ class ChessBoard:
             index = self._indexes[position]
         except IndexError:
             raise Exception(position + " is not a valid position")
-        self._board_positions[index] = piece
+        self._pieces[self._board_positions[index]] = piece
 
     def _remove_piece(self, position):
         try:
             index = self._indexes[position]
         except IndexError:
             raise Exception(position + " is not a valid position")
-        self._board_positions[index] = None
+        self._pieces[self._board_positions[index]] = None
 
     def __str__(self):
         return_val = ''

@@ -1,6 +1,7 @@
 __author__ = 'nick.james'
 from Type import Type
 from Piece import Piece
+from Color import Color
 from MoveDirection import MoveDirection
 
 
@@ -12,6 +13,5 @@ class Rook(Piece):
         self._moves[MoveDirection.left] = -1
         self._moves[MoveDirection.right] = -1
 
-    def __str__(self):
-        return 'R'
+        self._string_value = 'R' if color == Color.white else 'r'
 

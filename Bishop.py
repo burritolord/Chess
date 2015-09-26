@@ -1,6 +1,7 @@
 __author__ = 'nick.james'
 from Type import Type
 from Piece import Piece
+from Color import Color
 from MoveDirection import MoveDirection
 
 
@@ -13,6 +14,5 @@ class Bishop(Piece):
         self._moves[MoveDirection.b_left_diag] = -1
         self._moves[MoveDirection.b_right_diag] = -1
 
-    def __str__(self):
-        return 'B'
+        self._string_value = 'B' if color == Color.white else 'b'
 

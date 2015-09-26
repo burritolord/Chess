@@ -10,6 +10,7 @@ class Piece(metaclass=ABCMeta):
         self._type = type
         self._color = color
         self._captured = False
+        self._string_value = ''
         self._moves = {
             MoveDirection.forward: 0,
             MoveDirection.backward: 0,
@@ -50,5 +51,5 @@ class Piece(metaclass=ABCMeta):
         return self._moves
 
     def __str__(self):
-        pass
+        return self._string_value
 
