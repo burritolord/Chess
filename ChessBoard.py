@@ -7,19 +7,31 @@ from King import King
 from Queen import Queen
 from Color import Color
 from Type import Type
+from MoveDirection import MoveDirection
 
 
 class ChessBoard:
 
-    forward = 8
-    backward = -8
-    left = -1
-    right = 1
-    f_left_diag = 7
-    f_right_diag = 9
-    b_left_diag = -7
-    b_right_diag = -9
-    l_shape = [-17, -15, -10, -6, 6, 10, 15, 17]
+    PIECE_SHIFTING = {
+        MoveDirection.forward: 8,
+        MoveDirection.backward: -8,
+        MoveDirection.left: -1,
+        MoveDirection.right: 1,
+        MoveDirection.f_left_diag: 7,
+        MoveDirection.f_right_diag: 9,
+        MoveDirection.b_left_diag: -7,
+        MoveDirection.b_right_diag: -9,
+        MoveDirection.l_shape: [-17, -15, -10, -6, 6, 10, 15, 17]
+    }
+    # forward = 8
+    # backward = -8
+    # left = -1
+    # right = 1
+    # f_left_diag = 7
+    # f_right_diag = 9
+    # b_left_diag = -7
+    # b_right_diag = -9
+    # l_shape =
 
     def __init__(self):
         self._board_positions = [y+str(x+1) for x in range(0, 8) for y in "abcdefgh"]
@@ -56,17 +68,17 @@ class ChessBoard:
         :return: Piece
         """
         try:
-            index = self._indexes[position]
+            self._indexes[position]
         except IndexError:
             return None
-        return self._pieces[self._board_positions[index]]
+        return self._pieces[position]
 
     def is_position_occupied(self, position):
         try:
-            index = self._indexes[position]
+            self._indexes[position]
         except IndexError:
             raise Exception(position + " is not a valid position")
-        return self._board_positions[index] is None
+        return self._pieces[position] is not None
 
     def is_check(self, color):
         check = False
@@ -75,10 +87,11 @@ class ChessBoard:
 
         # Check file and rank
         file_and_rank_pieces = (Type.queen, Type.rook)
-        for direction in [self.forward, self.backward, self.left, self.right]:
-            tmp_index = self._indexes[king_position] + direction
+        for direction in [self.PIECE_SHIFTING[MoveDirection.forward], self.PIECE_SHIFTING[MoveDirection.backward],
+                          self.PIECE_SHIFTING[MoveDirection.left], self.PIECE_SHIFTING[MoveDirection.right]]:
+            tmp_index = self._get_index(king_position) + direction
             while self._is_valid_index(tmp_index):
-                tmp_position = self._pieces[self._board_positions[tmp_index]]
+                tmp_position = self._get_position(tmp_index)
                 if self.is_position_occupied(tmp_position):
                     piece = self.get_piece(tmp_position)
                     if piece.get_color() != color and piece.get_type() in file_and_rank_pieces:
@@ -88,10 +101,11 @@ class ChessBoard:
 
         # Check right forward diagonal
         diagonal_pieces = (Type.queen, Type.bishop)
-        for direction in [self.f_left_diag, self.f_right_diag, self.b_left_diag, self.b_right_diag]:
-            tmp_index = self._indexes[king_position] + direction
+        for direction in [self.PIECE_SHIFTING[MoveDirection.f_left_diag], self.PIECE_SHIFTING[MoveDirection.f_right_diag],
+                          self.PIECE_SHIFTING[MoveDirection.b_left_diag], self.PIECE_SHIFTING[MoveDirection.b_right_diag]]:
+            tmp_index = self._get_index(king_position) + direction
             while self._is_valid_index(tmp_index):
-                tmp_position = self._pieces[self._board_positions[tmp_index]]
+                tmp_position = self._get_position(tmp_index)
                 if self.is_position_occupied(tmp_position):
                     piece = self.get_piece(tmp_position)
                     if piece.get_color() != color and piece.get_type() in diagonal_pieces:
@@ -129,10 +143,65 @@ class ChessBoard:
         :param position:
         :return:
         """
-        piece_on_start_position = self.get_piece(position)
-        piece_type = piece_on_start_position.get_type()
+        possible_moves = []
+        piece_on_start = self.get_piece(position)
+        piece_index = self._get_index(position)
+        piece_moves = piece_on_start.get_all_move_directions()
+        start_piece_color = piece_on_start.get_color()
 
+        if piece_moves[MoveDirection.l_shape]:
+            for shift in self.PIECE_SHIFTING[MoveDirection.l_shape]:
+                possible_index = piece_index + shift
+                if not self._is_valid_index(possible_index):
+                    continue
+                possible_position = self._get_position(possible_index)
+                # Test for check
+                # pass
 
+                if self.is_position_occupied(possible_position):
+                    piece_on_end = self.get_piece(possible_position)
+                    end_piece_color = piece_on_end.get_color()
+
+                    if start_piece_color != end_piece_color:
+                        possible_moves.append(possible_position)
+                else:
+                    possible_moves.append(possible_position)
+        else:
+            for move_direction, space_count in piece_moves.items():
+                if move_direction != MoveDirection.l_shape:
+                    limit = 8 if space_count == -1 else space_count
+                    possible_index = piece_index
+                    for count in range(0, limit):
+                        if not self._is_valid_index(possible_index):
+                            break
+                        possible_position = self._get_position(possible_index + count)
+                        if self.is_position_occupied(possible_position):
+                            piece_on_end = self.get_piece(possible_position)
+                            end_piece_color = piece_on_end.get_color()
+
+                            if start_piece_color != end_piece_color:
+                                possible_moves.append(possible_position)
+                            break
+                        else:
+                            possible_moves.append(possible_position)
+
+        return possible_moves
+
+    def _get_index(self, position):
+        """
+        Retrieve the index for the specified position
+        :param position: algebraic notation for a position
+        :return:
+        """
+        return self._indexes[position]
+
+    def _get_position(self, index):
+        """
+        Retrieve the position for the specified index
+        :param index: Index in _board_positions list
+        :return:
+        """
+        return self._board_positions[index]
 
     def _place_piece(self, position, piece):
         try:
@@ -163,3 +232,7 @@ class ChessBoard:
         if index < 0 or index > len(self._indexes):
             return False
         return True
+
+board = ChessBoard()
+# board.move_piece('b1', 'c3')
+board.get_possible_moves('a1')
