@@ -1,7 +1,8 @@
 __author__ = 'nick.james'
 
-from MoveDirection import MoveDirection
+from Move import Move
 from abc import ABCMeta
+from MoveDirection import MoveDirection
 
 
 class Piece(metaclass=ABCMeta):
@@ -11,17 +12,8 @@ class Piece(metaclass=ABCMeta):
         self._color = color
         self._captured = False
         self._string_value = ''
-        self._moves = {
-            MoveDirection.forward: 0,
-            MoveDirection.backward: 0,
-            MoveDirection.left: 0,
-            MoveDirection.right: 0,
-            MoveDirection.f_left_diag: 0,
-            MoveDirection.f_right_diag: 0,
-            MoveDirection.b_left_diag: 0,
-            MoveDirection.b_right_diag: 0,
-            MoveDirection.l_shape: False
-        }
+        self._move = Move()
+        self._moves = {}
 
     def get_type(self):
         return self._type
@@ -49,6 +41,14 @@ class Piece(metaclass=ABCMeta):
 
     def get_all_move_directions(self):
         return self._moves
+
+    def get_possible_moves(self, board, current_position):
+        possible_moves = []
+        move = Move()
+        for move_direction, num_spaces in self._moves.items():
+            possible_moves += move.get_possible_moves(board, current_position, move_direction, num_spaces)
+
+        return possible_moves
 
     def __str__(self):
         return self._string_value

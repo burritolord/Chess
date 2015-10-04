@@ -6,7 +6,15 @@ from MoveDirection import MoveDirection
 
 
 class Queen(Piece):
+
     def __init__(self, color):
+        """
+        Create a Queen piece.
+
+        :param color:
+            Color that this piece should have.
+        :return:
+        """
         super().__init__(Type.queen, color)
         self._moves[MoveDirection.forward] = -1
         self._moves[MoveDirection.backward] = -1
