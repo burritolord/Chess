@@ -1,8 +1,8 @@
 __author__ = 'nick.james'
-from Type import Type
-from Piece import Piece
-from Color import Color
-from MoveDirection import MoveDirection
+from piece.Type import Type
+from piece.Piece import Piece
+from piece.Color import Color
+from piece.MoveDirection import MoveDirection
 
 
 class Rook(Piece):
