@@ -35,6 +35,7 @@ class ChessBoard:
         self._board_positions = [y+str(x+1) for x in range(0, board_length) for y in "abcdefgh"]
         self._pieces = {y+str(x+1): None for x in range(0, board_length) for y in "abcdefgh"}
         self._indexes = {}
+        self._king_positions = {Color.white: None, Color.black: None}
         for position, index in zip(self._board_positions, range(0, board_length**2)):
             self._indexes[position] = index
 
@@ -57,7 +58,8 @@ class ChessBoard:
             self._pieces['d8'] = Queen(Color.black)
             self._pieces['e8'] = King(Color.black)
 
-            self._king_positions = {Color.white: 'e1', Color.black: 'e8'}
+            self._king_positions[Color.white] = 'e1'
+            self._king_positions[Color.black] = 'e8'
 
     def is_position_occupied(self, position):
         """
@@ -177,9 +179,12 @@ class ChessBoard:
         :return:
         """
         starting_index = self._position_to_index(position)
-        possible_index = y_offset * self.get_dimension() + x_offset + starting_index
-        if self._is_valid_index(possible_index):
-            return self._index_to_position(possible_index)
+        possible_y_index = y_offset * self.get_dimension() + starting_index
+        possible_x_index = x_offset + starting_index
+
+        if self._is_valid_index(possible_y_index) and self._is_valid_index(possible_x_index):
+            new_index = y_offset * self.get_dimension() + x_offset + starting_index
+            return self._index_to_position(new_index)
         return None
 
     def get_board_dimension(self):
@@ -302,6 +307,8 @@ class ChessBoard:
 
     def __setitem__(self, position, piece):
         self._pieces[position] = piece
+        if piece.type == Type.king:
+            self._king_positions[piece.color] = position
 
 # board = ChessBoard(True)
 # board['a2'] = Queen(Color.white)
