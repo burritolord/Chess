@@ -74,6 +74,7 @@ class Move:
                     possible_moves.append(possible_position)
                 elif board[possible_position].color != piece_on_current_position.color:
                     possible_moves.append(possible_position)
+                    break
                 else:  # Piece is same color as one we are working with
                     break
 
