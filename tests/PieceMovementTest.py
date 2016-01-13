@@ -433,6 +433,13 @@ class PieceMovementTest(unittest.TestCase):
         self.assertIsInstance(board[capture_position], Pawn, message)
 
     def test_pawn_cant_capture(self):
+        """
+        Move a pawn to a square where there is a piece of the same color on one of the most immediate diagonal
+        squares.
+        Expected result is that the square that contains the piece of the same color is not in the list of possible
+        moves for the pawn.
+        :return:
+        """
         board = ChessBoard(empty_board=True)
         start_position = 'b1'
         board[start_position] = Pawn(Color.white)
@@ -445,6 +452,12 @@ class PieceMovementTest(unittest.TestCase):
         self.assertListEqual(expected_possible_moves, possible_moves, message)
 
     def test_rook_capture(self):
+        """
+        Place a black piece on a square on file 2 and another on rank . Move the rook to the square occupied by a
+        Expected result is that the squares that contain the pieces of the opposite color are in the list of possible
+        moves for the rook. Opposing piece is also successfully captured by pawn.
+        :return:
+        """
         board = ChessBoard(empty_board=True)
         start_position = 'b1'
         capture_position = 'e1'

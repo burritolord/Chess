@@ -7,6 +7,7 @@ from piece.King import King
 from piece.Queen import Queen
 from piece.Color import Color
 from piece.Type import Type
+from piece.Move import Move
 from piece.MoveDirection import MoveDirection
 from ChessHelper import ChessHelper
 
@@ -199,7 +200,6 @@ class ChessBoard:
             Algebraic notation for a position.
         :return:
         """
-
         if not self.is_position_occupied(position):
             return []
 
@@ -239,6 +239,44 @@ class ChessBoard:
 
         return column, row
 
+    def get_direction_square_count(self, start_position, move_direction):
+        """
+
+        :param start_position:
+        :param move_direction:
+        :return:
+        """
+        max_movement = self.get_dimension() - 1
+        board_length = self.get_dimension()
+        piece_on_position = self[start_position]
+        piece_directions = piece_on_position.move_directions
+        num_spaces = piece_directions[move_direction]
+        num_spaces = self.get_dimension() - 1 if num_spaces == -1 else num_spaces
+        current_x_coord, current_y_coord = self.position_to_coordinates(start_position)
+
+        if move_direction == MoveDirection.forward:
+            max_movement = board_length - current_y_coord - 1
+        elif move_direction == MoveDirection.f_right_diag:
+            from_right = board_length - current_x_coord - 1
+            from_top = board_length - current_y_coord - 1
+            max_movement = min(from_top, from_right)
+        elif move_direction == MoveDirection.right:
+            max_movement = board_length - current_x_coord - 1
+        elif move_direction == MoveDirection.b_right_diag:
+            from_right = board_length - current_x_coord - 1
+            max_movement = min(current_y_coord, from_right)
+        elif move_direction == MoveDirection.backward:
+            max_movement = current_y_coord
+        elif move_direction == MoveDirection.b_left_diag:
+            max_movement = min(current_y_coord, current_x_coord)
+        elif move_direction == MoveDirection.left:
+            max_movement = current_x_coord
+        elif move_direction == MoveDirection.f_left_diag:
+            from_top = board_length - current_y_coord - 1
+            max_movement = min(from_top, current_x_coord)
+
+        return min(num_spaces, max_movement)
+
     def _position_to_index(self, position):
         """
         Retrieve the index for the specified position.
@@ -272,8 +310,38 @@ class ChessBoard:
             raise Exception(position + " is not a valid position")
         self._pieces[self._board_positions[index]] = None
 
-    def _get_nearst_piece_in_direction(self, direction):
-        pass
+    def _get_nearest_piece_in_direction(self, start_position, direction):
+        """
+
+        """
+        x_offset, y_offset = 0, 0
+        num_spaces = self.get_direction_square_count(start_position, direction)
+        move = Move()
+
+        for count in range(0, num_spaces):
+            x_offset, y_offset = move.get_increment_values(direction, x_offset, y_offset)
+            possible_position = self.get_position(start_position, x_offset, y_offset)
+            piece_on_destination = self.is_position_occupied(possible_position)
+
+            if piece_on_destination:
+                return possible_position
+
+        return None
+
+    def get_possible_squares(self, start_position, direction):
+        """
+
+        """
+        possible_positions = []
+        x_offset, y_offset = 0, 0
+        num_spaces = self.get_direction_square_count(start_position, direction)
+        move = Move()
+
+        for count in range(0, num_spaces):
+            x_offset, y_offset = move.get_increment_values(direction, x_offset, y_offset)
+            possible_positions.append(self.get_position(start_position, x_offset, y_offset))
+
+        return possible_positions
 
     def _is_valid_index(self, index):
         if index < 0 or index >= len(self._indexes):
