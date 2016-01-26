@@ -31,8 +31,9 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is that the piece no longer exist on the starting square, but on the ending square.
         :return:
         """
-        start_position = 'a1'
-        end_position = 'a2'
+        start_positions = ['a1', 'h8']
+        end_positions = ['a2', 'h7']
+        piece_colors = [Color.white, Color.black]
         piece_types = {
             Type.pawn: Pawn,
             Type.king: King,
@@ -40,16 +41,17 @@ class PieceMovementTest(unittest.TestCase):
             Type.rook: Rook
         }
 
-        for t, piece_class in piece_types.items():
-            with self.subTest(t=t, piece_class=piece_class, start_position=start_position):
-                board = ChessBoard(empty_board=True)
-                board[start_position] = piece_class(Color.white)
-                self.assertFalse(board[start_position].has_moved, 'Piece has never moved')
+        for start, end, color in zip(start_positions, end_positions, piece_colors):
+            for t, piece_class in piece_types.items():
+                with self.subTest(t=t, piece_class=piece_class, start=start):
+                    board = ChessBoard(empty_board=True)
+                    board[start] = piece_class(color)
+                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                board.move_piece(start_position, end_position)
-                self.assertIsNone(board[start_position], 'There should no longer be a piece on square ' + start_position)
-                self.assertIsInstance(board[end_position], piece_class, 'There should be a piece on square ' + end_position)
-                self.assertTrue(board[end_position].has_moved, 'Piece has moved')
+                    board.move_piece(start, end)
+                    self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
+                    self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
+                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
     def test_move_forward_right_diagonal(self):
         """

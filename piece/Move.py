@@ -1,19 +1,30 @@
 __author__ = 'nick.james'
 from piece.MoveDirection import MoveDirection
-
+from piece.Color import Color
 
 class Move:
 
     MOVE_OFFSETS = {
-        MoveDirection.forward: (0, 1),
-        MoveDirection.backward: (0, -1),
-        MoveDirection.left: (-1, 0),
-        MoveDirection.right: (1, 0),
-        MoveDirection.f_left_diag: (-1, 1),
-        MoveDirection.f_right_diag: (1, 1),
-        MoveDirection.b_left_diag: (-1, -1),
-        MoveDirection.b_right_diag: (1, -1),
-        MoveDirection.l_shape: [(-1, 2), (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1)]
+        Color.white: {MoveDirection.forward: (0, 1),
+                      MoveDirection.backward: (0, -1),
+                      MoveDirection.left: (-1, 0),
+                      MoveDirection.right: (1, 0),
+                      MoveDirection.f_left_diag: (-1, 1),
+                      MoveDirection.f_right_diag: (1, 1),
+                      MoveDirection.b_left_diag: (-1, -1),
+                      MoveDirection.b_right_diag: (1, -1),
+                      MoveDirection.l_shape: [(-1, 2), (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1)]
+                      },
+        Color.black: {MoveDirection.forward: (0, -1),
+                      MoveDirection.backward: (0, 1),
+                      MoveDirection.left: (1, 0),
+                      MoveDirection.right: (-1, 0),
+                      MoveDirection.f_left_diag: (1, -1),
+                      MoveDirection.f_right_diag: (-1, -1),
+                      MoveDirection.b_left_diag: (1, 1),
+                      MoveDirection.b_right_diag: (-1, 1),
+                      MoveDirection.l_shape: [(-1, 2), (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1)]
+                      }
     }
 
     def get_possible_moves(self, board, current_position, move_direction, num_spaces):
@@ -48,12 +59,5 @@ class Move:
                         break
 
         return possible_moves
-
-    def get_increment_values(self, move_direction, x_position, y_position):
-        increment_values = (0, 0)
-        if move_direction != MoveDirection.l_shape:
-            x_increment, y_increment = self.MOVE_OFFSETS[move_direction]
-            increment_values = (x_position + x_increment, y_position + y_increment)
-        return increment_values
 
 
