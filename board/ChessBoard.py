@@ -90,6 +90,11 @@ class ChessBoard:
         king_position = self._king_positions[color]
 
         # Check file and rank
+        # Check file and rank
+        oponent_piece_list = {MoveDirection.forward: [Type.rook, Type.queen],
+                              MoveDirection.f_right_diag: [Type.queen, Type.bishop]}
+
+        self._get_nearest_piece_in_direction(king_position, MoveDirection.forward)
         file_and_rank_pieces = (Type.queen, Type.rook)
         for direction in [self.PIECE_SHIFTING[MoveDirection.forward], self.PIECE_SHIFTING[MoveDirection.backward],
                           self.PIECE_SHIFTING[MoveDirection.left], self.PIECE_SHIFTING[MoveDirection.right]]:
@@ -170,24 +175,6 @@ class ChessBoard:
         self.last_move['piece_type'] = self._pieces[end_position].type
         self.last_move['piece_color'] = self._pieces[end_position].color
 
-    def get_position(self, position, x_offset, y_offset):
-        """
-        Get the position corresponding to x and y offset.
-
-        :param position: Position to treat as origin
-        :param x_offset: x offset from origin
-        :param y_offset: y offset from origin
-        :return:
-        """
-        starting_index = self._position_to_index(position)
-        possible_y_index = y_offset * self.get_dimension() + starting_index
-        possible_x_index = x_offset + starting_index
-
-        if self._is_valid_index(possible_y_index) and self._is_valid_index(possible_x_index):
-            new_index = y_offset * self.get_dimension() + x_offset + starting_index
-            return self._index_to_position(new_index)
-        return None
-
     def get_board_dimension(self):
         size = len(self._pieces) / self.get_dimension()
         return dict(width=size, height=size)
@@ -222,7 +209,51 @@ class ChessBoard:
             player, piece, start_pos, end_pos = transaction
             self.move_piece(start_pos, end_pos)
 
-    def position_to_coordinates(self, position):
+    def get_possible_positions(self, start_position, move_direction):
+        """
+
+        """
+        possible_positions = []
+        x_offset, y_offset = 0, 0
+
+        if move_direction == MoveDirection.l_shape:
+            current_x_coord, current_y_coord = self._position_to_coordinates(start_position)
+            for x_offset, y_offset in Move.MOVE_OFFSETS[move_direction]:
+                possible_position = self._get_position(start_position, x_offset, y_offset)
+                if possible_position is not None:
+                    no_y_shift_position = self._get_position(start_position, x_offset, 0)
+                    no_y_shift_x, no_y_shift_y = self._position_to_coordinates(no_y_shift_position)
+                    if current_y_coord == no_y_shift_y:
+                        possible_positions.append(possible_position)
+        else:
+            num_spaces = self._get_direction_square_count(start_position, move_direction)
+            move = Move()
+
+            for count in range(0, num_spaces):
+                x_offset, y_offset = move.get_increment_values(move_direction, x_offset, y_offset)
+                possible_positions.append(self._get_position(start_position, x_offset, y_offset))
+
+        return possible_positions
+
+    def _get_position(self, position, x_offset, y_offset):
+        """
+        Get the position corresponding to x and y offset.
+
+        :param position: Position to treat as origin
+        :param x_offset: x offset from origin
+        :param y_offset: y offset from origin
+        :return:
+        """
+        starting_index = self._position_to_index(position)
+        possible_y_index = y_offset * self.get_dimension() + starting_index
+        possible_x_index = x_offset + starting_index
+
+        if self._is_valid_index(possible_y_index) and self._is_valid_index(possible_x_index):
+            new_index = y_offset * self.get_dimension() + x_offset + starting_index
+            return self._index_to_position(new_index)
+        return None
+
+    def _position_to_coordinates(self, position):
         """
         Treat a1 as the origin in x,y coordinate system. Return offset the passed in
         position is from the origin.
@@ -239,20 +270,18 @@ class ChessBoard:
 
         return column, row
 
-    def get_direction_square_count(self, start_position, move_direction):
+
+    def _get_direction_square_count(self, start_position, move_direction):
         """
 
         :param start_position:
         :param move_direction:
         :return:
         """
-        max_movement = self.get_dimension() - 1
         board_length = self.get_dimension()
-        piece_on_position = self[start_position]
-        piece_directions = piece_on_position.move_directions
-        num_spaces = piece_directions[move_direction]
-        num_spaces = self.get_dimension() - 1 if num_spaces == -1 else num_spaces
-        current_x_coord, current_y_coord = self.position_to_coordinates(start_position)
+        max_movement = board_length - 1
+        num_spaces = max_movement
+        current_x_coord, current_y_coord = self._position_to_coordinates(start_position)
 
         if move_direction == MoveDirection.forward:
             max_movement = board_length - current_y_coord - 1
@@ -310,38 +339,23 @@ class ChessBoard:
             raise Exception(position + " is not a valid position")
         self._pieces[self._board_positions[index]] = None
 
-    def _get_nearest_piece_in_direction(self, start_position, direction):
+    def _get_nearest_piece_in_direction(self, start_position, move_direction):
         """
 
         """
         x_offset, y_offset = 0, 0
-        num_spaces = self.get_direction_square_count(start_position, direction)
+        num_spaces = self._get_direction_square_count(start_position, move_direction)
         move = Move()
 
         for count in range(0, num_spaces):
-            x_offset, y_offset = move.get_increment_values(direction, x_offset, y_offset)
-            possible_position = self.get_position(start_position, x_offset, y_offset)
+            x_offset, y_offset = move.get_increment_values(move_direction, x_offset, y_offset)
+            possible_position = self._get_position(start_position, x_offset, y_offset)
             piece_on_destination = self.is_position_occupied(possible_position)
 
             if piece_on_destination:
                 return possible_position
 
         return None
-
-    def get_possible_squares(self, start_position, direction):
-        """
-
-        """
-        possible_positions = []
-        x_offset, y_offset = 0, 0
-        num_spaces = self.get_direction_square_count(start_position, direction)
-        move = Move()
-
-        for count in range(0, num_spaces):
-            x_offset, y_offset = move.get_increment_values(direction, x_offset, y_offset)
-            possible_positions.append(self.get_position(start_position, x_offset, y_offset))
-
-        return possible_positions
 
     def _is_valid_index(self, index):
         if index < 0 or index >= len(self._indexes):

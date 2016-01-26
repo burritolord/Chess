@@ -19,39 +19,33 @@ class Move:
     def get_possible_moves(self, board, current_position, move_direction, num_spaces):
         possible_moves = []
         piece_on_current_position = board[current_position]
+        possible_squares = board.get_possible_positions(current_position, move_direction)
 
-        # Handle special case for Knight
-        if move_direction == MoveDirection.l_shape:
-            current_x_coord, current_y_coord = board.position_to_coordinates(current_position)
-            for x_offset, y_offset in self.MOVE_OFFSETS[move_direction]:
-                possible_position = board.get_position(current_position, x_offset, y_offset)
-                if possible_position is not None:
-                    no_y_shift_position = board.get_position(current_position, x_offset, 0)
-                    no_y_shift_x, no_y_shift_y = board.position_to_coordinates(no_y_shift_position)
-                    if current_y_coord == no_y_shift_y:
-                        piece_on_destination = board.is_position_occupied(possible_position)
-                        if not piece_on_destination:
-                            possible_moves.append(possible_position)
-                        elif board[possible_position].color != piece_on_current_position.color:
-                                possible_moves.append(possible_position)
+        if piece_on_current_position:
+            # Handle special case for Knight
+            if move_direction == MoveDirection.l_shape:
+                for possible_position in possible_squares:
+                    piece_on_destination = board.is_position_occupied(possible_position)
+                    if not piece_on_destination:
+                        possible_moves.append(possible_position)
+                    elif board[possible_position].color != piece_on_current_position.color:
+                        possible_moves.append(possible_position)
 
-        # Every other piece
-        else:
-            x_offset, y_offset = 0, 0
-            num_spaces = board.get_direction_square_count(current_position, move_direction)
+            # Every other piece
+            else:
+                piece_num_spaces = piece_on_current_position.move_directions[move_direction]
+                num_spaces = len(possible_squares) if piece_num_spaces == -1 else num_spaces
+                num_spaces = min(len(possible_squares), num_spaces)
 
-            for count in range(0, num_spaces):
-                x_offset, y_offset = self.get_increment_values(move_direction, x_offset, y_offset)
-                possible_position = board.get_position(current_position, x_offset, y_offset)
-                piece_on_destination = board.is_position_occupied(possible_position)
-
-                if not piece_on_destination:
-                    possible_moves.append(possible_position)
-                elif board[possible_position].color != piece_on_current_position.color:
-                    possible_moves.append(possible_position)
-                    break
-                else:  # Piece is same color as one we are working with
-                    break
+                for count in range(0, num_spaces):
+                    piece_on_destination = board.is_position_occupied(possible_squares[count])
+                    if not piece_on_destination:
+                        possible_moves.append(possible_squares[count])
+                    elif board[possible_squares[count]].color != piece_on_current_position.color:
+                        possible_moves.append(possible_squares[count])
+                        break
+                    else:  # Piece is same color as one we are working with
+                        break
 
         return possible_moves
 

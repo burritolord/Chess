@@ -45,26 +45,18 @@ class Pawn(Piece):
         :param current_position:
         :return:
         """
-        left_offsets = Move.MOVE_OFFSETS[MoveDirection.f_left_diag]
-        right_offsets = Move.MOVE_OFFSETS[MoveDirection.f_right_diag]
+        positions_f_right = board.get_possible_positions(current_position, MoveDirection.f_right_diag)
+        positions_f_left = board.get_possible_positions(current_position, MoveDirection.f_left_diag)
 
-        # Test front left
-        current_file, current_rank = board.position_to_coordinates(current_position)
+        if positions_f_right:
+            piece_on_destination = board.is_position_occupied(positions_f_right[0])
+            if piece_on_destination and board[positions_f_right[0]].color != self.color:
+                self._moves[MoveDirection.f_right_diag] = 1
 
-        if current_file != 0:
-            possible_position = board.get_position(current_position, left_offsets[0], left_offsets[1])
-            if possible_position is not None:
-                piece_on_destination = board.is_position_occupied(possible_position)
-                if piece_on_destination and board[possible_position].color != self.color:
-                    self._moves[MoveDirection.f_left_diag] = 1
-
-        # Test front right
-        if current_file != 7:
-            possible_position = board.get_position(current_position, right_offsets[0], right_offsets[1])
-            if possible_position is not None:
-                piece_on_destination = board.is_position_occupied(possible_position)
-                if piece_on_destination and board[possible_position].color != self.color:
-                    self._moves[MoveDirection.f_right_diag] = 1
+        if positions_f_left:
+            piece_on_destination = board.is_position_occupied(positions_f_left[0])
+            if piece_on_destination and board[positions_f_left[0]].color != self.color:
+                self._moves[MoveDirection.f_left_diag] = 1
 
         possible_moves = []
         for move_direction, num_spaces in self._moves.items():
