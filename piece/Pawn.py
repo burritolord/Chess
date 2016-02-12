@@ -45,8 +45,8 @@ class Pawn(Piece):
         :param current_position:
         :return:
         """
-        positions_f_right = board.get_possible_positions(current_position, MoveDirection.f_right_diag)
-        positions_f_left = board.get_possible_positions(current_position, MoveDirection.f_left_diag)
+        positions_f_right = board.get_possible_positions(current_position, MoveDirection.f_right_diag, self.color)
+        positions_f_left = board.get_possible_positions(current_position, MoveDirection.f_left_diag, self.color)
 
         if positions_f_right:
             piece_on_destination = board.is_position_occupied(positions_f_right[0])

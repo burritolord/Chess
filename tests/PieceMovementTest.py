@@ -43,7 +43,7 @@ class PieceMovementTest(unittest.TestCase):
 
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
-                with self.subTest(t=t, piece_class=piece_class, start=start):
+                with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
                     board = ChessBoard(empty_board=True)
                     board[start] = piece_class(color)
                     self.assertFalse(board[start].has_moved, 'Piece has never moved')
@@ -59,24 +59,26 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is that the piece no longer exist on the starting square, but on the ending square.
         :return:
         """
-        start_position = 'a1'
-        end_position = 'b2'
-        self.piece_types = {
+        start_positions = ['a1', 'h8']
+        end_positions = ['b2', 'g7']
+        piece_colors = [Color.white, Color.black]
+        piece_types = {
             Type.pawn: Pawn,
             Type.bishop: Bishop,
             Type.king: King,
             Type.queen: Queen,
         }
-        for t, piece_class in self.piece_types.items():
-            with self.subTest(t=t, piece_class=piece_class, start_position=start_position):
-                board = ChessBoard(empty_board=True)
-                board[start_position] = piece_class(Color.white)
-                self.assertFalse(board[start_position].has_moved, 'Piece has never moved')
+        for start, end, color in zip(start_positions, end_positions, piece_colors):
+            for t, piece_class in piece_types.items():
+                with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
+                    board = ChessBoard(empty_board=True)
+                    board[start] = piece_class(Color.white)
+                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                board.move_piece(start_position, end_position)
-                self.assertIsNone(board[start_position], 'There should no longer be a piece on square ' + start_position)
-                self.assertIsInstance(board[end_position], piece_class, 'There should be a piece on square ' + end_position)
-                self.assertTrue(board[end_position].has_moved, 'Piece has moved')
+                    board.move_piece(start, end)
+                    self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
+                    self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
+                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
     def test_move_right(self):
         """
@@ -84,23 +86,25 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is that the piece no longer exist on the starting square, but on the ending square.
         :return:
         """
-        start_position = 'a1'
-        end_position = 'b1'
-        self.piece_types = {
+        start_positions = ['a1', 'h8']
+        end_positions = ['b1', 'g8']
+        piece_colors = [Color.white, Color.black]
+        piece_types = {
             Type.king: King,
             Type.queen: Queen,
             Type.rook: Rook
         }
-        for t, piece_class in self.piece_types.items():
-            with self.subTest(t=t, piece_class=piece_class, start_position=start_position):
-                board = ChessBoard(empty_board=True)
-                board[start_position] = piece_class(Color.white)
-                self.assertFalse(board[start_position].has_moved, 'Piece has never moved')
+        for start, end, color in zip(start_positions, end_positions, piece_colors):
+            for t, piece_class in piece_types.items():
+                with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
+                    board = ChessBoard(empty_board=True)
+                    board[start] = piece_class(Color.white)
+                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                board.move_piece(start_position, end_position)
-                self.assertIsNone(board[start_position], 'There should no longer be a piece on square ' + start_position)
-                self.assertIsInstance(board[end_position], piece_class, 'There should be a piece on square ' + end_position)
-                self.assertTrue(board[end_position].has_moved, 'Piece has moved')
+                    board.move_piece(start, end)
+                    self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
+                    self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
+                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
     def test_move_back_right_diagonal(self):
         """
@@ -108,23 +112,25 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is that the piece no longer exist on the starting square, but on the ending square.
         :return:
         """
-        start_position = 'a2'
-        end_position = 'b1'
-        self.piece_types = {
+        start_positions = ['a2', 'h7']
+        end_positions = ['b1', 'g8']
+        piece_colors = [Color.white, Color.black]
+        piece_types = {
             Type.king: King,
             Type.queen: Queen,
             Type.bishop: Bishop
         }
-        for t, piece_class in self.piece_types.items():
-            with self.subTest(t=t, piece_class=piece_class, start_position=start_position):
-                board = ChessBoard(empty_board=True)
-                board[start_position] = piece_class(Color.white)
-                self.assertFalse(board[start_position].has_moved, 'Piece has never moved')
+        for start, end, color in zip(start_positions, end_positions, piece_colors):
+            for t, piece_class in piece_types.items():
+                with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
+                    board = ChessBoard(empty_board=True)
+                    board[start] = piece_class(Color.white)
+                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                board.move_piece(start_position, end_position)
-                self.assertIsNone(board[start_position], 'There should no longer be a piece on square ' + start_position)
-                self.assertIsInstance(board[end_position], piece_class, 'There should be a piece on square ' + end_position)
-                self.assertTrue(board[end_position].has_moved, 'Piece has moved')
+                    board.move_piece(start, end)
+                    self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
+                    self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
+                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
     def test_move_backward(self):
         """
@@ -132,23 +138,25 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is that the piece no longer exist on the starting square, but on the ending square.
         :return:
         """
-        start_position = 'a2'
-        end_position = 'a1'
-        self.piece_types = {
+        start_positions = ['a2', 'h7']
+        end_positions = ['a1', 'h8']
+        piece_colors = [Color.white, Color.black]
+        piece_types = {
             Type.king: King,
             Type.queen: Queen,
             Type.rook: Rook
         }
-        for t, piece_class in self.piece_types.items():
-            with self.subTest(t=t, piece_class=piece_class, start_position=start_position):
-                board = ChessBoard(empty_board=True)
-                board[start_position] = piece_class(Color.white)
-                self.assertFalse(board[start_position].has_moved, 'Piece has never moved')
+        for start, end, color in zip(start_positions, end_positions, piece_colors):
+            for t, piece_class in piece_types.items():
+                with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
+                    board = ChessBoard(empty_board=True)
+                    board[start] = piece_class(Color.white)
+                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                board.move_piece(start_position, end_position)
-                self.assertIsNone(board[start_position], 'There should no longer be a piece on square ' + start_position)
-                self.assertIsInstance(board[end_position], piece_class, 'There should be a piece on square ' + end_position)
-                self.assertTrue(board[end_position].has_moved, 'Piece has moved')
+                    board.move_piece(start, end)
+                    self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
+                    self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
+                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
     def test_move_back_left_diagonal(self):
         """
@@ -156,23 +164,25 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is that the piece no longer exist on the starting square, but on the ending square.
         :return:
         """
-        start_position = 'b2'
-        end_position = 'a1'
-        self.piece_types = {
+        start_positions = ['b2', 'g7']
+        end_positions = ['a1', 'h8']
+        piece_colors = [Color.white, Color.black]
+        piece_types = {
             Type.king: King,
             Type.queen: Queen,
             Type.bishop: Bishop
         }
-        for t, piece_class in self.piece_types.items():
-            with self.subTest(t=t, piece_class=piece_class, start_position=start_position):
-                board = ChessBoard(empty_board=True)
-                board[start_position] = piece_class(Color.white)
-                self.assertFalse(board[start_position].has_moved, 'Piece has never moved')
+        for start, end, color in zip(start_positions, end_positions, piece_colors):
+            for t, piece_class in piece_types.items():
+                with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
+                    board = ChessBoard(empty_board=True)
+                    board[start] = piece_class(Color.white)
+                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                board.move_piece(start_position, end_position)
-                self.assertIsNone(board[start_position], 'There should no longer be a piece on square ' + start_position)
-                self.assertIsInstance(board[end_position], piece_class, 'There should be a piece on square ' + end_position)
-                self.assertTrue(board[end_position].has_moved, 'Piece has moved')
+                    board.move_piece(start, end)
+                    self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
+                    self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
+                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
     def test_move_left(self):
         """
@@ -180,23 +190,25 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is that the piece no longer exist on the starting square, but on the ending square.
         :return:
         """
-        start_position = 'b1'
-        end_position = 'a1'
-        self.piece_types = {
+        start_positions = ['b1', 'g8']
+        end_positions = ['a1', 'h8']
+        piece_colors = [Color.white, Color.black]
+        piece_types = {
             Type.king: King,
             Type.queen: Queen,
             Type.rook: Rook
         }
-        for t, piece_class in self.piece_types.items():
-            with self.subTest(t=t, piece_class=piece_class, start_position=start_position):
-                board = ChessBoard(empty_board=True)
-                board[start_position] = piece_class(Color.white)
-                self.assertFalse(board[start_position].has_moved, 'Piece has never moved')
+        for start, end, color in zip(start_positions, end_positions, piece_colors):
+            for t, piece_class in piece_types.items():
+                with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
+                    board = ChessBoard(empty_board=True)
+                    board[start] = piece_class(Color.white)
+                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                board.move_piece(start_position, end_position)
-                self.assertIsNone(board[start_position], 'There should no longer be a piece on square ' + start_position)
-                self.assertIsInstance(board[end_position], piece_class, 'There should be a piece on square ' + end_position)
-                self.assertTrue(board[end_position].has_moved, 'Piece has moved')
+                    board.move_piece(start, end)
+                    self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
+                    self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
+                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
     def test_move_forward_left_diagonal(self):
         """
@@ -204,23 +216,25 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is that the piece no longer exist on the starting square, but on the ending square.
         :return:
         """
-        start_position = 'b1'
-        end_position = 'a2'
-        self.piece_types = {
+        start_positions = ['b1', 'g8']
+        end_positions = ['a2', 'h7']
+        piece_colors = [Color.white, Color.black]
+        piece_types = {
             Type.king: King,
             Type.queen: Queen,
             Type.bishop: Bishop
         }
-        for t, piece_class in self.piece_types.items():
-            with self.subTest(t=t, piece_class=piece_class, start_position=start_position):
-                board = ChessBoard(empty_board=True)
-                board[start_position] = piece_class(Color.white)
-                self.assertFalse(board[start_position].has_moved, 'Piece has never moved')
+        for start, end, color in zip(start_positions, end_positions, piece_colors):
+            for t, piece_class in piece_types.items():
+                with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
+                    board = ChessBoard(empty_board=True)
+                    board[start] = piece_class(Color.white)
+                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                board.move_piece(start_position, end_position)
-                self.assertIsNone(board[start_position], 'There should no longer be a piece on square ' + start_position)
-                self.assertIsInstance(board[end_position], piece_class, 'There should be a piece on square ' + end_position)
-                self.assertTrue(board[end_position].has_moved, 'Piece has moved')
+                    board.move_piece(start, end)
+                    self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
+                    self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
+                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
     def test_move_forward_piece_blocking(self):
         pass
@@ -310,7 +324,8 @@ class PieceMovementTest(unittest.TestCase):
                            'a8': ['b6', 'c7'],
                            'h1': ['f2', 'g3'],
                            'h8': ['f7', 'g6'],
-                           'd4': ['b3', 'b5', 'c2', 'c6', 'e2', 'e6', 'f3', 'f5']
+                           'd4': ['b3', 'b5', 'c2', 'c6', 'e2', 'e6', 'f3', 'f5'],
+                           'g7': ['e6', 'e8', 'f5', 'h5']
                            }
         for start_position, expected_possible_moves in start_positions.items():
             with self.subTest(start_position=start_position, expected_possible_moves=expected_possible_moves):
@@ -530,11 +545,11 @@ class PieceMovementTest(unittest.TestCase):
     def test_king_capture(self):
         board = ChessBoard(empty_board=True)
         start_position = 'd4'
-        capture_position = 'e4'
+        capture_position = 'd5'
         board[start_position] = King(Color.white)
-        board['d5'] = Pawn(Color.black)
+        board['e4'] = Pawn(Color.black)
         board[capture_position] = Pawn(Color.black)
-        expected_possible_moves = ['c3', 'c4', 'c5', 'd3', 'd5', 'e3', 'e4', 'e5']
+        expected_possible_moves = ['c3', 'c5', 'd5', 'e3', 'e5']
         possible_moves = board.get_possible_moves(start_position)
         possible_moves.sort()
 
