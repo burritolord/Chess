@@ -32,11 +32,21 @@ class ChessBoard:
         :return:
         """
         board_length = self.get_dimension()
+
+        # Hold the last move made on this board. Needed to be able to do en passant check.
         self.last_move = {'start': '', 'end': '', 'piece_type': '', 'piece_color': ''}
-        self._board_positions = [y+str(x+1) for x in range(0, board_length) for y in "abcdefgh"]
-        self._pieces = {y+str(x+1): None for x in range(0, board_length) for y in "abcdefgh"}
-        self._indexes = {}
+
+        # List of all squares with algebraic notation.
+        self._board_positions = [file+str(rank+1) for rank in range(0, board_length) for file in "abcdefgh"]
+
+        # Dictionary of all pieces on board keyed by the algebraic notation.
+        self._pieces = {file + str(rank + 1): None for rank in range(0, board_length) for file in "abcdefgh"}
         self._king_positions = {Color.white: None, Color.black: None}
+
+        # Dictionary mapping of algebraic notation to index values. The board is a flat list and position a1 is index 0.
+        # This mapping allows for quick quick offset computations. Shifting over to the right by the board width will
+        # move us up one square.
+        self._indexes = {}
         for position, index in zip(self._board_positions, range(0, board_length**2)):
             self._indexes[position] = index
 
@@ -64,10 +74,10 @@ class ChessBoard:
 
     def is_position_occupied(self, position):
         """
-        Check if the position is occupied with a piece.
+        Check if a position is occupied with a piece.
 
         :param position: String
-            Position to test.
+            Algebraic notation position.
         :return:
         """
         try:
@@ -83,7 +93,7 @@ class ChessBoard:
         :param king_color: Color
             Color of king to test for check against.
         :param position: String
-            If set, check for check from this position instead of the position
+            If set, look for check from this position instead of the position
             of the king specified by king_color
         :return: bool
             True if king is in check, False otherwise.
@@ -95,15 +105,15 @@ class ChessBoard:
         file_and_rank_pieces = (Type.rook, Type.queen)
         pawn_capture_directions = (MoveDirection.f_right_diag, MoveDirection.f_left_diag)
         opponent_piece_list = {
-                              MoveDirection.forward: file_and_rank_pieces,
-                               MoveDirection.f_right_diag: diagonal_pieces,
-                               MoveDirection.right: file_and_rank_pieces,
-                               MoveDirection.b_right_diag: diagonal_pieces,
-                               MoveDirection.backward: file_and_rank_pieces,
-                               MoveDirection.b_left_diag: diagonal_pieces,
-                               MoveDirection.left: file_and_rank_pieces,
-                               MoveDirection.f_left_diag: diagonal_pieces
-                               }
+                                MoveDirection.forward: file_and_rank_pieces,
+                                MoveDirection.f_right_diag: diagonal_pieces,
+                                MoveDirection.right: file_and_rank_pieces,
+                                MoveDirection.b_right_diag: diagonal_pieces,
+                                MoveDirection.backward: file_and_rank_pieces,
+                                MoveDirection.b_left_diag: diagonal_pieces,
+                                MoveDirection.left: file_and_rank_pieces,
+                                MoveDirection.f_left_diag: diagonal_pieces
+                              }
 
         for direction, pieces in opponent_piece_list.items():
             nearest_piece = self._get_nearest_piece_in_direction(king_position, direction, king_color, self._king_positions[king_color])
@@ -146,7 +156,8 @@ class ChessBoard:
         Test for stalemate
 
         :param king_color:
-        :return:
+        :return: bool
+            True if the game is a stalemate, False otherwise.
         """
         king_position = self._king_positions[king_color]
         return not self.is_check(king_color) and not self.get_possible_moves(king_position)
@@ -189,12 +200,12 @@ class ChessBoard:
 
     def get_possible_moves(self, position):
         """
-        Retrieve a list of all valid moves for the piece currently occupying the square at position.
+        Retrieve a list of all valid moves for the piece currently occupying the supplied position.
 
         :param position: String
             Algebraic notation for a position.
         :return: List
-            List of positions that the piece at position can move to
+            List of positions that the piece at the position can move to.
         """
         if not self.is_position_occupied(position):
             return []
@@ -204,12 +215,18 @@ class ChessBoard:
 
     def get_board_pieces(self):
         """
-        Get a dictionary
+        Get a dictionary of board pieces. Every square on the board is returned. They key to each square is the
+        algebraic notation of that square and the value is None if there is not piece.
         :return:
         """
         return self._pieces
 
     def get_dimension(self):
+        """
+        Retrieve board dimension.
+        :return: int
+            Board is assumed to be square so only the dimensions for one side is returned.
+        """
         return 8
 
     def load(self, game_transactions):
@@ -286,7 +303,7 @@ class ChessBoard:
 
     def _position_to_coordinates(self, position):
         """
-        Treat a1 as the origin in x,y coordinate system. Return offset the passed in
+        Treat A1 as the origin in x,y coordinate system. Return offset the passed in
         position is from the origin.
 
         :param position: String
@@ -445,7 +462,7 @@ class ChessBoard:
         if piece.type == Type.king:
             self._king_positions[piece.color] = position
 
-# board = ChessBoard(True)
+board = ChessBoard(True)
 # board['a2'] = Queen(Color.white)
 # Queen.has_moved = True
 # print(board)

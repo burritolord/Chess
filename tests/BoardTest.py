@@ -139,20 +139,20 @@ class BoardStateTest(unittest.TestCase):
         board['c6'] = Bishop(Color.black)
         self.assertTrue(board.is_checkmate(Color.white), 'King should be in checkmate')
 
-    # def test_queen_checkmate(self):
-    #     """
-    #     Test that a queen will put a king of the opposite color in checkmate
-    #     :return:
-    #     """
-    #     board = ChessBoard(empty_board=True)
-    #     board['d6'] = King(Color.black)
-    #     board['c5'] = Pawn(Color.black)
-    #     board['e5'] = Pawn(Color.black)
-    #     board['a5'] = Bishop(Color.white)
-    #     board['d5'] = Queen(Color.white)
-    #     board['d2'] = Rook(Color.white)
-    #     board['g6'] = Knight(Color.white)
-    #     self.assertTrue(board.is_checkmate(Color.black), 'King should be in checkmate')
+    def test_queen_checkmate(self):
+        """
+        Test that a queen will put a king of the opposite color in checkmate
+        :return:
+        """
+        board = ChessBoard(empty_board=True)
+        board['d6'] = King(Color.black)
+        board['c5'] = Pawn(Color.black)
+        board['e5'] = Pawn(Color.black)
+        board['a5'] = Bishop(Color.white)
+        board['d5'] = Queen(Color.white)
+        board['d2'] = Rook(Color.white)
+        board['g6'] = Knight(Color.white)
+        self.assertTrue(board.is_checkmate(Color.black), 'King should be in checkmate')
 
 
     def test_stalemate(self):
