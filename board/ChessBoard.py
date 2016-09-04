@@ -105,15 +105,15 @@ class ChessBoard:
         file_and_rank_pieces = (Type.rook, Type.queen)
         pawn_capture_directions = (MoveDirection.f_right_diag, MoveDirection.f_left_diag)
         opponent_piece_list = {
-                                MoveDirection.forward: file_and_rank_pieces,
-                                MoveDirection.f_right_diag: diagonal_pieces,
-                                MoveDirection.right: file_and_rank_pieces,
-                                MoveDirection.b_right_diag: diagonal_pieces,
-                                MoveDirection.backward: file_and_rank_pieces,
-                                MoveDirection.b_left_diag: diagonal_pieces,
-                                MoveDirection.left: file_and_rank_pieces,
-                                MoveDirection.f_left_diag: diagonal_pieces
-                              }
+            MoveDirection.forward: file_and_rank_pieces,
+            MoveDirection.f_right_diag: diagonal_pieces,
+            MoveDirection.right: file_and_rank_pieces,
+            MoveDirection.b_right_diag: diagonal_pieces,
+            MoveDirection.backward: file_and_rank_pieces,
+            MoveDirection.b_left_diag: diagonal_pieces,
+            MoveDirection.left: file_and_rank_pieces,
+            MoveDirection.f_left_diag: diagonal_pieces
+        }
 
         for direction, pieces in opponent_piece_list.items():
             nearest_piece = self._get_nearest_piece_in_direction(king_position, direction, king_color, self._king_positions[king_color])
@@ -224,6 +224,7 @@ class ChessBoard:
     def get_dimension(self):
         """
         Retrieve board dimension.
+
         :return: int
             Board is assumed to be square so only the dimensions for one side is returned.
         """
@@ -244,7 +245,8 @@ class ChessBoard:
 
     def get_possible_positions(self, start_position, move_direction, piece_color):
         """
-        Get a list of all possible positions in the direction provided.
+        Get a list of all possible positions in the direction provided as if the board were empty. Positions returned
+        are in algebraic notation.
 
         :param start_position:
         :param move_direction:
@@ -463,9 +465,6 @@ class ChessBoard:
             self._king_positions[piece.color] = position
 
 board = ChessBoard(True)
-# board['a2'] = Queen(Color.white)
-# Queen.has_moved = True
-# print(board)
-# print(board.get_possible_moves('a2'))
-# board.move_piece('e1','e7')
-# print(board.is_check(Color.white))
+board['d5'] = Rook(Color.black)
+print(board.get_possible_positions('d3', MoveDirection.forward, Color.white))
+# board['35'] = Pawn(Color.black)
