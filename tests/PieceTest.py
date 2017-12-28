@@ -1,4 +1,3 @@
-__author__ = 'nick.james'
 import unittest
 from piece.King import King
 from piece.Pawn import Pawn
@@ -62,11 +61,13 @@ class PieceTest(unittest.TestCase):
 
     def test_move_directions(self):
         """
-        Test move directions per peice
+        Test move directions per piece
         :return:
         """
         piece_directions = {
-            Type.pawn: {MoveDirection.forward: 2},
+            Type.pawn: {MoveDirection.forward: 2,
+                        MoveDirection.f_right_diag: 1,
+                        MoveDirection.f_left_diag: 1},
             Type.bishop: {MoveDirection.f_left_diag: -1,
                           MoveDirection.f_right_diag: -1,
                           MoveDirection.b_right_diag: -1,
@@ -98,6 +99,7 @@ class PieceTest(unittest.TestCase):
                 piece = piece_class(Color.white)
                 directions = piece.move_directions
                 self.assertDictEqual(piece_directions[t], directions, 'Blah')
+
 
 if __name__ == '__main__':
     unittest.main()

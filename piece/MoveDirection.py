@@ -1,8 +1,10 @@
-__author__ = 'nick.james'
 from enum import Enum
 
 
 class MoveDirection(Enum):
+    """
+    Enumeration for all possible directions a piece can move.
+    """
     forward = 0
     backward = 1
     left = 2

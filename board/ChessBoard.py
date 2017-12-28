@@ -1,4 +1,3 @@
-__author__ = 'nick.james'
 from piece.Pawn import Pawn
 from piece.Rook import Rook
 from piece.Knight import Knight
@@ -7,13 +6,15 @@ from piece.King import King
 from piece.Queen import Queen
 from piece.Color import Color
 from piece.Type import Type
-from piece.Move import Move
 from piece.MoveDirection import MoveDirection
-from ChessHelper import ChessHelper
+from helper.ChessHelper import ChessHelper
 
 
 class ChessBoard:
 
+    """
+    Offsets to shift over from current position to move forward, backward, etc.
+    """
     PIECE_SHIFTING = {
         MoveDirection.forward: 8,
         MoveDirection.backward: -8,
@@ -21,14 +22,17 @@ class ChessBoard:
         MoveDirection.right: 1,
         MoveDirection.f_left_diag: 7,
         MoveDirection.f_right_diag: 9,
-        MoveDirection.b_left_diag: -7,
-        MoveDirection.b_right_diag: -9,
+        MoveDirection.b_left_diag: -9,
+        MoveDirection.b_right_diag: -7,
         MoveDirection.l_shape: [-17, -15, -10, -6, 6, 10, 15, 17]
     }
 
     def __init__(self, empty_board=False):
         """
-        Create a ChessBoard object with all pieces in starting position
+        Create a ChessBoard object.
+
+        :param empty_board: bool
+            True if the board should be empty, False if board should be created with all starting pieces.
         :return:
         """
         board_length = self.get_dimension()
@@ -44,11 +48,13 @@ class ChessBoard:
         self._king_positions = {Color.white: None, Color.black: None}
 
         # Dictionary mapping of algebraic notation to index values. The board is a flat list and position a1 is index 0.
-        # This mapping allows for quick quick offset computations. Shifting over to the right by the board width will
-        # move us up one square.
-        self._indexes = {}
+        # This mapping allows for quick offset computations. Shifting over to the right by the board width will move us
+        # up one square.
+        self._indexes = {Color.white: {}, Color.black: {}}
         for position, index in zip(self._board_positions, range(0, board_length**2)):
-            self._indexes[position] = index
+            self._indexes[Color.white][position] = index
+        for position, index in zip(reversed(self._board_positions), range(0, board_length**2)):
+            self._indexes[Color.black][position] = index
 
         if not empty_board:
             # Set the starting pieces for white
@@ -76,12 +82,14 @@ class ChessBoard:
         """
         Check if a position is occupied with a piece.
 
-        :param position: String
+        :param position: string
             Algebraic notation position.
-        :return:
+        :return: bool
+            True if piece on position, False otherwise
         """
         try:
-            self._indexes[position]
+            # Since both indexes point to the same board, it does not matter which index we use.
+            self._indexes[Color.white][position]
         except IndexError:
             raise Exception(position + " is not a valid position")
         return self._pieces[position] is not None
@@ -92,9 +100,8 @@ class ChessBoard:
 
         :param king_color: Color
             Color of king to test for check against.
-        :param position: String
-            If set, look for check from this position instead of the position
-            of the king specified by king_color
+        :param position: string
+            If set, look for check from this position instead of the position of the king specified by king_color.
         :return: bool
             True if king is in check, False otherwise.
         """
@@ -128,7 +135,7 @@ class ChessBoard:
                     return True
 
         # Color doesnt matter here
-        l_shape_positions = self.get_possible_positions(king_position, MoveDirection.l_shape, king_color)
+        l_shape_positions = self._get_possible_positions(king_position, MoveDirection.l_shape, king_color)
         for position in l_shape_positions:
             if self.is_position_occupied(position):
                 piece = self[position]
@@ -148,32 +155,36 @@ class ChessBoard:
         """
         king_position = self._king_positions[king_color]
         check = self.is_check(king_color)
-        possible_moves = self.get_possible_moves(king_position)
+        possible_moves = self.get_legal_moves(king_position)
         return check and not possible_moves
 
     def is_stalemate(self, king_color):
         """
-        Test for stalemate
+        Test for stalemate.
 
-        :param king_color:
+        :param king_color: Color
+            Color of king to test for stalemate against.
         :return: bool
             True if the game is a stalemate, False otherwise.
         """
         king_position = self._king_positions[king_color]
-        return not self.is_check(king_color) and not self.get_possible_moves(king_position)
+        return not self.is_check(king_color) and not self.get_legal_moves(king_position)
 
     def move_piece(self, start_position, end_position):
         """
-        Move piece from starting position to end position. Does
-        not check if end position is valid. Ex. king in check
-        or if overtaking square with piece of same color
+        Move piece from starting position to end position. Does not check if end position is valid. Ex. king in check
+        or if overtaking square with piece of same color. Also does not check if moving piece has phassed through other
+        pieces.
 
-        :param start_position:
-        :param end_position:
+        :param start_position: string
+            Algebraic notation position.
+        :param end_position: string
+            Algebraic notation position.
         :return:
         """
         piece_on_start_position = self[start_position]
         piece_on_start_position.has_moved = True
+        en_passant = self.can_en_passant(start_position)
 
         self._remove_piece(start_position)
         self._remove_piece(end_position)
@@ -182,27 +193,86 @@ class ChessBoard:
         if piece_on_start_position.type == Type.king:
             self._king_positions[piece_on_start_position.color] = end_position
 
+        # Remove a opponent pawn if en passant move is taking place
+        if en_passant:
+            current_piece_column, current_piece_row = self._position_to_row_and_column(end_position,
+                                                                                       piece_on_start_position.color)
+            last_piece_column, last_piece_row = self._position_to_row_and_column(self.last_move['end'],
+                                                                                 piece_on_start_position.color)
+            same_column = current_piece_column == last_piece_column
+            if same_column:
+                self._remove_piece(self.last_move['end'])
+
         self.last_move['start'] = start_position
         self.last_move['end'] = end_position
         self.last_move['piece_type'] = self._pieces[end_position].type
         self.last_move['piece_color'] = self._pieces[end_position].color
 
-    def get_board_dimension(self):
+    def can_castle(self, king_color, direction):
         """
-        Get the board width and height
+        Check if a king can castle or not.
 
-        :return: Dictionary
-            width: width of board
-            height: height of board
+        :param king_color: Color
+            Color of king to check if can castle.
+        :param direction: string
+            Expecting either MoveDirection.left or MoveDirection.right
+        :return: bool
+            True if king can castle, False otherwise.
+        :raises: ValueError
+            If direction is not equal to MoveDirection.left or MoveDirection.right
         """
-        size = len(self._pieces) / self.get_dimension()
-        return dict(width=size, height=size)
+        if direction != MoveDirection.left and direction != MoveDirection.right:
+            raise ValueError("direction must")
 
-    def get_possible_moves(self, position):
+        king_position = self._king_positions[king_color]
+        nearest_piece_info = self._get_nearest_piece_in_direction(king_position, direction, king_color)
+
+        if nearest_piece_info and nearest_piece_info['type'] == Type.rook:
+            nearest_piece = self[nearest_piece_info['position']]
+            king = self[king_position]
+            is_check = self.is_check(king_color, king_position)
+
+            if not nearest_piece.has_moved and not king.has_moved and not is_check:
+                king_index = self._position_to_index(king_position, king.color)
+                index_one = king_index + self.PIECE_SHIFTING[direction]
+                index_two = index_one + self.PIECE_SHIFTING[direction]
+                position_one_is_check = self.is_check(king_color, self._index_to_position(index_one, king_color))
+                position_two_is_check = self.is_check(king_color, self._index_to_position(index_two, king_color))
+                if not position_one_is_check and not position_two_is_check:
+                    return True
+
+        return False
+
+    def can_en_passant(self, position):
         """
-        Retrieve a list of all valid moves for the piece currently occupying the supplied position.
+        Check if a pawn can perform en passant move.
+        :param position:
+        :return:
+        """
+        if self.is_position_occupied(position):
+            piece_on_position = self[position]
+            pieces_are_pawns = piece_on_position.type == self.last_move['piece_type'] == Type.pawn
+            pieces_are_diff_color = piece_on_position.color != self.last_move['piece_color']
 
-        :param position: String
+            if pieces_are_pawns and pieces_are_diff_color:
+                last_file_start, last_rank_start = self._position_to_row_and_column(self.last_move['start'],
+                                                                                    self.last_move['piece_color'])
+                last_file_end, last_rank_end = self._position_to_row_and_column(self.last_move['end'],
+                                                                                self.last_move['piece_color'])
+                current_file, current_rank = self._position_to_row_and_column(position, self.last_move['piece_color'])
+
+                opp_pawn_move_two = abs(last_rank_end - last_rank_start) == 2
+                pawns_on_same_rank = last_rank_end == current_rank
+                pawn_side_by_side = abs(last_file_end - current_file) == 1
+                if opp_pawn_move_two and pawns_on_same_rank and pawn_side_by_side:
+                    return True
+        return False
+
+    def get_legal_moves(self, position):
+        """
+        Retrieve a list of all legal moves for the piece currently occupying the supplied position.
+
+        :param position: string
             Algebraic notation for a position.
         :return: List
             List of positions that the piece at the position can move to.
@@ -210,14 +280,74 @@ class ChessBoard:
         if not self.is_position_occupied(position):
             return []
 
-        piece_on_start = self[position]
-        return piece_on_start.get_possible_moves(self, position)
+        possible_moves = []
+        piece_on_position = self[position]
+        piece_move_directions = piece_on_position.move_directions
+
+        for move_direction, num_spaces in piece_move_directions.items():
+            possible_positions = self._get_possible_positions(position, move_direction, piece_on_position.color)
+
+            # Handle special case for Knight
+            if move_direction == MoveDirection.l_shape:
+                for possible_position in possible_positions:
+                    piece_on_destination = self.is_position_occupied(possible_position)
+                    if not piece_on_destination:
+                        possible_moves.append(possible_position)
+                    elif self[possible_position].color != piece_on_position.color:
+                        possible_moves.append(possible_position)
+
+            # Every other piece
+            else:
+                piece_num_spaces = piece_on_position.move_directions[move_direction]
+                num_spaces = len(possible_positions) if piece_num_spaces == -1 else num_spaces
+                num_spaces = min(len(possible_positions), num_spaces)
+
+                for position_num, possible_position in enumerate(possible_positions[0:num_spaces]):
+                    destination_occupied = self.is_position_occupied(possible_position)
+
+                    #TODO clean up the following code
+                    if piece_on_position.type == Type.king:
+                        if not destination_occupied:
+                            if not self.is_check(piece_on_position.color, possible_position):
+                                possible_moves.append(possible_position)
+                        elif self[possible_position].color != piece_on_position.color:
+                            if not self.is_check(piece_on_position.color, possible_position):
+                                possible_moves.append(possible_position)
+                                break
+                        #TODO add case to test for castle
+                        else:  # Piece is same color as one we are working with
+                            break
+                    elif piece_on_position.type == Type.pawn:
+                        if (not destination_occupied and move_direction != MoveDirection.f_left_diag
+                                and move_direction != MoveDirection.f_right_diag):
+                            possible_moves.append(possible_position)
+                        elif (self[possible_position] and self[possible_position].color != piece_on_position.color and
+                                (move_direction == MoveDirection.f_left_diag or
+                                    move_direction == MoveDirection.f_right_diag) and
+                                position_num == 0):
+                            possible_moves.append(possible_position)
+                            break
+                        #TODO add case to check for en passant
+                        else:  # Piece is same color as one we are working with
+                            break
+                    else:
+                        if not destination_occupied:
+                            possible_moves.append(possible_position)
+                        elif self[possible_position].color != piece_on_position.color:
+                            possible_moves.append(possible_position)
+                            break
+                        else:  # Piece is same color as one we are working with
+                            break
+
+        return possible_moves
 
     def get_board_pieces(self):
         """
-        Get a dictionary of board pieces. Every square on the board is returned. They key to each square is the
-        algebraic notation of that square and the value is None if there is not piece.
-        :return:
+        Get a dictionary of board pieces.
+
+        :return: dict
+            Every square on the board is returned. They key to each square is the algebraic notation of that square and
+            the value is None if there is not a piece.
         """
         return self._pieces
 
@@ -232,9 +362,8 @@ class ChessBoard:
 
     def load(self, game_transactions):
         """
-        Inflate the ChessBoard object based on the provided transactions. Each
-        transaction should contain the player who made the move, the piece,
-        the start position, and the end position.
+        Inflate the ChessBoard object based on the provided transactions. Each transaction should contain the player who
+        made the move, the piece, the start position, and the end position.
 
         :param game_transactions:
         :return:
@@ -243,94 +372,85 @@ class ChessBoard:
             player, piece, start_pos, end_pos = transaction
             self.move_piece(start_pos, end_pos)
 
-    def get_possible_positions(self, start_position, move_direction, piece_color):
+    def _get_possible_positions(self, start_position, move_direction, piece_color):
         """
         Get a list of all possible positions in the direction provided as if the board were empty. Positions returned
         are in algebraic notation.
 
-        :param start_position:
-        :param move_direction:
-        :return:
+        :param start_position: string
+            Algebraic notation position.
+        :param move_direction: MoveDirection
+            Direction to move.
+        :param piece_color: Color
+            Color of player who's perspective should be used.
+        :return: list
+            List of positions in algebraic notation. Positions in the list are sorted by the offset from the start
+            position. Index 0 is the nearest position in the specified direction.
         """
         possible_positions = []
-        x_offset, y_offset = 0, 0
-
+        current_index = next_index = self._position_to_index(start_position, piece_color)
+        current_column, current_row = self._position_to_row_and_column(self._index_to_position(current_index, piece_color), piece_color)
         if move_direction == MoveDirection.l_shape:
-            current_x_coord, current_y_coord = self._position_to_coordinates(start_position)
-            # Color used in MOVE_OFFSETS doesnt matter for l_shape
-            for x_offset, y_offset in Move.MOVE_OFFSETS[piece_color][move_direction]:
-                possible_position = self._get_position(start_position, x_offset, y_offset)
-                if possible_position is not None:
-                    no_y_shift_position = self._get_position(start_position, x_offset, 0)
-                    no_y_shift_x, no_y_shift_y = self._position_to_coordinates(no_y_shift_position)
-                    if current_y_coord == no_y_shift_y:
-                        possible_positions.append(possible_position)
+            for shift in self.PIECE_SHIFTING[MoveDirection.l_shape]:
+                try:
+                    next_index = current_index + shift
+                    self._index_to_position(next_index, piece_color)
+                except IndexError:
+                    continue
+                else:
+                    next_column, next_row = self._position_to_row_and_column(self._index_to_position(next_index, piece_color), piece_color)
+                    column_diff = abs(next_column - current_column)
+                    if current_row != next_row and column_diff <= 2:
+                        possible_positions.append(self._index_to_position(next_index, piece_color))
         else:
-            num_spaces = self._get_direction_square_count(start_position, move_direction)
+            num_spaces = self._get_direction_square_count(start_position, move_direction, piece_color)
             for count in range(0, num_spaces):
-                x_offset, y_offset = self._get_increment_values(move_direction, piece_color, x_offset, y_offset)
-                possible_positions.append(self._get_position(start_position, x_offset, y_offset))
+                next_index += self.PIECE_SHIFTING[move_direction]
+                possible_positions.append(self._index_to_position(next_index, piece_color))
 
         return possible_positions
 
-    def _get_increment_values(self, move_direction, piece_color, x_position, y_position):
-        increment_values = (0, 0)
-        if move_direction != MoveDirection.l_shape:
-            x_increment, y_increment = Move.MOVE_OFFSETS[piece_color][move_direction]
-            increment_values = (x_position + x_increment, y_position + y_increment)
-        return increment_values
-
-    def _get_position(self, position, x_offset, y_offset):
+    def _position_to_row_and_column(self, position, piece_color):
         """
-        Get the position corresponding to x and y offset.
-
-        :param position: Position to treat as origin
-        :param x_offset: x offset from origin
-        :param y_offset: y offset from origin
-        :return:
-        """
-        starting_index = self._position_to_index(position)
-        possible_y_index = y_offset * self.get_dimension() + starting_index
-        possible_x_index = x_offset + starting_index
-
-        if self._is_valid_index(possible_y_index) and self._is_valid_index(possible_x_index):
-            position_x = self._index_to_position(possible_x_index)
-            column_x, row_x = self._position_to_coordinates(position_x)
-            column_current, row_current = self._position_to_coordinates(position)
-
-            if row_x == row_current:
-                new_index = y_offset * self.get_dimension() + x_offset + starting_index
-                return self._index_to_position(new_index)
-        return None
-
-    def _position_to_coordinates(self, position):
-        """
-        Treat A1 as the origin in x,y coordinate system. Return offset the passed in
+        Treat position at bottom left corner as the origin in x,y coordinate system. Return offset the passed in
         position is from the origin.
 
-        :param position: String
+        :param position: string
             Algebraic notation for chess position
-        :return: Tuple
-            The coordinates for the position
+        :param piece_color: Color
+            Color of player who's perspective should be used.
+        :return: tuple
+            The coordinates for the position.
+            Ex (1,1) from white perspective is B2 but G7 from black perspective.
         """
         position = ChessHelper.to_string(position)
-        columns = {letter: index for index, letter in enumerate("abcdefgh")}
-        column = columns[position[0]]
-        row = int(position[1]) - 1
+        if piece_color == Color.white:
+            column = 'abcdefgh'.index(position[0])
+            row = int(position[1]) - 1
+        else:
+            column = 'hgfedcba'.index(position[0])
+            dimension = self.get_dimension()
+            row = dimension - int(position[1])
 
         return column, row
 
-    def _get_direction_square_count(self, start_position, move_direction):
+    def _get_direction_square_count(self, start_position, move_direction, piece_color):
         """
+        Retrieve the number of squares from the starting position to the edge of the board in the direction specified.
 
-        :param start_position:
-        :param move_direction:
-        :return:
+        :param start_position: string
+            Algebraic notation position.
+        :param move_direction: MoveDirection
+            Direction to work in.
+        :param piece_color: Color
+            Color of player who's perspective should be used.
+        :return: int
+            Number of squares till the edge of the board.
         """
         board_length = self.get_dimension()
         max_movement = board_length - 1
         num_spaces = max_movement
-        current_x_coord, current_y_coord = self._position_to_coordinates(start_position)
+        current_x_coord, current_y_coord = self._position_to_row_and_column(start_position, piece_color)
 
         if move_direction == MoveDirection.forward:
             max_movement = board_length - current_y_coord - 1
@@ -355,60 +475,76 @@ class ChessBoard:
 
         return min(num_spaces, max_movement)
 
-    def _position_to_index(self, position):
+    def _position_to_index(self, position, piece_color):
         """
-        Retrieve the index for the specified position.
+        Convert an algebraic notation position to an index.
 
-        :param position: String
+        :param position: string
             Algebraic notation for a position.
-        :return:
+        :param piece_color: Color
+            Color of player who's perspective should be used.
+        :return: int
+            Index for that position.
         """
-        return self._indexes[position]
+        return self._indexes[piece_color][position]
 
-    def _index_to_position(self, index):
+    def _index_to_position(self, index, piece_color):
         """
-        Retrieve the position for the specified index.
+        Convert an index to an algebraic notation position.
 
         :param index: int
-            Index in _board_positions list
+            Index in _board_positions list.
+        :param piece_color: Color
+            Color of player who's perspective should be used.
         :return:
         """
-        return self._board_positions[index]
+        if index < 0 or index > len(self._indexes[Color.white]):
+            raise IndexError('Index out of range')
+
+        if piece_color == Color.white:
+            position = self._board_positions[index]
+        else:
+            position = self._board_positions[len(self._indexes[piece_color]) - index - 1]
+
+        return position
 
     def _remove_piece(self, position):
         """
-        Remove a piece from the board
-        :param position: String
+        Remove a piece from the board.
+
+        :param position: string
             Algebraic notation for a position.
         :return:
+        :raises: Exception
+            If position is not valid, exception will be raised.
         """
         try:
-            index = self._indexes[position]
+            # Color does not matter since both indexes point to the same board
+            index = self._indexes[Color.white][position]
         except IndexError:
             raise Exception(position + " is not a valid position")
-        self._pieces[self._board_positions[index]] = None
+        else:
+            self._pieces[self._board_positions[index]] = None
 
     def _get_nearest_piece_in_direction(self, start_position, move_direction, piece_color, ignore_position=None):
         """
-        Get the nearest piece from the starting position heading in
-        the direction specified. Not expecting MoveDirection.l_shape
-        as a direction.
+        Get the nearest piece from the starting position heading in the direction specified. Not expecting
+        MoveDirection.l_shape as a direction.
 
-        :param start_position: String
+        :param start_position: string
             Position to start searching from
-        :param move_direction: Direction
+        :param move_direction: MoveDirection
             Direction to search in
         :param piece_color: Color
-            Color of piece on start_position. Needed to know which
-            direction is forward, backward, etc.
-        :return Dictionary
+            Color of player who's perspective should be used.
+        :return: dict
             [position]
             [color]
             [offset]
             [type]
         """
         offset = 0
-        positions = self.get_possible_positions(start_position, move_direction, piece_color)
+        positions = self._get_possible_positions(start_position, move_direction, piece_color)
 
         for position in positions:
             offset += 1
@@ -432,7 +568,11 @@ class ChessBoard:
 
     def __str__(self):
         """
+        Return a string representation of the chess board.
 
+        :return: string
+            Board from white players perspective. All white pieces are a capital letter and black pieces are lowercase.
+            Hashes represent a blank square.
         """
         board_size = self.get_dimension()
         rank_count = self.get_dimension()
@@ -455,16 +595,29 @@ class ChessBoard:
 
     def __getitem__(self, position):
         """
-        Get the piece at the specified position.
+        Retrieve the piece at the specified position.
+
+        :param position: string
+            Algebraic notation for a position.
+        :return: Piece
+            Return a piece object if a piece exist at the supplied position. Return None if there is no piece.
         """
         return self._pieces[position]
 
     def __setitem__(self, position, piece):
+        """
+        Put a piece on the board at the specified position.
+
+        :param position: string
+            Algebraic notation for a position.
+        :param piece: Piece
+            Piece object.
+        :return:
+        """
         self._pieces[position] = piece
         if piece.type == Type.king:
             self._king_positions[piece.color] = position
 
-board = ChessBoard(True)
-board['d5'] = Rook(Color.black)
-print(board.get_possible_positions('d3', MoveDirection.forward, Color.white))
-# board['35'] = Pawn(Color.black)
+if __name__ == '__main__':
+    board = ChessBoard()
+    print(board)

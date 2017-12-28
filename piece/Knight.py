@@ -1,4 +1,3 @@
-__author__ = 'nick.james'
 from piece.Type import Type
 from piece.Piece import Piece
 from piece.Color import Color
