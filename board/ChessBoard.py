@@ -182,9 +182,11 @@ class ChessBoard:
             Algebraic notation position.
         :return:
         """
+        #TODO return info about board changes. Ex. position of piece that was captured if any
         piece_on_start_position = self[start_position]
         piece_on_start_position.has_moved = True
-        en_passant = self.can_en_passant(start_position)
+        en_passant_right = self.can_en_passant(start_position, MoveDirection.f_right_diag)
+        en_passant_left = self.can_en_passant(start_position, MoveDirection.f_left_diag)
 
         self._remove_piece(start_position)
         self._remove_piece(end_position)
@@ -194,7 +196,7 @@ class ChessBoard:
             self._king_positions[piece_on_start_position.color] = end_position
 
         # Remove a opponent pawn if en passant move is taking place
-        if en_passant:
+        if en_passant_left or en_passant_right:
             current_piece_column, current_piece_row = self._position_to_row_and_column(end_position,
                                                                                        piece_on_start_position.color)
             last_piece_column, last_piece_row = self._position_to_row_and_column(self.last_move['end'],
@@ -214,7 +216,7 @@ class ChessBoard:
 
         :param king_color: Color
             Color of king to check if can castle.
-        :param direction: string
+        :param direction: int
             Expecting either MoveDirection.left or MoveDirection.right
         :return: bool
             True if king can castle, False otherwise.
@@ -222,7 +224,7 @@ class ChessBoard:
             If direction is not equal to MoveDirection.left or MoveDirection.right
         """
         if direction != MoveDirection.left and direction != MoveDirection.right:
-            raise ValueError("direction must")
+            raise ValueError("direction must be right or left")
 
         king_position = self._king_positions[king_color]
         nearest_piece_info = self._get_nearest_piece_in_direction(king_position, direction, king_color)
@@ -243,18 +245,28 @@ class ChessBoard:
 
         return False
 
-    def can_en_passant(self, position):
+    def can_en_passant(self, position, direction):
         """
         Check if a pawn can perform en passant move.
-        :param position:
+        :param position: string
+            Algebraic notation position.
+        :param direction: int
+            Direction to look in. Ex MoveDirection.f_right_diag
         :return:
         """
+        if direction != MoveDirection.f_right_diag and direction != MoveDirection.f_left_diag:
+            raise ValueError("direction must be f_right_diag or f_left_diag")
+
         if self.is_position_occupied(position):
             piece_on_position = self[position]
             pieces_are_pawns = piece_on_position.type == self.last_move['piece_type'] == Type.pawn
             pieces_are_diff_color = piece_on_position.color != self.last_move['piece_color']
+            check_direction = MoveDirection.left if direction == MoveDirection.f_left_diag else MoveDirection.right
+            nearest_piece_info = self._get_nearest_piece_in_direction(position,
+                                                                      check_direction,
+                                                                      piece_on_position.color)
 
-            if pieces_are_pawns and pieces_are_diff_color:
+            if nearest_piece_info and pieces_are_pawns and pieces_are_diff_color:
                 last_file_start, last_rank_start = self._position_to_row_and_column(self.last_move['start'],
                                                                                     self.last_move['piece_color'])
                 last_file_end, last_rank_end = self._position_to_row_and_column(self.last_move['end'],
@@ -264,7 +276,8 @@ class ChessBoard:
                 opp_pawn_move_two = abs(last_rank_end - last_rank_start) == 2
                 pawns_on_same_rank = last_rank_end == current_rank
                 pawn_side_by_side = abs(last_file_end - current_file) == 1
-                if opp_pawn_move_two and pawns_on_same_rank and pawn_side_by_side:
+                last_piece_correct_direction = nearest_piece_info['position'] == self.last_move['end']
+                if opp_pawn_move_two and pawns_on_same_rank and pawn_side_by_side and last_piece_correct_direction:
                     return True
         return False
 
@@ -306,6 +319,7 @@ class ChessBoard:
                     destination_occupied = self.is_position_occupied(possible_position)
 
                     #TODO clean up the following code
+                    #TODO check if moving the piece would put king in check
                     if piece_on_position.type == Type.king:
                         if not destination_occupied:
                             if not self.is_check(piece_on_position.color, possible_position):
@@ -327,7 +341,10 @@ class ChessBoard:
                                 position_num == 0):
                             possible_moves.append(possible_position)
                             break
-                        #TODO add case to check for en passant
+                        elif (move_direction == MoveDirection.f_left_diag or
+                              move_direction == MoveDirection.f_right_diag) and\
+                                self.can_en_passant(position, move_direction):
+                            possible_moves.append(possible_position)
                         else:  # Piece is same color as one we are working with
                             break
                     else:
@@ -379,8 +396,8 @@ class ChessBoard:
 
         :param start_position: string
             Algebraic notation position.
-        :param move_direction: MoveDirection
-            Direction to move.
+        :param move_direction: int
+            Direction to move. Ex MoveDirection.forward
         :param piece_color: Color
             Color of player who's perspective should be used.
         :return: list
@@ -440,8 +457,8 @@ class ChessBoard:
 
         :param start_position: string
             Algebraic notation position.
-        :param move_direction: MoveDirection
-            Direction to work in.
+        :param move_direction: int
+            Direction to work in. Ex MoveDirection.forward
         :param piece_color: Color
             Color of player who's perspective should be used.
         :return: int
@@ -533,8 +550,8 @@ class ChessBoard:
 
         :param start_position: string
             Position to start searching from
-        :param move_direction: MoveDirection
-            Direction to search in
+        :param move_direction: int
+            Direction to search in. Ex MoveDirection.forward
         :param piece_color: Color
             Color of player who's perspective should be used.
         :return: dict

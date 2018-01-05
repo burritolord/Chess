@@ -212,7 +212,7 @@ class PieceMovementTest(unittest.TestCase):
 
     def test_move_forward_left_diagonal(self):
         """
-        Move a piece of every type one square in the forward left diagonal direction.
+        Move a piece of every type that can move diagonally one square in the forward left diagonal direction.
         Expected result is that the piece no longer exist on the starting square, but on the ending square.
         :return:
         """
@@ -278,20 +278,58 @@ class PieceMovementTest(unittest.TestCase):
 
         self.assertListEqual(expected_possible_moves, possible_moves, 'Pawn should not be able to ')
 
-    def test_pawn_legal_moves_piece_blocking(self):
+    def test_pawn_en_passant_legal_move(self):
         """
-        Place a pawn on a square and another piece directly in front of it.
-        Expected result is there are no legal moves for the pawn that is blocked.
+        Place pawn on 4th or 5th rank and move pawn of opposite color immediately to left or right of first pawn.
+        Expected result is en passant move is present in legal move list for first pawn.
         :return:
         """
-        # Piece blocking of diff color and same color
+        piece_movements = {
+            Color.white: [
+                [('h2', 'h5'), ('g7', 'g5')],
+                [('a2', 'a5'), ('b7', 'b5')]
+            ],
+            Color.black: [
+                [('a7', 'a4'), ('b2', 'b4')],
+                [('h7', 'h4'), ('g2', 'g4')]
+            ]
+        }
+        expected_moves = {
+            Color.white: {
+                'h5': ['g6', 'h6'],
+                'a5': ['a6', 'b6']
+            },
+            Color.black: {
+                'a4': ['a3', 'b3'],
+                'h4': ['g3', 'h3']
+            }
+        }
+        for (c1, moves_for_color), (c2, expected_for_color) in zip(piece_movements.items(), expected_moves.items()):
+            for piece_moves, (check_position, expected_list) in zip(moves_for_color, expected_for_color.items()):
+                with self.subTest(piece_moves=piece_moves, check_position=check_position, expected_list=expected_list):
+                    board = ChessBoard()
+                    for movements in piece_moves:
+                        start, end = movements
+                        board.move_piece(start, end)
+
+                    legal_moves = board.get_legal_moves(check_position)
+                    legal_moves.sort()
+                    self.assertListEqual(expected_list, legal_moves, 'En passant move should be in legal moves list')
+
+    def test_pawn_legal_moves_piece_blocking(self):
+        """
+        Place a pawn on a square and another piece 2 positions in front of it.
+        Expected result is there are is one legal move for the pawn that is blocked.
+        :return:
+        """
         opposing_colors = [[Color.black, Color.white], [Color.white, Color.black]]
         for opposing_color in opposing_colors:
             start_positions = ['b2', 'g7']
-            blocking_positions = ['b3', 'g6']
+            blocking_positions = ['b4', 'g5']
+            expected_moves = [['b3'], ['g6']]
             pawn_colors = [Color.white, Color.black]
-            for start, blocking, pawn_color, opposing in zip(start_positions, blocking_positions, pawn_colors, opposing_color):
-                with self.subTest(start=start, blocking=blocking, pawn_color=pawn_color, opposing=opposing):
+            for start, blocking, expected, pawn_color, opposing in zip(start_positions, blocking_positions, expected_moves, pawn_colors, opposing_color):
+                with self.subTest(start=start, blocking=blocking, expected=expected, pawn_color=pawn_color, opposing=opposing):
                     board = ChessBoard(empty_board=True)
                     board[start] = Pawn(pawn_color)
                     board[blocking] = Pawn(opposing)
@@ -300,7 +338,7 @@ class PieceMovementTest(unittest.TestCase):
                     legal_moves.sort()
 
                     message = 'Pawn should not have any legal moves'
-                    self.assertListEqual([], legal_moves, message)
+                    self.assertListEqual(expected, legal_moves, message)
 
     def test_rook_legal_moves(self):
         """
@@ -491,6 +529,71 @@ class PieceMovementTest(unittest.TestCase):
                     message = 'Expected move list does not match actual move list'
                     self.assertListEqual(expected_moves, possible_moves, message)
 
+    @unittest.skip("Will fail till get_legal_moves has test for putting king in check")
+    def test_king_castle_legal_move(self):
+        """
+        Place king on starting square and rooks of the same color on their starting squares.
+        Expected result is that queen side and king side castling is listed in legal moves list.
+        :return:
+        """
+        board = ChessBoard(empty_board=True)
+        board['a1'] = Rook(Color.white)
+        board['e1'] = King(Color.white)
+        board['a8'] = Rook(Color.black)
+        board['e8'] = King(Color.black)
+
+        # Try with just one rook.
+        expected_legal_moves = {
+            'e1': ['c1', 'd1', 'd2', 'e2', 'f1', 'f2'],
+            'e8': ['c8', 'd7', 'd8', 'e7', 'f7', 'f8'],
+        }
+        for position, expected_moves in expected_legal_moves.items():
+            with self.subTest(position=position, expected_moves=expected_moves):
+                legal_moves = board.get_legal_moves(position)
+                legal_moves.sort()
+                self.assertListEqual(expected_moves, legal_moves, 'Castle move should be in legal move list')
+
+        # Try with both rooks.
+        board['h1'] = Rook(Color.white)
+        board['h8'] = Rook(Color.black)
+        expected_legal_moves = {
+            'e1': ['c1', 'd1', 'd2', 'e2', 'f1', 'f2', 'g1'],
+            'e8': ['c8', 'd7', 'd8', 'e7', 'f7', 'f8', 'g8'],
+        }
+        for position, expected_moves in expected_legal_moves.items():
+            with self.subTest(position=position, expected_moves=expected_moves):
+                legal_moves = board.get_legal_moves(position)
+                legal_moves.sort()
+                self.assertListEqual(expected_moves, legal_moves, 'Castle move should be in legal move list')
+
+    @unittest.skip("Will fail till get_legal_moves has test for putting king in check")
+    def test_king_cant_put_self_in_check(self):
+        """
+        Place king in middle square. Place rook of opposing color on an immediate front right diagonal square.
+        Expected result is the space directly to the right and in front of king is not in legal moves list.
+        :return:
+        """
+        color_group = [(Color.white, Color.black), (Color.black, Color.white)]
+        for group in color_group:
+            with self.subTest(group=group):
+                board = ChessBoard(empty_board=True)
+                king_color, rook_color = group
+                board['d4'] = King(king_color)
+                board['e5'] = Rook(rook_color)
+
+                expected_moves = ['c3', 'c4', 'c5', 'd3', 'd5', 'e5']
+                legal_moves = board.get_legal_moves('d4')
+                legal_moves.sort()
+                self.assertListEqual(expected_moves, legal_moves, 'King should not be able to put self in check')
+
+    def test_move_piece_put_king_in_check(self):
+        """
+        Test moving a piece of every type that is the same color as king but pinned by opponents piece.
+        Expected result is legal move list for piece should be empty.
+        :return:
+        """
+        pass
+
     def test_pawn_capture(self):
         """
         Move a pawn to a square where there is a piece of the opposite color on one of the most immediate diagonal
@@ -547,9 +650,9 @@ class PieceMovementTest(unittest.TestCase):
 
     def test_rook_capture(self):
         """
-        Move a 
+        Move a rook to square where there are pieces of the opposite color on capture file and rank.
         Expected result is that the squares that contain the pieces of the opposite color are in the list of possible
-        moves for the rook. Opposing piece is also successfully captured by rook.
+        moves for the rook. One opposing piece is also successfully captured by rook.
         :return:
         """
         board = ChessBoard(empty_board=True)
@@ -574,9 +677,34 @@ class PieceMovementTest(unittest.TestCase):
         self.assertIsInstance(board[capture_position], Rook, message)
 
     def test_rook_cant_capture(self):
-        pass
+        """
+        Move rook to a square and another piece of the same color immediately to the right of the rook.
+        Expected result is that the square containing the pieces of the same color is not in the list of legal
+        moves for the rook.
+        :return:
+        """
+        color_group = [Color.white, Color.black]
+        for color in color_group:
+            with self.subTest(color=color):
+                board = ChessBoard(empty_board=True)
+                board['d4'] = Rook(color)
+                board['e4'] = Pawn(color)
+
+                expected_moves = [
+                    'a4', 'b4', 'c4', 'd1', 'd2',
+                    'd3', 'd5', 'd6', 'd7', 'd8'
+                ]
+                legal_moves = board.get_legal_moves('d4')
+                legal_moves.sort()
+                self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match legal moves')
 
     def test_knight_capture(self):
+        """
+        Move knight to a middle square with a piece on a capture square.
+        Expected result is position with opponent piece is in legal move list and piece is captured
+        when knight moves to that position.
+        :return:
+        """
         board = ChessBoard(empty_board=True)
         start_position = 'd4'
         capture_position = 'f5'
@@ -594,10 +722,13 @@ class PieceMovementTest(unittest.TestCase):
         message = 'Knight should have captured piece on ' + capture_position + ' square'
         self.assertIsInstance(board[capture_position], Knight, message)
 
-    def test_knight_cant_capture(self):
-        pass
-
     def test_bishop_capture(self):
+        """
+        Move a bishop to square where there is a piece of the opposite color on capture diagonal.
+        Expected result is position with opponent piece is in legal move list and piece is captured
+        when bishop moves to that position.
+        :return:
+        """
         board = ChessBoard(empty_board=True)
         start_position = 'd4'
         capture_position = 'h8'
@@ -617,31 +748,86 @@ class PieceMovementTest(unittest.TestCase):
         self.assertIsInstance(board[capture_position], Bishop, message)
 
     def test_bishop_cant_capture(self):
-        pass
+        """
+        Move bishop to square and place piece of same color in movement path.
+        Expected result is that the square containing the piece of the same color is not in the list of legal
+        moves.
+        :return:
+        """
+        color_group = [Color.white, Color.black]
+        for color in color_group:
+            with self.subTest(color=color):
+                board = ChessBoard(empty_board=True)
+                board['b2'] = Bishop(color)
+                board['c3'] = Pawn(color)
+
+                expected_moves = ['a1', 'a3', 'c1']
+                legal_moves = board.get_legal_moves('b2')
+                legal_moves.sort()
+                self.assertListEqual(expected_moves, legal_moves, 'Expected list does not match actual legal move list')
 
     def test_king_capture(self):
+        """
+        Move king to square right next to piece of opposing color with nothing backing it up.
+        Expected result is position with opponent piece is in legal move list and piece is captured
+        when king moves to that position.
+        :return:
+        """
+        board = ChessBoard(empty_board=True)
+        start_position = 'd4'
+        capture_position = 'e4'
+        board[start_position] = King(Color.white)
+        board[capture_position] = Pawn(Color.black)
+
+        expected_legal_moves = ['c3', 'c4', 'c5', 'd5', 'e3', 'e4', 'e5']
+        possible_moves = board.get_legal_moves(start_position)
+        possible_moves.sort()
+
+        self.assertListEqual(expected_legal_moves, possible_moves, 'Expected move list does not match actual move list')
+
+        # Move king to capture a piece
+        board.move_piece(start_position, capture_position)
+        message = 'King should have captured piece on ' + capture_position + ' square'
+        self.assertIsInstance(board[capture_position], King, message)
+
+    def test_king_cant_capture(self):
+        """
+        Test a few scenarios where the king cannot capture another piece.
+        Expected result is piece next to king cannot be captured and will not be in legal moves list.
+        :return:
+        """
+        # Test scenario where opponent piece backing up other opponent piece.
         board = ChessBoard(empty_board=True)
         start_position = 'd4'
         capture_position = 'd5'
         board[start_position] = King(Color.white)
         board['e4'] = Pawn(Color.black)
         board[capture_position] = Pawn(Color.black)
-        expected_possible_moves = ['c3', 'c5', 'd5', 'e3', 'e5']
-        possible_moves = board.get_legal_moves(start_position)
-        possible_moves.sort()
 
-        message = 'Expected move list does not match actual move list'
-        self.assertListEqual(expected_possible_moves, possible_moves, message)
+        expected_legal_moves = ['c3', 'c5', 'd5', 'e3', 'e5']
+        legal_moves = board.get_legal_moves(start_position)
+        legal_moves.sort()
 
-        # Move bishop to capture a piece
-        board.move_piece(start_position, capture_position)
-        message = 'King should have captured piece on ' + capture_position + ' square'
-        self.assertIsInstance(board[capture_position], King, message)
+        self.assertListEqual(expected_legal_moves, legal_moves, 'Expected move list does not match actual move list')
 
-    def test_king_cant_capture(self):
-        pass
+        # Test king has piece of same color directly in front of it
+        board = ChessBoard(empty_board=True)
+        board['d4'] = King(Color.white)
+        board['d5'] = Pawn(Color.white)
+
+        expected_legal_moves = ['c3', 'c4', 'c5', 'd3', 'e3', 'e4', 'e5']
+        legal_moves = board.get_legal_moves('d4')
+        legal_moves.sort()
+
+        self.assertListEqual(expected_legal_moves, legal_moves, 'Expected move list does not match actual move list')
 
     def test_queen_capture(self):
+        """
+        Move queen to position where an opponents piece is in the capture path.
+        Expected result is opponents piece is in legal move list and piece is captured when queen moves to that
+        position.
+        :return:
+        """
         board = ChessBoard(empty_board=True)
         start_position = 'd4'
         capture_position = 'e4'
@@ -662,11 +848,29 @@ class PieceMovementTest(unittest.TestCase):
         self.assertIsInstance(board[capture_position], Queen, message)
 
     def test_queen_cant_capture(self):
-        pass
+        """
+        Move queen to a square and place piece of same color in movement path.
+        Expected result is that the square containing the piece of the same color is not in the list of legal
+        moves.
+        :return:
+        """
+        board = ChessBoard(empty_board=True)
+        board['b2'] = Queen(Color.white)
+        board['b3'] = Pawn(Color.white)
+
+        expected_legal_moves = ['a1', 'a2', 'a3', 'b1', 'c1',
+                                'c2', 'c3', 'd2', 'd4', 'e2',
+                                'e5', 'f2', 'f6', 'g2', 'g7',
+                                'h2', 'h8']
+        legal_moves = board.get_legal_moves('b2')
+        legal_moves.sort()
+
+        self.assertListEqual(expected_legal_moves, legal_moves, 'Expected move list does not match actual')
 
     def test_en_passant_capture(self):
         """
         Test capturing an opponents pawn via en passant.
+        Expected result is opponents piece is successfully captured when en passant move is performed.
         :return:
         """
         board = ChessBoard(empty_board=True)
@@ -684,6 +888,7 @@ class PieceMovementTest(unittest.TestCase):
         board.move_piece('d2', 'd4')
         board.move_piece('e4', 'd3')
         self.assertIsNone(board['d4'], 'Expected black pawn to be captured')
+
 
 if __name__ == '__main__':
     unittest.main()

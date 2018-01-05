@@ -169,13 +169,13 @@ class BoardStateTest(unittest.TestCase):
         board['b5'] = Pawn(Color.white)
         board['a7'] = Pawn(Color.black)
         board.move_piece('a7', 'a5')
-        self.assertTrue(board.can_en_passant('b5'), 'Pawn should be able to perform en passant')
+        self.assertTrue(board.can_en_passant('b5', MoveDirection.f_left_diag), 'Pawn should be able to perform en passant')
 
         # En passant from black's perspective.
         board['g4'] = Pawn(Color.black)
         board['h2'] = Pawn(Color.white)
         board.move_piece('h2', 'h4')
-        self.assertTrue(board.can_en_passant('g4'), 'Pawn should be able to perform en passant')
+        self.assertTrue(board.can_en_passant('g4', MoveDirection.f_left_diag), 'Pawn should be able to perform en passant')
 
     def test_cannot_en_passant(self):
         """
@@ -188,14 +188,14 @@ class BoardStateTest(unittest.TestCase):
         board['b5'] = Pawn(Color.white)
         board['a7'] = Pawn(Color.black)
         board.move_piece('a7', 'a5')
-        self.assertFalse(board.can_en_passant('a5'), 'Pawn should not be able to perform en passant')
+        self.assertFalse(board.can_en_passant('a5', MoveDirection.f_left_diag), 'Pawn should not be able to perform en passant')
 
         # Confirm when all condition have been met but push pawn moved one square twice, en passant can't happen.
         board['g4'] = Pawn(Color.black)
         board['h2'] = Pawn(Color.white)
         board.move_piece('h2', 'h3')
         board.move_piece('h3', 'h4')
-        self.assertFalse(board.can_en_passant('g4'), 'Pawn should be able to perform en passant')
+        self.assertFalse(board.can_en_passant('g4', MoveDirection.f_left_diag), 'Pawn should be able to perform en passant')
 
     def test_can_castle(self):
         """
