@@ -11,7 +11,9 @@ from piece.Type import Type
 
 
 class PieceTest(unittest.TestCase):
-
+    """
+    Test piece attributes
+    """
     def setUp(self):
         self.types = {
             Type.pawn: Pawn,

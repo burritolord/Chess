@@ -277,3 +277,7 @@ class BoardStateTest(unittest.TestCase):
         legal_moves = board.get_legal_moves('e1')
         legal_moves.sort()
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
+
+
+if __name__ == '__main__':
+    unittest.main()
