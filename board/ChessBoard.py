@@ -94,7 +94,7 @@ class ChessBoard:
             raise Exception(position + " is not a valid position")
         return self._pieces[position] is not None
 
-    def is_check(self, king_color, position=None):
+    def is_check(self, king_color, position=None, ghost_pieces={}):
         """
         Test for check against king of the specified color.
 
@@ -102,10 +102,15 @@ class ChessBoard:
             Color of king to test for check against.
         :param position: string
             If set, look for check from this position instead of the position of the king specified by king_color.
+        :param ghost_pieces: dict
+            Positions to ignore or contain ghost pieces.
         :return: bool
             True if king is in check, False otherwise.
         """
         king_position = position if position else self._king_positions[king_color]
+
+        if not self._king_positions[king_color]:
+            return False
 
         # Check file and rank
         diagonal_pieces = (Type.queen, Type.bishop)
@@ -123,7 +128,7 @@ class ChessBoard:
         }
 
         for direction, pieces in opponent_piece_list.items():
-            nearest_piece = self._get_nearest_piece_in_direction(king_position, direction, king_color, self._king_positions[king_color])
+            nearest_piece = self._get_nearest_piece_in_direction(king_position, direction, king_color, ghost_pieces)
             if nearest_piece and nearest_piece['color'] != king_color:
                 offset = nearest_piece['offset']
                 piece_type = nearest_piece['type']
@@ -296,18 +301,29 @@ class ChessBoard:
         possible_moves = []
         piece_on_position = self[position]
         piece_move_directions = piece_on_position.move_directions
+        piece_king_position = self._king_positions[piece_on_position.color]
 
+        # TODO Refactor. Code is hard to follow
         for move_direction, num_spaces in piece_move_directions.items():
             possible_positions = self._get_possible_positions(position, move_direction, piece_on_position.color)
 
             # Handle special case for Knight
             if move_direction == MoveDirection.l_shape:
                 for possible_position in possible_positions:
-                    piece_on_destination = self.is_position_occupied(possible_position)
-                    if not piece_on_destination:
-                        possible_moves.append(possible_position)
-                    elif self[possible_position].color != piece_on_position.color:
-                        possible_moves.append(possible_position)
+                    ghost_pieces = {
+                        position: None,
+                        possible_position: {
+                            'color': piece_on_position.color,
+                            'type': piece_on_position.type
+                        }
+                    }
+
+                    if not self.is_check(piece_on_position.color, piece_king_position, ghost_pieces):
+                        piece_on_destination = self.is_position_occupied(possible_position)
+                        if not piece_on_destination:
+                            possible_moves.append(possible_position)
+                        elif self[possible_position].color != piece_on_position.color:
+                            possible_moves.append(possible_position)
 
             # Every other piece
             else:
@@ -317,21 +333,36 @@ class ChessBoard:
 
                 for position_num, possible_position in enumerate(possible_positions[0:num_spaces]):
                     destination_occupied = self.is_position_occupied(possible_position)
+                    ghost_pieces = {
+                        position: None,
+                        possible_position: {
+                            'color': piece_on_position.color,
+                            'type': piece_on_position.type
+                        }
+                    }
 
-                    #TODO clean up the following code
-                    #TODO check if moving the piece would put king in check
                     if piece_on_position.type == Type.king:
-                        if not destination_occupied:
-                            if not self.is_check(piece_on_position.color, possible_position):
+                        if not self.is_check(piece_on_position.color, possible_position, ghost_pieces):
+                            try:
+                                can_castle = self.can_castle(piece_on_position.color, move_direction)
+                            except ValueError:
+                                can_castle = False
+                            finally:
+                                king_index = self._position_to_index(position, piece_on_position.color)
+                                possible_index = self._position_to_index(possible_position, piece_on_position.color)
+                                distance = abs(king_index - possible_index)
+
+                            if can_castle and distance == 2:
                                 possible_moves.append(possible_position)
-                        elif self[possible_position].color != piece_on_position.color:
-                            if not self.is_check(piece_on_position.color, possible_position):
+                            elif not destination_occupied and distance != 2:
+                                possible_moves.append(possible_position)
+                            elif destination_occupied and self[possible_position].color != piece_on_position.color and\
+                                    distance != 2:
                                 possible_moves.append(possible_position)
                                 break
-                        #TODO add case to test for castle
                         else:  # Piece is same color as one we are working with
                             break
-                    elif piece_on_position.type == Type.pawn:
+                    elif piece_on_position.type == Type.pawn and not self.is_check(piece_on_position.color, piece_king_position, ghost_pieces):
                         if (not destination_occupied and move_direction != MoveDirection.f_left_diag
                                 and move_direction != MoveDirection.f_right_diag):
                             possible_moves.append(possible_position)
@@ -347,7 +378,7 @@ class ChessBoard:
                             possible_moves.append(possible_position)
                         else:  # Piece is same color as one we are working with
                             break
-                    else:
+                    elif not self.is_check(piece_on_position.color, piece_king_position, ghost_pieces):
                         if not destination_occupied:
                             possible_moves.append(possible_position)
                         elif self[possible_position].color != piece_on_position.color:
@@ -543,7 +574,7 @@ class ChessBoard:
         else:
             self._pieces[self._board_positions[index]] = None
 
-    def _get_nearest_piece_in_direction(self, start_position, move_direction, piece_color, ignore_position=None):
+    def _get_nearest_piece_in_direction(self, start_position, move_direction, piece_color, ghost_pieces={}):
         """
         Get the nearest piece from the starting position heading in the direction specified. Not expecting
         MoveDirection.l_shape as a direction.
@@ -554,6 +585,8 @@ class ChessBoard:
             Direction to search in. Ex MoveDirection.forward
         :param piece_color: Color
             Color of player who's perspective should be used.
+        :param ghost_pieces: dict
+            Positions to either ignore or contain ghost pieces.
         :return: dict
             [position]
             [color]
@@ -567,11 +600,23 @@ class ChessBoard:
             offset += 1
             piece_on_destination = self.is_position_occupied(position)
 
-            if piece_on_destination:
-                if ignore_position and position == ignore_position:
-                    continue
+            if position in ghost_pieces and not ghost_pieces[position]:
+                continue
+            elif position in ghost_pieces:
+                return {
+                    'position': position,
+                    'color': ghost_pieces[position]['color'],
+                    'offset': offset,
+                    'type': ghost_pieces[position]['type']
+                }
+            elif piece_on_destination:
                 piece = self[position]
-                return {'position': position, 'color': piece.color, 'offset': offset, 'type': piece.type}
+                return {
+                    'position': position,
+                    'color': piece.color,
+                    'offset': offset,
+                    'type': piece.type
+                }
 
         return None
 

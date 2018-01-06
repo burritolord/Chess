@@ -122,7 +122,13 @@ class BoardStateTest(unittest.TestCase):
         Test that a knight will put a king of the opposite color in checkmate
         :return:
         """
-        pass
+        board = ChessBoard(empty_board=True)
+        board['b4'] = Bishop(Color.black)
+        board['c5'] = Rook(Color.black)
+        board['d1'] = King(Color.white)
+        board['e3'] = Knight(Color.black)
+        board['f3'] = Pawn(Color.black)
+        self.assertTrue(board.is_checkmate(Color.white), 'King should be in checkmate')
 
     def test_bishop_checkmate(self):
         """
@@ -219,7 +225,55 @@ class BoardStateTest(unittest.TestCase):
         self.assertTrue(board.can_castle(Color.black, MoveDirection.right), 'King should be able to castle')
 
     def test_cannot_castle(self):
+        """
+        Test cases where a king cannot castle.
+        Expected result is king cannot castle through check, from check, into check, after moving, if
+        the rook has moved.
+        :return:
+        """
         # Check case where king would pass through check
-        # Check case where king would end in check or checkmate
-        # Check where king is in check
-        pass
+        board = ChessBoard(empty_board=True)
+        board['a1'] = Rook(Color.white)
+        board['e1'] = King(Color.white)
+        board['d5'] = Rook(Color.black)
+
+        expected_moves = ['e2', 'f1', 'f2']
+        legal_moves = board.get_legal_moves('e1')
+        legal_moves.sort()
+        self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
+
+        # King in check
+        board.move_piece('d5', 'e5')
+        expected_moves = ['d1', 'd2', 'f1', 'f2']
+        legal_moves = board.get_legal_moves('e1')
+        legal_moves.sort()
+        self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
+
+        # King ends in check
+        board.move_piece('e5', 'c5')
+        expected_moves = ['d1', 'd2', 'e2', 'f1', 'f2']
+        legal_moves = board.get_legal_moves('e1')
+        legal_moves.sort()
+        self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
+
+        # Check after king moves
+        board = ChessBoard(empty_board=True)
+        board['a1'] = Rook(Color.white)
+        board['e1'] = King(Color.white)
+        board.move_piece('e1', 'd1')
+
+        expected_moves = ['c1', 'c2', 'd2', 'e1', 'e2']
+        legal_moves = board.get_legal_moves('d1')
+        legal_moves.sort()
+        self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
+
+        # Check after rook moves
+        board = ChessBoard(empty_board=True)
+        board['a1'] = Rook(Color.white)
+        board['e1'] = King(Color.white)
+        board.move_piece('a1', 'b1')
+
+        expected_moves = ['d1', 'd2', 'e2', 'f1', 'f2']
+        legal_moves = board.get_legal_moves('e1')
+        legal_moves.sort()
+        self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')

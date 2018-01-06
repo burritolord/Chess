@@ -28,7 +28,7 @@ class Pawn(Piece):
     @Piece.has_moved.setter
     def has_moved(self, moved):
         """
-        Extends super class version. Changes the moves structure for captures.
+        Extends super class version. Changes the moves structure after piece has moved.
 
         :param moved: bool
             True if the piece has moved, False otherwise.
