@@ -635,7 +635,6 @@ class PieceMovementTest(unittest.TestCase):
         legal_moves = board.get_legal_moves('c4')
         self.assertListEqual(['c5', 'c6'], legal_moves, 'Legal moves dont match expected moves.')
 
-
     def test_pawn_capture(self):
         """
         Move a pawn to a square where there is a piece of the opposite color on one of the most immediate diagonal

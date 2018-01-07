@@ -157,12 +157,45 @@ class BoardStateTest(unittest.TestCase):
         board['g6'] = Knight(Color.white)
         self.assertTrue(board.is_checkmate(Color.black), 'King should be in checkmate')
 
-    def test_stalemate(self):
+    def test_is_stalemate(self):
         """
         Test case where it is a players move and they have no valid moves left.
+        Expected result is a stalemate has occurred.
         :return:
         """
-        pass
+        board = ChessBoard(empty_board=True)
+        board['a1'] = King(Color.black)
+        board['b4'] = Rook(Color.white)
+        board['c2'] = King(Color.white)
+        board['c4'] = Bishop(Color.white)
+
+        is_stalemate = board.is_stalemate(Color.black)
+        self.assertTrue(is_stalemate, 'Board configuration should result in stalemate')
+
+    def test_is_not_stalemate(self):
+        """
+        Configure board where white player has one legal move.
+        Expected result is stalemate has not occurred.
+        :return:
+        """
+        # Try for king
+        board = ChessBoard(empty_board=True)
+        board['a8'] = King(Color.black)
+        board['c1'] = Rook(Color.white)
+        board['d7'] = Rook(Color.white)
+
+        is_stalemate = board.is_stalemate(Color.black)
+        self.assertFalse(is_stalemate, 'Board configuration should not result in stalemate')
+
+        # Try for piece other than king
+        board = ChessBoard(empty_board=True)
+        board['a8'] = King(Color.black)
+        board['b1'] = Rook(Color.white)
+        board['d7'] = Rook(Color.white)
+        board['f2'] = Pawn(Color.black)
+
+        is_stalemate = board.is_stalemate(Color.black)
+        self.assertFalse(is_stalemate, 'Board configuration should not result in stalemate')
 
     def test_can_en_passant(self):
         """
@@ -277,6 +310,24 @@ class BoardStateTest(unittest.TestCase):
         legal_moves = board.get_legal_moves('e1')
         legal_moves.sort()
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
+
+    def test_promoting_pawn(self):
+        """
+        Move a pawn from starting position all the way to the last row.
+        Expected result is pawn can be promoted and once promoted, new piece is on position pawn was on. Promoted pawn
+        should no longer exist on board.
+        :return:
+        """
+        pass
+
+    def test_cannot_promote_piece(self):
+        """
+        Test a couple scenarios where pawn cannot be promoted.
+        Expected result is pawn will not be promoted when it is not on the last row and after it has already been
+        promoted.
+        :return:
+        """
+        pass
 
 
 if __name__ == '__main__':

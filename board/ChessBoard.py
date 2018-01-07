@@ -163,17 +163,26 @@ class ChessBoard:
         possible_moves = self.get_legal_moves(king_position)
         return check and not possible_moves
 
-    def is_stalemate(self, king_color):
+    def is_stalemate(self, color):
         """
         Test for stalemate.
 
-        :param king_color: Color
-            Color of king to test for stalemate against.
+        :param color: Color
+            Color of player to test for stalemate.
         :return: bool
             True if the game is a stalemate, False otherwise.
         """
-        king_position = self._king_positions[king_color]
-        return not self.is_check(king_color) and not self.get_legal_moves(king_position)
+        # TODO add check for insufficient material to checkmate opponent
+        legal_moves_available = False
+        for position, piece in self._pieces.items():
+            if piece and piece.color == color:
+                legal_moves = self.get_legal_moves(position)
+                if legal_moves:
+                    legal_moves_available = True
+
+        king_in_check = self.is_check(color)
+
+        return not king_in_check and not legal_moves_available
 
     def move_piece(self, start_position, end_position):
         """
@@ -200,7 +209,7 @@ class ChessBoard:
         if piece_on_start_position.type == Type.king:
             self._king_positions[piece_on_start_position.color] = end_position
 
-        # Remove a opponent pawn if en passant move is taking place
+        # Remove an opponent pawn if en passant move is taking place
         if en_passant_left or en_passant_right:
             current_piece_column, current_piece_row = self._position_to_row_and_column(end_position,
                                                                                        piece_on_start_position.color)
@@ -333,6 +342,9 @@ class ChessBoard:
 
                 for position_num, possible_position in enumerate(possible_positions[0:num_spaces]):
                     destination_occupied = self.is_position_occupied(possible_position)
+                    # Ignore the current position when performing a test for check. Also place piece on possible
+                    # position as a ghost piece. Needed to know if when moved to possible position, the king is still
+                    # not in check
                     ghost_pieces = {
                         position: None,
                         possible_position: {
@@ -352,6 +364,7 @@ class ChessBoard:
                                 possible_index = self._position_to_index(possible_position, piece_on_position.color)
                                 distance = abs(king_index - possible_index)
 
+                            # Only add position two squares away if castling is possible
                             if can_castle and distance == 2:
                                 possible_moves.append(possible_position)
                             elif not destination_occupied and distance != 2:
@@ -679,6 +692,7 @@ class ChessBoard:
         self._pieces[position] = piece
         if piece.type == Type.king:
             self._king_positions[piece.color] = position
+
 
 if __name__ == '__main__':
     board = ChessBoard()

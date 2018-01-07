@@ -14,6 +14,7 @@ class PieceTest(unittest.TestCase):
     """
     Test piece attributes
     """
+
     def setUp(self):
         self.types = {
             Type.pawn: Pawn,
@@ -100,7 +101,44 @@ class PieceTest(unittest.TestCase):
             with self.subTest(t):
                 piece = piece_class(Color.white)
                 directions = piece.move_directions
-                self.assertDictEqual(piece_directions[t], directions, 'Blah')
+                self.assertDictEqual(piece_directions[t], directions, 'Directions dont match expected')
+
+    def test_pawn_movement_adjusted_after_moving(self):
+        """
+        Test a pawn cannot move forward two squares once it has moved.
+        :return:
+        """
+        expected_directions = {
+            MoveDirection.forward: 1,
+            MoveDirection.f_right_diag: 1,
+            MoveDirection.f_left_diag: 1
+        }
+        for color in [Color.black, Color.white]:
+            pawn = Pawn(color)
+            pawn.has_moved = True
+
+            self.assertDictEqual(expected_directions, pawn.move_directions, 'Directions do not match expected')
+
+    def test_king_movement_adjusted_after_moving(self):
+        """
+        Test a king cannot move left or right two squares once it has moved.
+        :return:
+        """
+        expected_directions = {
+            MoveDirection.forward: 1,
+            MoveDirection.f_right_diag: 1,
+            MoveDirection.right: 1,
+            MoveDirection.b_right_diag: 1,
+            MoveDirection.backward: 1,
+            MoveDirection.b_left_diag: 1,
+            MoveDirection.left: 1,
+            MoveDirection.f_left_diag: 1
+        }
+        for color in [Color.black, Color.white]:
+            king = King(color)
+            king.has_moved = True
+
+            self.assertDictEqual(expected_directions, king.move_directions, 'Directions do not match expected')
 
 
 if __name__ == '__main__':
