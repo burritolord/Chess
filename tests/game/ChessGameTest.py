@@ -1,5 +1,6 @@
 import unittest
 from game.ChessGame import ChessGame
+from piece.Color import Color
 
 class ChessGameTest(unittest.TestCase):
 
@@ -9,7 +10,17 @@ class ChessGameTest(unittest.TestCase):
         Expected result is opposite colored player is the current player.
         :return:
         """
-        pass
+        game = ChessGame()
+        current_player = game.current_player
+        self.assertEqual(Color.white, current_player.color)
+
+        game.move_piece('d2', 'd4')
+        current_player = game.current_player
+        self.assertEqual(Color.black, current_player.color)
+
+        game.move_piece('d7', 'd5')
+        current_player = game.current_player
+        self.assertEqual(Color.white, current_player.color)
 
     def test_is_game_over(self):
         """
@@ -46,6 +57,13 @@ class ChessGameTest(unittest.TestCase):
         :return:
         """
         pass
+
+    def test_cannot_move_piece_when_not_turn(self):
+        """
+        Attempt to move a black piece when it is the white players turn.
+        Expected result is the black player's piece cannot be moved. Expect exception raised.
+        :return:
+        """
 
     def test_invalid_algebraic_positions(self):
         """

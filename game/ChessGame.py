@@ -4,6 +4,7 @@
 # Check for end game: win, lose, draw
 from board.ChessBoard import ChessBoard
 from piece.Color import Color
+from game.Player import Player
 
 
 class ChessGame:
@@ -47,6 +48,10 @@ class ChessGame:
 
     @property
     def current_player(self):
+        """
+
+        :return Player:
+        """
         return self._current_player
 
     def promote_piece(self, position, piece_type):

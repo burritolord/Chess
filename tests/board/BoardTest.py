@@ -7,6 +7,7 @@ from piece.Bishop import Bishop
 from piece.Knight import Knight
 from piece.Rook import Rook
 from piece.Color import Color
+from piece.Type import Type
 from piece.MoveDirection import MoveDirection
 
 
@@ -318,7 +319,22 @@ class BoardStateTest(unittest.TestCase):
         should no longer exist on board.
         :return:
         """
-        pass
+        positions = {
+            Color.white: ('a7', 'a8'),
+            Color.black: ('a2', 'a1')
+        }
+        promotion_types = [Type.rook, Type.knight, Type.bishop, Type.queen]
+
+        for promotion_type in promotion_types:
+            board = ChessBoard(empty_board=True)
+            for color, position in positions.items():
+                start, end = positions
+                board[start] = Pawn(color)
+                board.move_piece(start, end)
+                board.promote_pawn(end, promotion_type)
+
+                piece = board[end]
+                self.assertEqual(promotion_type, piece.type, 'Pawn was not correctly promoted.')
 
     def test_cannot_promote_piece(self):
         """
@@ -327,7 +343,26 @@ class BoardStateTest(unittest.TestCase):
         promoted.
         :return:
         """
-        pass
+        board = ChessBoard(empty_board=True)
+
+        # Pawn cannot be promoted when not on last row
+        board['h7'] = Pawn(Color.white)
+
+        with self.assertRaises(Exception) as context:
+            board.promote_pawn('h7', Type.queen)
+            self.assertTrue('Pawn not on last row' in str(context.exception))
+
+        # Pawn cannot be promoted after it has been promoted
+        board.promote_pawn('h7', Type.queen)
+        with self.assertRaises(Exception) as context:
+            board.promote_pawn('h7', Type.queen)
+            self.assertTrue('Piece on provided position is not a pawn' in str(context.exception))
+
+        # Pawn cannot be promoted to king
+        board['a8'] = Pawn(Color.white)
+        with self.assertRaises(Exception) as context:
+            board.promote_pawn('a8', Type.king)
+            self.assertTrue('Pawn cannot be promoted to a king' in str(context.exception))
 
 
 if __name__ == '__main__':
