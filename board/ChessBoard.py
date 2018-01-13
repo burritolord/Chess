@@ -194,35 +194,51 @@ class ChessBoard:
             Algebraic notation position.
         :param end_position: string
             Algebraic notation position.
-        :return:
+        :return: dict
+            [position]: Piece. Use None if position is now empty
         """
-        #TODO return info about board changes. Ex. position of piece that was captured if any
         piece_on_start_position = self[start_position]
-        piece_on_start_position.has_moved = True
-        en_passant_right = self.can_en_passant(start_position, MoveDirection.f_right_diag)
-        en_passant_left = self.can_en_passant(start_position, MoveDirection.f_left_diag)
+        if not piece_on_start_position:
+            raise Exception("start_position is not occupied by a piece")
 
+        updated_positions = {}
+        move_info = self._direction_and_position_offset(start_position, end_position, piece_on_start_position.color)
+        direction = move_info['direction']
+        column_offset, row_offset = move_info['offset']
+
+        # Check for en passant
+        if piece_on_start_position.type == Type.pawn and (direction == MoveDirection.f_right_diag or
+                                                          direction == MoveDirection.f_left_diag):
+            if self.can_en_passant(start_position, direction):
+                if self._on_same_row(start_position, self.last_move['end']):
+                    self._remove_piece(self.last_move['end'])
+                    updated_positions[self.last_move['end']] = None
+        # Check for castling
+        elif piece_on_start_position.type == Type.king and abs(column_offset) == 2 and self.can_castle(piece_on_start_position.color, direction):
+            rook_positions = {
+                Color.white: {MoveDirection.left: 'a1', MoveDirection.right: 'h1'},
+                Color.black: {MoveDirection.left: 'h8', MoveDirection.right: 'a8'}
+            }
+            rook_position = self._get_position_shifted_by_offset(start_position, direction, 1, piece_on_start_position.color)
+            self[rook_position] = self[rook_positions[piece_on_start_position.color][direction]]
+            self._remove_piece(rook_positions[piece_on_start_position.color][direction])
+            updated_positions[rook_position] = self[rook_position]
+            updated_positions['a1'] = None
+
+        piece_on_start_position.has_moved = True
         self._remove_piece(start_position)
         self._remove_piece(end_position)
         self[end_position] = piece_on_start_position
 
-        if piece_on_start_position.type == Type.king:
-            self._king_positions[piece_on_start_position.color] = end_position
-
-        # Remove an opponent pawn if en passant move is taking place
-        if en_passant_left or en_passant_right:
-            current_piece_column, current_piece_row = self._position_to_row_and_column(end_position,
-                                                                                       piece_on_start_position.color)
-            last_piece_column, last_piece_row = self._position_to_row_and_column(self.last_move['end'],
-                                                                                 piece_on_start_position.color)
-            same_column = current_piece_column == last_piece_column
-            if same_column:
-                self._remove_piece(self.last_move['end'])
+        updated_positions[end_position] = piece_on_start_position
+        updated_positions[start_position] = None
 
         self.last_move['start'] = start_position
         self.last_move['end'] = end_position
-        self.last_move['piece_type'] = self._pieces[end_position].type
-        self.last_move['piece_color'] = self._pieces[end_position].color
+        self.last_move['piece_type'] = piece_on_start_position.type
+        self.last_move['piece_color'] = piece_on_start_position.color
+
+        return updated_positions
 
     def can_castle(self, king_color, direction):
         """
@@ -234,11 +250,9 @@ class ChessBoard:
             Expecting either MoveDirection.left or MoveDirection.right
         :return: bool
             True if king can castle, False otherwise.
-        :raises: ValueError
-            If direction is not equal to MoveDirection.left or MoveDirection.right
         """
         if direction != MoveDirection.left and direction != MoveDirection.right:
-            raise ValueError("direction must be right or left")
+            return False
 
         king_position = self._king_positions[king_color]
         nearest_piece_info = self._get_nearest_piece_in_direction(king_position, direction, king_color)
@@ -269,9 +283,9 @@ class ChessBoard:
         :return:
         """
         if direction != MoveDirection.f_right_diag and direction != MoveDirection.f_left_diag:
-            raise ValueError("direction must be f_right_diag or f_left_diag")
+            return False
 
-        if self.is_position_occupied(position):
+        if self.is_position_occupied(position) and self.last_move['end']:
             piece_on_position = self[position]
             pieces_are_pawns = piece_on_position.type == self.last_move['piece_type'] == Type.pawn
             pieces_are_diff_color = piece_on_position.color != self.last_move['piece_color']
@@ -433,6 +447,18 @@ class ChessBoard:
             player, piece, start_pos, end_pos = transaction
             self.move_piece(start_pos, end_pos)
 
+    def promote_pawn(self, position, promotion_type):
+        """
+        Promote a pawn once it has reached the end of the board.
+
+        :param position: string
+            Algebraic notation for pawn position.
+        :param promotion_type: string
+
+        :return:
+        """
+        pass
+
     def _get_possible_positions(self, start_position, move_direction, piece_color):
         """
         Get a list of all possible positions in the direction provided as if the board were empty. Positions returned
@@ -535,6 +561,24 @@ class ChessBoard:
             max_movement = min(from_top, current_x_coord)
 
         return min(num_spaces, max_movement)
+
+    def _get_position_shifted_by_offset(self, position, direction, offset, piece_color):
+        """
+        Retrieve position after shifting over by in the direction specified by the offset amount. Ex position=a1,
+        direction=MoveDirection.right, offset=1, piece_color=Color.white. Return value is a2
+
+        :param position: string
+            Algebraic notation position.
+        :param offset: int
+            Number of times to shift over in direction
+        :param piece_color: int
+            Color.white or Colore.black
+        :return: string
+            Algebraic notation position.
+        """
+        index = self._position_to_index(position, piece_color)
+        shifted_index = index + self.PIECE_SHIFTING[direction] * offset
+        return self._index_to_position(shifted_index, piece_color)
 
     def _position_to_index(self, position, piece_color):
         """
@@ -640,6 +684,68 @@ class ChessBoard:
         if index < 0 or index >= len(self._indexes):
             return False
         return True
+
+    def _on_same_row(self, position_one, position_two):
+        """
+        Determine if both positions are on the same row.
+
+        :param position_one: string
+            Position in algebraic notation.
+        :param position_two: string
+            Position in algebraic notation.
+        :return:
+        """
+        # Color does not matter when checking if on same row
+        column_one, row_one = self._position_to_row_and_column(position_one, Color.white)
+        column_two, row_two = self._position_to_row_and_column(position_two, Color.white)
+
+        return row_one == row_two
+
+    def _direction_and_position_offset(self, start_position, end_position, color):
+        """
+        Determine the direction and number of positions away end_position is relative to start_position.
+
+        :param start_position: string
+            Position in algebraic notation.
+        :param end_position: string
+            Position in algebraic notation.
+        :param color: int
+            Dictionary where MoveDirection is the key and value is a tuple containing the number of rows and columns
+            end_position is away. Treats start_position as 0,0 on x,y coordinate system. Ex a2 would be (1,1) from a1
+        :return: MoveDirection value
+        """
+        start_column, start_row = self._position_to_row_and_column(start_position, color)
+        end_column, end_row = self._position_to_row_and_column(end_position, color)
+        row_diff = end_row - start_row
+        column_diff = end_column - start_column
+
+        # Compute offsets
+        is_forward = row_diff > 0
+        is_back = row_diff < 0
+        is_right = column_diff > 0
+        is_left = column_diff < 0
+
+        # Determine direction
+        if is_forward and is_right:
+            positions_away = {'direction': MoveDirection.f_right_diag, 'offset': (column_diff, row_diff)}
+        elif is_forward and is_left:
+            positions_away = {'direction': MoveDirection.f_left_diag, 'offset':  (column_diff, row_diff)}
+        elif is_back and is_right:
+            positions_away = {'direction': MoveDirection.b_right_diag, 'offset':  (column_diff, row_diff)}
+        elif is_back and is_left:
+            positions_away = {'direction': MoveDirection.b_left_diag, 'offset':  (column_diff, row_diff)}
+        elif is_forward:
+            positions_away = {'direction': MoveDirection.forward, 'offset':  (column_diff, row_diff)}
+        elif is_back:
+            positions_away = {'direction': MoveDirection.backward, 'offset':  (column_diff, row_diff)}
+        elif is_right:
+            positions_away = {'direction': MoveDirection.right, 'offset':  (column_diff, row_diff)}
+        elif is_left:
+            positions_away = {'direction': MoveDirection.left, 'offset': (column_diff, row_diff)}
+        else:
+            positions_away = {'direction': None, 'offset': (0, 0)}
+
+        return positions_away
 
     def __str__(self):
         """

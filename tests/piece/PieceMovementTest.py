@@ -63,7 +63,6 @@ class PieceMovementTest(unittest.TestCase):
         end_positions = ['b2', 'g7']
         piece_colors = [Color.white, Color.black]
         piece_types = {
-            Type.pawn: Pawn,
             Type.bishop: Bishop,
             Type.king: King,
             Type.queen: Queen,

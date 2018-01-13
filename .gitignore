@@ -1,0 +1,4 @@
+# Auto generated directories
+__pycache__/
+venv/
+.idea/
