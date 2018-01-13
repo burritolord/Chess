@@ -281,6 +281,38 @@ class PieceMovementTest(unittest.TestCase):
                     self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
                     self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
 
+    def test_move_l_shape(self):
+        """
+        Move knight in every possible direction.
+        Expected result is that the knight no longer exist on the starting square, but on the ending square.
+        :return:
+        """
+        start_position = 'd4'
+        end_positions = ['b3', 'b5', 'c2', 'c6', 'e2', 'e6', 'f3', 'f5']
+        piece_colors = [Color.white, Color.black]
+
+        for color in piece_colors:
+            for end_position in end_positions:
+                with self.subTest(color=color, end_position=end_position):
+                    board = ChessBoard(empty_board=True)
+                    board[start_position] = Knight(color)
+                    self.assertFalse(board[start_position].has_moved, 'Piece has never moved')
+
+                    move_result = board.move_piece(start_position, end_position)
+                    self.assertIsNone(board[start_position], 'There should no longer be a piece on start position')
+                    self.assertIsInstance(board[end_position], Knight, 'There should be a piece on end position')
+                    self.assertTrue(board[end_position].has_moved, 'Piece has moved flag not updated')
+
+                    expected_result = {start_position: None, end_position: Knight(color)}
+                    self.assertIn(start_position, move_result, 'Starting position should be in move_result')
+                    self.assertIn(end_position, move_result, 'Ending position should be in move_result')
+                    self.assertEqual(expected_result[start_position], move_result[start_position],
+                                     'Start position should be empty')
+                    self.assertEqual(expected_result[end_position].type, move_result[end_position].type,
+                                     'Piece type should match')
+                    self.assertEqual(expected_result[end_position].color, move_result[end_position].color,
+                                     'Piece color should match')
+
     def test_king_perform_castle(self):
         """
         Perform castle to left and right with black king and white king.
@@ -290,32 +322,12 @@ class PieceMovementTest(unittest.TestCase):
         """
         castle_expected_result = {
             Color.white: [
-                {
-                    'king_start': 'e1',
-                    'rook_start': 'a1',
-                    'king_end': 'c1',
-                    'rook_end': 'd1'
-                },
-                {
-                    'king_start': 'e1',
-                    'rook_start': 'h1',
-                    'king_end': 'g1',
-                    'rook_end': 'f1'
-                },
+                {'king_move': ('e1', 'c1'), 'rook_move': ('a1', 'd1')},
+                {'king_move': ('e1', 'g1'), 'rook_move': ('h1', 'f1')}
             ],
             Color.black: [
-                {
-                    'king_start': 'e8',
-                    'rook_start': 'a8',
-                    'king_end': 'c8',
-                    'rook_end': 'd8'
-                },
-                {
-                    'king_start': 'e8',
-                    'rook_start': 'h8',
-                    'king_end': 'g8',
-                    'rook_end': 'f8'
-                },
+                {'king_move': ('e8', 'c8'), 'rook_move': ('a8', 'd8')},
+                {'king_move': ('e8', 'g8'), 'rook_move': ('h8', 'f8')}
             ]
         }
 
@@ -323,31 +335,37 @@ class PieceMovementTest(unittest.TestCase):
             for castle_info in left_right_castle:
                 with self.subTest(color=color, castle_info=castle_info):
                     board = ChessBoard(empty_board=True)
-                    board[castle_info['king_start']] = King(color)
-                    board[castle_info['rook_start']] = Rook(color)
+                    king_start, king_end = castle_info['king_move']
+                    rook_start, rook_end = castle_info['rook_move']
+                    board[king_start] = King(color)
+                    board[rook_start] = Rook(color)
 
-                    move_result = board.move_piece(castle_info['king_start'], castle_info['king_end'])
+                    move_result = board.move_piece(king_start, king_end)
 
-                    self.assertEqual(Type.king, board[castle_info['king_end']].type, 'King should have moved two spaces')
-                    self.assertEqual(Type.rook, board[castle_info['rook_end']].type, 'Rook should be on other side of king')
-                    self.assertIsNone(board[castle_info['rook_start']], 'Rook should have been moved')
+                    self.assertEqual(Type.king, board[king_end].type, 'King should have moved two spaces')
+                    self.assertEqual(Type.rook, board[rook_end].type, 'Rook should be on other side of king')
+                    self.assertIsNone(board[rook_start], 'Rook should have been moved')
 
                     expected_result = {
-                        castle_info['king_start']: None,
-                        castle_info['king_end']: King(color),
-                        castle_info['rook_start']: None,
-                        castle_info['rook_end']: Rook(color),
+                        king_start: None,
+                        king_end: King(color),
+                        rook_start: None,
+                        rook_end: Rook(color),
                     }
-                    self.assertIn(castle_info['king_start'], move_result, 'King starting position should be in move_result')
-                    self.assertIn(castle_info['king_end'], move_result, 'King ending position should be in move_result')
-                    self.assertIn(castle_info['rook_start'], move_result, 'Rook starting position should be in move_result')
-                    self.assertIn(castle_info['rook_end'], move_result, 'Rook ending position should be in move_result')
-                    self.assertEqual(expected_result[castle_info['king_start']], move_result[castle_info['king_start']])
-                    self.assertEqual(expected_result[castle_info['rook_start']], move_result[castle_info['rook_start']])
-                    self.assertEqual(expected_result[castle_info['king_end']].type, move_result[castle_info['king_end']].type)
-                    self.assertEqual(expected_result[castle_info['king_end']].color, move_result[castle_info['king_end']].color)
-                    self.assertEqual(expected_result[castle_info['rook_end']].type, move_result[castle_info['rook_end']].type)
-                    self.assertEqual(expected_result[castle_info['rook_end']].color, move_result[castle_info['rook_end']].color,)
+                    self.assertIn(king_start, move_result, 'King starting position should be in move_result')
+                    self.assertIn(king_end, move_result, 'King ending position should be in move_result')
+                    self.assertIn(rook_start, move_result, 'Rook starting position should be in move_result')
+                    self.assertIn(rook_end, move_result, 'Rook ending position should be in move_result')
+                    self.assertEqual(expected_result[king_start], move_result[king_start], 'Position should be empty')
+                    self.assertEqual(expected_result[rook_start], move_result[rook_start], 'Position should be empty')
+                    self.assertEqual(expected_result[king_end].type, move_result[king_end].type,
+                                     'Position should have expected piece type')
+                    self.assertEqual(expected_result[king_end].color, move_result[king_end].color,
+                                     'Position should have expected piece color')
+                    self.assertEqual(expected_result[rook_end].type, move_result[rook_end].type,
+                                     'Position should have expected piece type')
+                    self.assertEqual(expected_result[rook_end].color, move_result[rook_end].color,
+                                     'Position should have expected piece color')
 
 
 if __name__ == '__main__':
