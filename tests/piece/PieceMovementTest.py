@@ -15,16 +15,6 @@ class PieceMovementTest(unittest.TestCase):
     Test piece movement.
     """
 
-    def setUp(self):
-        self.piece_types = {
-            Type.pawn: Pawn,
-            Type.bishop: Bishop,
-            Type.king: King,
-            Type.knight: Knight,
-            Type.queen: Queen,
-            Type.rook: Rook
-        }
-
     def test_move_forward(self):
         """
         Move a piece of every type one square forward.
@@ -48,10 +38,17 @@ class PieceMovementTest(unittest.TestCase):
                     board[start] = piece_class(color)
                     self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                    board.move_piece(start, end)
+                    move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
+
+                    expected_result = {start: None, end: piece_class(color)}
+                    self.assertIn(start, move_result, 'Starting position should be in move_result')
+                    self.assertIn(end, move_result, 'Ending position should be in move_result')
+                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
+                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
+                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
 
     def test_move_forward_right_diagonal(self):
         """
@@ -74,10 +71,17 @@ class PieceMovementTest(unittest.TestCase):
                     board[start] = piece_class(color)
                     self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                    board.move_piece(start, end)
+                    move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
+
+                    expected_result = {start: None, end: piece_class(color)}
+                    self.assertIn(start, move_result, 'Starting position should be in move_result')
+                    self.assertIn(end, move_result, 'Ending position should be in move_result')
+                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
+                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
+                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
 
     def test_move_right(self):
         """
@@ -100,10 +104,17 @@ class PieceMovementTest(unittest.TestCase):
                     board[start] = piece_class(color)
                     self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                    board.move_piece(start, end)
+                    move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
+
+                    expected_result = {start: None, end: piece_class(color)}
+                    self.assertIn(start, move_result, 'Starting position should be in move_result')
+                    self.assertIn(end, move_result, 'Ending position should be in move_result')
+                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
+                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
+                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
 
     def test_move_back_right_diagonal(self):
         """
@@ -126,10 +137,17 @@ class PieceMovementTest(unittest.TestCase):
                     board[start] = piece_class(color)
                     self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                    board.move_piece(start, end)
+                    move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
+
+                    expected_result = {start: None, end: piece_class(color)}
+                    self.assertIn(start, move_result, 'Starting position should be in move_result')
+                    self.assertIn(end, move_result, 'Ending position should be in move_result')
+                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
+                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
+                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
 
     def test_move_backward(self):
         """
@@ -152,10 +170,17 @@ class PieceMovementTest(unittest.TestCase):
                     board[start] = piece_class(color)
                     self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                    board.move_piece(start, end)
+                    move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
+
+                    expected_result = {start: None, end: piece_class(color)}
+                    self.assertIn(start, move_result, 'Starting position should be in move_result')
+                    self.assertIn(end, move_result, 'Ending position should be in move_result')
+                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
+                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
+                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
 
     def test_move_back_left_diagonal(self):
         """
@@ -178,10 +203,17 @@ class PieceMovementTest(unittest.TestCase):
                     board[start] = piece_class(color)
                     self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                    board.move_piece(start, end)
+                    move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
+
+                    expected_result = {start: None, end: piece_class(color)}
+                    self.assertIn(start, move_result, 'Starting position should be in move_result')
+                    self.assertIn(end, move_result, 'Ending position should be in move_result')
+                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
+                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
+                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
 
     def test_move_left(self):
         """
@@ -204,10 +236,17 @@ class PieceMovementTest(unittest.TestCase):
                     board[start] = piece_class(color)
                     self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                    board.move_piece(start, end)
+                    move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
+
+                    expected_result = {start: None, end: piece_class(color)}
+                    self.assertIn(start, move_result, 'Starting position should be in move_result')
+                    self.assertIn(end, move_result, 'Ending position should be in move_result')
+                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
+                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
+                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
 
     def test_move_forward_left_diagonal(self):
         """
@@ -230,29 +269,17 @@ class PieceMovementTest(unittest.TestCase):
                     board[start] = piece_class(color)
                     self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
-                    board.move_piece(start, end)
+                    move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
 
-    def test_king_cant_put_self_in_check(self):
-        """
-        Place king in middle square. Place rook of opposing color on an immediate front right diagonal square.
-        Expected result is the space directly to the right and in front of king is not in legal moves list.
-        :return:
-        """
-        color_group = [(Color.white, Color.black), (Color.black, Color.white)]
-        for group in color_group:
-            with self.subTest(group=group):
-                board = ChessBoard(empty_board=True)
-                king_color, rook_color = group
-                board['d4'] = King(king_color)
-                board['e5'] = Rook(rook_color)
-
-                expected_moves = ['c3', 'c4', 'd3', 'e5']
-                legal_moves = board.get_legal_moves('d4')
-                legal_moves.sort()
-                self.assertListEqual(expected_moves, legal_moves, 'King should not be able to put self in check')
+                    expected_result = {start: None, end: piece_class(color)}
+                    self.assertIn(start, move_result, 'Starting position should be in move_result')
+                    self.assertIn(end, move_result, 'Ending position should be in move_result')
+                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
+                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
+                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
 
     def test_king_perform_castle(self):
         """
@@ -299,62 +326,28 @@ class PieceMovementTest(unittest.TestCase):
                     board[castle_info['king_start']] = King(color)
                     board[castle_info['rook_start']] = Rook(color)
 
-                    board.move_piece(castle_info['king_start'], castle_info['king_end'])
+                    move_result = board.move_piece(castle_info['king_start'], castle_info['king_end'])
 
                     self.assertEqual(Type.king, board[castle_info['king_end']].type, 'King should have moved two spaces')
                     self.assertEqual(Type.rook, board[castle_info['rook_end']].type, 'Rook should be on other side of king')
                     self.assertIsNone(board[castle_info['rook_start']], 'Rook should have been moved')
 
-    def test_piece_pinned(self):
-        """
-        Test moving a piece of every type that is the same color as king but pinned by opponents piece.
-        Expected result is legal move list for piece should be empty.
-        :return:
-        """
-        # Pawn pined
-        board = ChessBoard(empty_board=True)
-        board['c3'] = King(Color.white)
-        board['d4'] = Pawn(Color.white)
-        board['f6'] = Bishop(Color.black)
-
-        legal_moves = board.get_legal_moves('d4')
-        self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
-
-        # Rook pined
-        board = ChessBoard(empty_board=True)
-        board['c3'] = King(Color.white)
-        board['d4'] = Rook(Color.white)
-        board['f6'] = Bishop(Color.black)
-
-        legal_moves = board.get_legal_moves('d4')
-        self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
-
-        # Knight pined
-        board = ChessBoard(empty_board=True)
-        board['c3'] = King(Color.white)
-        board['d4'] = Knight(Color.white)
-        board['f6'] = Bishop(Color.black)
-
-        legal_moves = board.get_legal_moves('d4')
-        self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
-
-        # Bishop pined
-        board = ChessBoard(empty_board=True)
-        board['c3'] = King(Color.white)
-        board['c5'] = Bishop(Color.white)
-        board['c6'] = Rook(Color.black)
-
-        legal_moves = board.get_legal_moves('c5')
-        self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
-
-        # Queen kinda pined
-        board = ChessBoard(empty_board=True)
-        board['c3'] = King(Color.white)
-        board['c4'] = Queen(Color.white)
-        board['c6'] = Rook(Color.black)
-
-        legal_moves = board.get_legal_moves('c4')
-        self.assertListEqual(['c5', 'c6'], legal_moves, 'Legal moves dont match expected moves.')
+                    expected_result = {
+                        castle_info['king_start']: None,
+                        castle_info['king_end']: King(color),
+                        castle_info['rook_start']: None,
+                        castle_info['rook_end']: Rook(color),
+                    }
+                    self.assertIn(castle_info['king_start'], move_result, 'King starting position should be in move_result')
+                    self.assertIn(castle_info['king_end'], move_result, 'King ending position should be in move_result')
+                    self.assertIn(castle_info['rook_start'], move_result, 'Rook starting position should be in move_result')
+                    self.assertIn(castle_info['rook_end'], move_result, 'Rook ending position should be in move_result')
+                    self.assertEqual(expected_result[castle_info['king_start']], move_result[castle_info['king_start']])
+                    self.assertEqual(expected_result[castle_info['rook_start']], move_result[castle_info['rook_start']])
+                    self.assertEqual(expected_result[castle_info['king_end']].type, move_result[castle_info['king_end']].type)
+                    self.assertEqual(expected_result[castle_info['king_end']].color, move_result[castle_info['king_end']].color)
+                    self.assertEqual(expected_result[castle_info['rook_end']].type, move_result[castle_info['rook_end']].type)
+                    self.assertEqual(expected_result[castle_info['rook_end']].color, move_result[castle_info['rook_end']].color,)
 
 
 if __name__ == '__main__':

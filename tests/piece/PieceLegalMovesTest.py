@@ -339,3 +339,73 @@ class PieceLegalMovesTest(unittest.TestCase):
                 legal_moves = board.get_legal_moves(position)
                 legal_moves.sort()
                 self.assertListEqual(expected_moves, legal_moves, 'Castle move should be in legal move list')
+
+    def test_king_cant_put_self_in_check(self):
+        """
+        Place king in middle square. Place rook of opposing color on an immediate front right diagonal square.
+        Expected result is the space directly to the right and in front of king is not in legal moves list.
+        :return:
+        """
+        color_group = [(Color.white, Color.black), (Color.black, Color.white)]
+        for group in color_group:
+            with self.subTest(group=group):
+                board = ChessBoard(empty_board=True)
+                king_color, rook_color = group
+                board['d4'] = King(king_color)
+                board['e5'] = Rook(rook_color)
+
+                expected_moves = ['c3', 'c4', 'd3', 'e5']
+                legal_moves = board.get_legal_moves('d4')
+                legal_moves.sort()
+                self.assertListEqual(expected_moves, legal_moves, 'King should not be able to put self in check')
+
+    def test_piece_pinned(self):
+        """
+        Test moving a piece of every type that is the same color as king but pinned by opponents piece.
+        Expected result is legal move list for piece should be empty.
+        :return:
+        """
+        # Pawn pined
+        board = ChessBoard(empty_board=True)
+        board['c3'] = King(Color.white)
+        board['d4'] = Pawn(Color.white)
+        board['f6'] = Bishop(Color.black)
+
+        legal_moves = board.get_legal_moves('d4')
+        self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
+
+        # Rook pined
+        board = ChessBoard(empty_board=True)
+        board['c3'] = King(Color.white)
+        board['d4'] = Rook(Color.white)
+        board['f6'] = Bishop(Color.black)
+
+        legal_moves = board.get_legal_moves('d4')
+        self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
+
+        # Knight pined
+        board = ChessBoard(empty_board=True)
+        board['c3'] = King(Color.white)
+        board['d4'] = Knight(Color.white)
+        board['f6'] = Bishop(Color.black)
+
+        legal_moves = board.get_legal_moves('d4')
+        self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
+
+        # Bishop pined
+        board = ChessBoard(empty_board=True)
+        board['c3'] = King(Color.white)
+        board['c5'] = Bishop(Color.white)
+        board['c6'] = Rook(Color.black)
+
+        legal_moves = board.get_legal_moves('c5')
+        self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
+
+        # Queen kinda pined
+        board = ChessBoard(empty_board=True)
+        board['c3'] = King(Color.white)
+        board['c4'] = Queen(Color.white)
+        board['c6'] = Rook(Color.black)
+
+        legal_moves = board.get_legal_moves('c4')
+        self.assertListEqual(['c5', 'c6'], legal_moves, 'Legal moves dont match expected moves.')

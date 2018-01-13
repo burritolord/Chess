@@ -1,3 +1,4 @@
+import copy
 from piece.Pawn import Pawn
 from piece.Rook import Rook
 from piece.Knight import Knight
@@ -94,7 +95,7 @@ class ChessBoard:
             raise Exception(position + " is not a valid position")
         return self._pieces[position] is not None
 
-    def is_check(self, king_color, position=None, ghost_pieces={}):
+    def is_check(self, king_color, position=None, ghost_pieces=None):
         """
         Test for check against king of the specified color.
 
@@ -128,6 +129,7 @@ class ChessBoard:
         }
 
         for direction, pieces in opponent_piece_list.items():
+            ghost_pieces = {} if not ghost_pieces else ghost_pieces
             nearest_piece = self._get_nearest_piece_in_direction(king_position, direction, king_color, ghost_pieces)
             if nearest_piece and nearest_piece['color'] != king_color:
                 offset = nearest_piece['offset']
@@ -187,7 +189,7 @@ class ChessBoard:
     def move_piece(self, start_position, end_position):
         """
         Move piece from starting position to end position. Does not check if end position is valid. Ex. king in check
-        or if overtaking square with piece of same color. Also does not check if moving piece has phassed through other
+        or if overtaking square with piece of same color. Also does not check if moving piece has passed through other
         pieces.
 
         :param start_position: string
@@ -197,46 +199,48 @@ class ChessBoard:
         :return: dict
             [position]: Piece. Use None if position is now empty
         """
-        piece_on_start_position = self[start_position]
-        if not piece_on_start_position:
+        start_position_piece = self[start_position]
+        if not start_position_piece:
             raise Exception("start_position is not occupied by a piece")
 
         updated_positions = {}
-        move_info = self._direction_and_position_offset(start_position, end_position, piece_on_start_position.color)
+        move_info = self._direction_and_position_offset(start_position, end_position, start_position_piece.color)
         direction = move_info['direction']
         column_offset, row_offset = move_info['offset']
 
         # Check for en passant
-        if piece_on_start_position.type == Type.pawn and (direction == MoveDirection.f_right_diag or
-                                                          direction == MoveDirection.f_left_diag):
+        if start_position_piece.type == Type.pawn and (direction == MoveDirection.f_right_diag or
+                                                       direction == MoveDirection.f_left_diag):
             if self.can_en_passant(start_position, direction):
                 if self._on_same_row(start_position, self.last_move['end']):
                     self._remove_piece(self.last_move['end'])
                     updated_positions[self.last_move['end']] = None
         # Check for castling
-        elif piece_on_start_position.type == Type.king and abs(column_offset) == 2 and self.can_castle(piece_on_start_position.color, direction):
+        elif start_position_piece.type == Type.king and abs(column_offset) == 2 and\
+                self.can_castle(start_position_piece.color, direction):
             rook_positions = {
                 Color.white: {MoveDirection.left: 'a1', MoveDirection.right: 'h1'},
                 Color.black: {MoveDirection.left: 'h8', MoveDirection.right: 'a8'}
             }
-            rook_position = self._get_position_shifted_by_offset(start_position, direction, 1, piece_on_start_position.color)
-            self[rook_position] = self[rook_positions[piece_on_start_position.color][direction]]
-            self._remove_piece(rook_positions[piece_on_start_position.color][direction])
-            updated_positions[rook_position] = self[rook_position]
-            updated_positions['a1'] = None
+            rook_position = self._get_position_shifted_by_offset(start_position, direction, 1,
+                                                                 start_position_piece.color)
+            self[rook_position] = self[rook_positions[start_position_piece.color][direction]]
+            self._remove_piece(rook_positions[start_position_piece.color][direction])
+            updated_positions[rook_position] = copy.copy(self[rook_position])
+            updated_positions[rook_positions[start_position_piece.color][direction]] = None
 
-        piece_on_start_position.has_moved = True
+        start_position_piece.has_moved = True
         self._remove_piece(start_position)
         self._remove_piece(end_position)
-        self[end_position] = piece_on_start_position
+        self[end_position] = start_position_piece
 
-        updated_positions[end_position] = piece_on_start_position
+        updated_positions[end_position] = copy.copy(start_position_piece)
         updated_positions[start_position] = None
 
         self.last_move['start'] = start_position
         self.last_move['end'] = end_position
-        self.last_move['piece_type'] = piece_on_start_position.type
-        self.last_move['piece_color'] = piece_on_start_position.color
+        self.last_move['piece_type'] = start_position_piece.type
+        self.last_move['piece_color'] = start_position_piece.color
 
         return updated_positions
 
@@ -424,7 +428,7 @@ class ChessBoard:
             Every square on the board is returned. They key to each square is the algebraic notation of that square and
             the value is None if there is not a piece.
         """
-        return self._pieces
+        return copy.copy(self._pieces)
 
     def get_dimension(self):
         """
@@ -476,7 +480,9 @@ class ChessBoard:
         """
         possible_positions = []
         current_index = next_index = self._position_to_index(start_position, piece_color)
-        current_column, current_row = self._position_to_row_and_column(self._index_to_position(current_index, piece_color), piece_color)
+        current_column, current_row = self._position_to_row_and_column(
+            self._index_to_position(current_index, piece_color),
+            piece_color)
         if move_direction == MoveDirection.l_shape:
             for shift in self.PIECE_SHIFTING[MoveDirection.l_shape]:
                 try:
@@ -485,7 +491,9 @@ class ChessBoard:
                 except IndexError:
                     continue
                 else:
-                    next_column, next_row = self._position_to_row_and_column(self._index_to_position(next_index, piece_color), piece_color)
+                    next_column, next_row = self._position_to_row_and_column(
+                        self._index_to_position(next_index, piece_color),
+                        piece_color)
                     column_diff = abs(next_column - current_column)
                     if current_row != next_row and column_diff <= 2:
                         possible_positions.append(self._index_to_position(next_index, piece_color))
@@ -631,7 +639,7 @@ class ChessBoard:
         else:
             self._pieces[self._board_positions[index]] = None
 
-    def _get_nearest_piece_in_direction(self, start_position, move_direction, piece_color, ghost_pieces={}):
+    def _get_nearest_piece_in_direction(self, start_position, move_direction, piece_color, ghost_pieces=None):
         """
         Get the nearest piece from the starting position heading in the direction specified. Not expecting
         MoveDirection.l_shape as a direction.
@@ -657,6 +665,7 @@ class ChessBoard:
             offset += 1
             piece_on_destination = self.is_position_occupied(position)
 
+            ghost_pieces = {} if not ghost_pieces else ghost_pieces
             if position in ghost_pieces and not ghost_pieces[position]:
                 continue
             elif position in ghost_pieces:
@@ -795,7 +804,7 @@ class ChessBoard:
             Piece object.
         :return:
         """
-        self._pieces[position] = piece
+        self._pieces[position] = copy.copy(piece)
         if piece.type == Type.king:
             self._king_positions[piece.color] = position
 
