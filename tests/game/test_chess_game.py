@@ -2,6 +2,7 @@ import unittest
 from game.ChessGame import ChessGame
 from piece.Color import Color
 
+
 class ChessGameTest(unittest.TestCase):
 
     def test_current_player(self):
