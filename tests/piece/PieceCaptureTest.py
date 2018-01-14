@@ -42,9 +42,13 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertListEqual(expected_possible_moves, possible_moves, message)
 
         # Move pawn to capture a piece
-        board.move_piece(start_position, capture_position)
+        move_result = board.move_piece(start_position, capture_position)
         message = 'Pawn should have captured piece on ' + capture_position + ' square'
         self.assertIsInstance(board[capture_position], Pawn, message)
+
+        # Test move result
+        expected_move_result = {start_position: None, capture_position: Pawn(Color.white)}
+        self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_pawn_cant_capture(self):
         """
@@ -89,9 +93,13 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertListEqual(expected_possible_moves, possible_moves, message)
 
         # Confirm piece is captured
-        board.move_piece(start_position, capture_position)
+        move_result = board.move_piece(start_position, capture_position)
         message = 'Rook should have captured piece on ' + capture_position + ' square'
         self.assertIsInstance(board[capture_position], Rook, message)
+
+        # Test move result
+        expected_move_result = {start_position: None, capture_position: Rook(Color.white)}
+        self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_rook_cant_capture(self):
         """
@@ -135,9 +143,13 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertListEqual(expected_possible_moves, possible_moves, message)
 
         # Move knight to capture a piece
-        board.move_piece(start_position, capture_position)
+        move_result = board.move_piece(start_position, capture_position)
         message = 'Knight should have captured piece on ' + capture_position + ' square'
         self.assertIsInstance(board[capture_position], Knight, message)
+
+        # Test move result
+        expected_move_result = {start_position: None, capture_position: Knight(Color.white)}
+        self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_bishop_capture(self):
         """
@@ -160,9 +172,13 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertListEqual(expected_possible_moves, possible_moves, message)
 
         # Move bishop to capture a piece
-        board.move_piece(start_position, capture_position)
+        move_result = board.move_piece(start_position, capture_position)
         message = 'Bishop should have captured piece on ' + capture_position + ' square'
         self.assertIsInstance(board[capture_position], Bishop, message)
+
+        # Test move result
+        expected_move_result = {start_position: None, capture_position: Bishop(Color.white)}
+        self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_bishop_cant_capture(self):
         """
@@ -203,9 +219,13 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertListEqual(expected_legal_moves, possible_moves, 'Expected move list does not match actual move list')
 
         # Move king to capture a piece
-        board.move_piece(start_position, capture_position)
+        move_result = board.move_piece(start_position, capture_position)
         message = 'King should have captured piece on ' + capture_position + ' square'
         self.assertIsInstance(board[capture_position], King, message)
+
+        # Test move result
+        expected_move_result = {start_position: None, capture_position: King(Color.white)}
+        self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_king_cant_capture(self):
         """
@@ -260,9 +280,13 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertListEqual(expected_possible_moves, possible_moves, message)
 
         # Move queen to capture a piece
-        board.move_piece(start_position, capture_position)
+        move_result = board.move_piece(start_position, capture_position)
         message = 'Queen should have captured piece on ' + capture_position + ' square'
         self.assertIsInstance(board[capture_position], Queen, message)
+
+        # Test move result
+        expected_move_result = {start_position: None, capture_position: Queen(Color.white)}
+        self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_queen_cant_capture(self):
         """
@@ -296,12 +320,24 @@ class PieceCaptureTest(unittest.TestCase):
         board['b5'] = Pawn(Color.white)
         board['a7'] = Pawn(Color.black)
         board.move_piece('a7', 'a5')
-        board.move_piece('b5', 'a6')
+        move_result = board.move_piece('b5', 'a6')
         self.assertIsNone(board['a5'], 'Expected black pawn to be captured')
+
+        # Test move result
+        expected_move_result = {'b5': None, 'a5': None, 'a6': Pawn(Color.white)}
+        self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
         # Check from black perspective
         board['e4'] = Pawn(Color.black)
         board['d2'] = Pawn(Color.white)
         board.move_piece('d2', 'd4')
-        board.move_piece('e4', 'd3')
+        move_result = board.move_piece('e4', 'd3')
         self.assertIsNone(board['d4'], 'Expected black pawn to be captured')
+
+        # Test move result
+        expected_move_result = {'e4': None, 'd4': None, 'd3': Pawn(Color.black)}
+        self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
+
+
+if __name__ == '__main__':
+    unittest.main()

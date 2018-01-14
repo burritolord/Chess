@@ -44,11 +44,7 @@ class PieceMovementTest(unittest.TestCase):
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
-                    self.assertIn(start, move_result, 'Starting position should be in move_result')
-                    self.assertIn(end, move_result, 'Ending position should be in move_result')
-                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
-                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
-                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
+                    self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
 
     def test_move_forward_right_diagonal(self):
         """
@@ -77,11 +73,7 @@ class PieceMovementTest(unittest.TestCase):
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
-                    self.assertIn(start, move_result, 'Starting position should be in move_result')
-                    self.assertIn(end, move_result, 'Ending position should be in move_result')
-                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
-                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
-                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
+                    self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
 
     def test_move_right(self):
         """
@@ -110,11 +102,7 @@ class PieceMovementTest(unittest.TestCase):
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
-                    self.assertIn(start, move_result, 'Starting position should be in move_result')
-                    self.assertIn(end, move_result, 'Ending position should be in move_result')
-                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
-                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
-                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
+                    self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
 
     def test_move_back_right_diagonal(self):
         """
@@ -143,11 +131,7 @@ class PieceMovementTest(unittest.TestCase):
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
-                    self.assertIn(start, move_result, 'Starting position should be in move_result')
-                    self.assertIn(end, move_result, 'Ending position should be in move_result')
-                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
-                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
-                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
+                    self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
 
     def test_move_backward(self):
         """
@@ -176,11 +160,7 @@ class PieceMovementTest(unittest.TestCase):
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
-                    self.assertIn(start, move_result, 'Starting position should be in move_result')
-                    self.assertIn(end, move_result, 'Ending position should be in move_result')
-                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
-                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
-                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
+                    self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
 
     def test_move_back_left_diagonal(self):
         """
@@ -209,11 +189,7 @@ class PieceMovementTest(unittest.TestCase):
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
-                    self.assertIn(start, move_result, 'Starting position should be in move_result')
-                    self.assertIn(end, move_result, 'Ending position should be in move_result')
-                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
-                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
-                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
+                    self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
 
     def test_move_left(self):
         """
@@ -242,11 +218,7 @@ class PieceMovementTest(unittest.TestCase):
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
-                    self.assertIn(start, move_result, 'Starting position should be in move_result')
-                    self.assertIn(end, move_result, 'Ending position should be in move_result')
-                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
-                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
-                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
+                    self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
 
     def test_move_forward_left_diagonal(self):
         """
@@ -275,11 +247,7 @@ class PieceMovementTest(unittest.TestCase):
                     self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
-                    self.assertIn(start, move_result, 'Starting position should be in move_result')
-                    self.assertIn(end, move_result, 'Ending position should be in move_result')
-                    self.assertEqual(expected_result[start], move_result[start], 'Start position should be empty')
-                    self.assertEqual(expected_result[end].type, move_result[end].type, 'Piece type should match')
-                    self.assertEqual(expected_result[end].color, move_result[end].color, 'Piece color should match')
+                    self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
 
     def test_move_l_shape(self):
         """
@@ -304,14 +272,7 @@ class PieceMovementTest(unittest.TestCase):
                     self.assertTrue(board[end_position].has_moved, 'Piece has moved flag not updated')
 
                     expected_result = {start_position: None, end_position: Knight(color)}
-                    self.assertIn(start_position, move_result, 'Starting position should be in move_result')
-                    self.assertIn(end_position, move_result, 'Ending position should be in move_result')
-                    self.assertEqual(expected_result[start_position], move_result[start_position],
-                                     'Start position should be empty')
-                    self.assertEqual(expected_result[end_position].type, move_result[end_position].type,
-                                     'Piece type should match')
-                    self.assertEqual(expected_result[end_position].color, move_result[end_position].color,
-                                     'Piece color should match')
+                    self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
 
     def test_king_perform_castle(self):
         """
@@ -352,20 +313,7 @@ class PieceMovementTest(unittest.TestCase):
                         rook_start: None,
                         rook_end: Rook(color),
                     }
-                    self.assertIn(king_start, move_result, 'King starting position should be in move_result')
-                    self.assertIn(king_end, move_result, 'King ending position should be in move_result')
-                    self.assertIn(rook_start, move_result, 'Rook starting position should be in move_result')
-                    self.assertIn(rook_end, move_result, 'Rook ending position should be in move_result')
-                    self.assertEqual(expected_result[king_start], move_result[king_start], 'Position should be empty')
-                    self.assertEqual(expected_result[rook_start], move_result[rook_start], 'Position should be empty')
-                    self.assertEqual(expected_result[king_end].type, move_result[king_end].type,
-                                     'Position should have expected piece type')
-                    self.assertEqual(expected_result[king_end].color, move_result[king_end].color,
-                                     'Position should have expected piece color')
-                    self.assertEqual(expected_result[rook_end].type, move_result[rook_end].type,
-                                     'Position should have expected piece type')
-                    self.assertEqual(expected_result[rook_end].color, move_result[rook_end].color,
-                                     'Position should have expected piece color')
+                    self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
 
 
 if __name__ == '__main__':

@@ -409,3 +409,7 @@ class PieceLegalMovesTest(unittest.TestCase):
 
         legal_moves = board.get_legal_moves('c4')
         self.assertListEqual(['c5', 'c6'], legal_moves, 'Legal moves dont match expected moves.')
+
+
+if __name__ == '__main__':
+    unittest.main()

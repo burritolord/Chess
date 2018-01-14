@@ -226,16 +226,20 @@ class ChessBoard:
                                                                  start_position_piece.color)
             self[rook_position] = self[rook_positions[start_position_piece.color][direction]]
             self._remove_piece(rook_positions[start_position_piece.color][direction])
-            updated_positions[rook_position] = copy.copy(self[rook_position])
+            updated_positions[rook_position] = copy.deepcopy(self[rook_position])
             updated_positions[rook_positions[start_position_piece.color][direction]] = None
+
+        # Have to clone the piece before moving it. Otherwise, it makes it really hard to compare
+        # expected move result to actual move result since the piece here will have a modified
+        # has_moved attribute and diff values for move_directions. Plus, we don't really care about
+        # any values other than piece type and color
+        updated_positions[end_position] = copy.deepcopy(start_position_piece)
+        updated_positions[start_position] = None
 
         start_position_piece.has_moved = True
         self._remove_piece(start_position)
         self._remove_piece(end_position)
         self[end_position] = start_position_piece
-
-        updated_positions[end_position] = copy.copy(start_position_piece)
-        updated_positions[start_position] = None
 
         self.last_move['start'] = start_position
         self.last_move['end'] = end_position
@@ -428,7 +432,7 @@ class ChessBoard:
             Every square on the board is returned. They key to each square is the algebraic notation of that square and
             the value is None if there is not a piece.
         """
-        return copy.copy(self._pieces)
+        return copy.deepcopy(self._pieces)
 
     def get_dimension(self):
         """
@@ -804,7 +808,7 @@ class ChessBoard:
             Piece object.
         :return:
         """
-        self._pieces[position] = copy.copy(piece)
+        self._pieces[position] = copy.deepcopy(piece)
         if piece.type == Type.king:
             self._king_positions[piece.color] = position
 
