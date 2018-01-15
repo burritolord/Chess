@@ -15,7 +15,7 @@ class Knight(Piece):
             Color that this piece should have.
         :return:
         """
-        super().__init__(Type.knight, color)
-        self._moves[MoveDirection.l_shape] = True
-        self._string_value = 'N' if color == Color.white else 'n'
+        super().__init__(Type.KNIGHT, color)
+        self._moves[MoveDirection.L_SHAPE] = True
+        self._string_value = 'N' if color == Color.WHITE else 'n'
 

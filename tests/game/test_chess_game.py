@@ -13,15 +13,15 @@ class ChessGameTest(unittest.TestCase):
         """
         game = ChessGame()
         current_player = game.current_player
-        self.assertEqual(Color.white, current_player.color)
+        self.assertEqual(Color.WHITE, current_player.color)
 
         game.move_piece('d2', 'd4')
         current_player = game.current_player
-        self.assertEqual(Color.black, current_player.color)
+        self.assertEqual(Color.BLACK, current_player.color)
 
         game.move_piece('d7', 'd5')
         current_player = game.current_player
-        self.assertEqual(Color.white, current_player.color)
+        self.assertEqual(Color.WHITE, current_player.color)
 
     def test_is_game_over(self):
         """

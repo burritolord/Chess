@@ -14,11 +14,11 @@ class Rook(Piece):
             Color that this piece should have.
         :return:
         """
-        super().__init__(Type.rook, color)
-        self._moves[MoveDirection.forward] = -1
-        self._moves[MoveDirection.backward] = -1
-        self._moves[MoveDirection.left] = -1
-        self._moves[MoveDirection.right] = -1
+        super().__init__(Type.ROOK, color)
+        self._moves[MoveDirection.FORWARD] = -1
+        self._moves[MoveDirection.BACKWARD] = -1
+        self._moves[MoveDirection.LEFT] = -1
+        self._moves[MoveDirection.RIGHT] = -1
 
-        self._string_value = 'R' if color == Color.white else 'r'
+        self._string_value = 'R' if color == Color.WHITE else 'r'
 

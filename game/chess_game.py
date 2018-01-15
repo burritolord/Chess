@@ -4,7 +4,7 @@
 # Check for end game: win, lose, draw
 from board.chess_board import ChessBoard
 from piece.color import Color
-from game.Player import Player
+from game.player import Player
 
 
 class ChessGame:
@@ -12,7 +12,7 @@ class ChessGame:
     def __init__(self):
         self._id = None
         self._board = ChessBoard()
-        self._current_player = Color.white
+        self._current_player = Color.WHITE
         self._game_over = False
         self._white_player_id = None
         self._black_player_id = None
@@ -34,7 +34,7 @@ class ChessGame:
         """
         #TODO make sure in algebraic notation and UTF8
         self._board.move_piece(start_position, end_position)
-        self._current_player = Color.white if self._current_player == Color.black else Color.white
+        self._current_player = Color.WHITE if self._current_player == Color.BLACK else Color.WHITE
 
         # Return object of some sort indicating what happened and what can happen
         # - Pieces removed from board

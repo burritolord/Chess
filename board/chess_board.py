@@ -22,15 +22,15 @@ class ChessBoard:
     Offsets to shift over from current position to move forward, backward, etc.
     """
     PIECE_SHIFTING = {
-        MoveDirection.forward: 8,
-        MoveDirection.backward: -8,
-        MoveDirection.left: -1,
-        MoveDirection.right: 1,
-        MoveDirection.f_left_diag: 7,
-        MoveDirection.f_right_diag: 9,
-        MoveDirection.b_left_diag: -9,
-        MoveDirection.b_right_diag: -7,
-        MoveDirection.l_shape: [-17, -15, -10, -6, 6, 10, 15, 17]
+        MoveDirection.FORWARD: 8,
+        MoveDirection.BACKWARD: -8,
+        MoveDirection.LEFT: -1,
+        MoveDirection.RIGHT: 1,
+        MoveDirection.F_LEFT_DIAG: 7,
+        MoveDirection.F_RIGHT_DIAG: 9,
+        MoveDirection.B_LEFT_DIAG: -9,
+        MoveDirection.B_RIGHT_DIAG: -7,
+        MoveDirection.L_SHAPE: [-17, -15, -10, -6, 6, 10, 15, 17]
     }
 
     def __init__(self, empty_board=False):
@@ -51,38 +51,38 @@ class ChessBoard:
 
         # Dictionary of all pieces on board keyed by the algebraic notation.
         self._pieces = {file + str(rank + 1): None for rank in range(0, board_length) for file in "abcdefgh"}
-        self._king_positions = {Color.white: None, Color.black: None}
+        self._king_positions = {Color.WHITE: None, Color.BLACK: None}
 
         # Dictionary mapping of algebraic notation to index values. The board is a flat list and position a1 is index 0.
         # This mapping allows for quick offset computations. Shifting over to the right by the board width will move us
         # up one square.
-        self._indexes = {Color.white: {}, Color.black: {}}
+        self._indexes = {Color.WHITE: {}, Color.BLACK: {}}
         for position, index in zip(self._board_positions, range(0, board_length**2)):
-            self._indexes[Color.white][position] = index
+            self._indexes[Color.WHITE][position] = index
         for position, index in zip(reversed(self._board_positions), range(0, board_length**2)):
-            self._indexes[Color.black][position] = index
+            self._indexes[Color.BLACK][position] = index
 
         if not empty_board:
             # Set the starting pieces for white
             for index in range(board_length, board_length*2):
-                self._pieces[self._board_positions[index]] = Pawn(Color.white)
-            self._pieces['a1'], self._pieces['h1'] = Rook(Color.white), Rook(Color.white)
-            self._pieces['b1'], self._pieces['g1'] = Knight(Color.white), Knight(Color.white)
-            self._pieces['c1'], self._pieces['f1'] = Bishop(Color.white), Bishop(Color.white)
-            self._pieces['d1'] = Queen(Color.white)
-            self._pieces['e1'] = King(Color.white)
+                self._pieces[self._board_positions[index]] = Pawn(Color.WHITE)
+            self._pieces['a1'], self._pieces['h1'] = Rook(Color.WHITE), Rook(Color.WHITE)
+            self._pieces['b1'], self._pieces['g1'] = Knight(Color.WHITE), Knight(Color.WHITE)
+            self._pieces['c1'], self._pieces['f1'] = Bishop(Color.WHITE), Bishop(Color.WHITE)
+            self._pieces['d1'] = Queen(Color.WHITE)
+            self._pieces['e1'] = King(Color.WHITE)
 
             # Set the starting pieces for black
             for index in range(board_length*6, board_length*7):
-                self._pieces[self._board_positions[index]] = Pawn(Color.black)
-            self._pieces['a8'], self._pieces['h8'] = Rook(Color.black), Rook(Color.black)
-            self._pieces['b8'], self._pieces['g8'] = Knight(Color.black), Knight(Color.black)
-            self._pieces['c8'], self._pieces['f8'] = Bishop(Color.black), Bishop(Color.black)
-            self._pieces['d8'] = Queen(Color.black)
-            self._pieces['e8'] = King(Color.black)
+                self._pieces[self._board_positions[index]] = Pawn(Color.BLACK)
+            self._pieces['a8'], self._pieces['h8'] = Rook(Color.BLACK), Rook(Color.BLACK)
+            self._pieces['b8'], self._pieces['g8'] = Knight(Color.BLACK), Knight(Color.BLACK)
+            self._pieces['c8'], self._pieces['f8'] = Bishop(Color.BLACK), Bishop(Color.BLACK)
+            self._pieces['d8'] = Queen(Color.BLACK)
+            self._pieces['e8'] = King(Color.BLACK)
 
-            self._king_positions[Color.white] = 'e1'
-            self._king_positions[Color.black] = 'e8'
+            self._king_positions[Color.WHITE] = 'e1'
+            self._king_positions[Color.BLACK] = 'e8'
 
     def is_position_occupied(self, position):
         """
@@ -119,18 +119,18 @@ class ChessBoard:
             return False
 
         # Check file and rank
-        diagonal_pieces = (Type.queen, Type.bishop)
-        file_and_rank_pieces = (Type.rook, Type.queen)
-        pawn_capture_directions = (MoveDirection.f_right_diag, MoveDirection.f_left_diag)
+        diagonal_pieces = (Type.QUEEN, Type.BISHOP)
+        file_and_rank_pieces = (Type.ROOK, Type.QUEEN)
+        pawn_capture_directions = (MoveDirection.F_RIGHT_DIAG, MoveDirection.F_LEFT_DIAG)
         opponent_piece_list = {
-            MoveDirection.forward: file_and_rank_pieces,
-            MoveDirection.f_right_diag: diagonal_pieces,
-            MoveDirection.right: file_and_rank_pieces,
-            MoveDirection.b_right_diag: diagonal_pieces,
-            MoveDirection.backward: file_and_rank_pieces,
-            MoveDirection.b_left_diag: diagonal_pieces,
-            MoveDirection.left: file_and_rank_pieces,
-            MoveDirection.f_left_diag: diagonal_pieces
+            MoveDirection.FORWARD: file_and_rank_pieces,
+            MoveDirection.F_RIGHT_DIAG: diagonal_pieces,
+            MoveDirection.RIGHT: file_and_rank_pieces,
+            MoveDirection.B_RIGHT_DIAG: diagonal_pieces,
+            MoveDirection.BACKWARD: file_and_rank_pieces,
+            MoveDirection.B_LEFT_DIAG: diagonal_pieces,
+            MoveDirection.LEFT: file_and_rank_pieces,
+            MoveDirection.F_LEFT_DIAG: diagonal_pieces
         }
 
         for direction, pieces in opponent_piece_list.items():
@@ -139,19 +139,19 @@ class ChessBoard:
             if nearest_piece and nearest_piece['color'] != king_color:
                 offset = nearest_piece['offset']
                 piece_type = nearest_piece['type']
-                if direction in pawn_capture_directions and offset == 1 and piece_type == Type.pawn:
+                if direction in pawn_capture_directions and offset == 1 and piece_type == Type.PAWN:
                     return True
-                elif offset == 1 and piece_type == Type.king:
+                elif offset == 1 and piece_type == Type.KING:
                     return True
                 elif piece_type in pieces:
                     return True
 
         # Color doesnt matter here
-        l_shape_positions = self._get_possible_positions(king_position, MoveDirection.l_shape, king_color)
+        l_shape_positions = self._get_possible_positions(king_position, MoveDirection.L_SHAPE, king_color)
         for position in l_shape_positions:
             if self.is_position_occupied(position):
                 piece = self[position]
-                if piece.type == Type.knight and piece.color != king_color:
+                if piece.type == Type.KNIGHT and piece.color != king_color:
                     return True
 
         return False
@@ -219,18 +219,18 @@ class ChessBoard:
         column_offset, row_offset = move_info['offset']
 
         # Check for en passant
-        if start_position_piece.type == Type.pawn and (direction == MoveDirection.f_right_diag or
-                                                       direction == MoveDirection.f_left_diag):
+        if start_position_piece.type == Type.PAWN and (direction == MoveDirection.F_RIGHT_DIAG or
+                                                       direction == MoveDirection.F_LEFT_DIAG):
             if self.can_en_passant(start_position, direction):
                 if self._on_same_row(start_position, self.last_move['end']):
                     self._remove_piece(self.last_move['end'])
                     updated_positions[self.last_move['end']] = None
         # Check for castling
-        elif start_position_piece.type == Type.king and abs(column_offset) == 2 and\
+        elif start_position_piece.type == Type.KING and abs(column_offset) == 2 and\
                 self.can_castle(start_position_piece.color, direction):
             rook_positions = {
-                Color.white: {MoveDirection.left: 'a1', MoveDirection.right: 'h1'},
-                Color.black: {MoveDirection.left: 'h8', MoveDirection.right: 'a8'}
+                Color.WHITE: {MoveDirection.LEFT: 'a1', MoveDirection.RIGHT: 'h1'},
+                Color.BLACK: {MoveDirection.LEFT: 'h8', MoveDirection.RIGHT: 'a8'}
             }
             rook_position = self._get_position_shifted_by_offset(start_position, direction, 1,
                                                                  start_position_piece.color)
@@ -269,13 +269,13 @@ class ChessBoard:
         :return: bool
             True if king can castle, False otherwise.
         """
-        if direction != MoveDirection.left and direction != MoveDirection.right:
+        if direction != MoveDirection.LEFT and direction != MoveDirection.RIGHT:
             return False
 
         king_position = self._king_positions[king_color]
         nearest_piece_info = self._get_nearest_piece_in_direction(king_position, direction, king_color)
 
-        if nearest_piece_info and nearest_piece_info['type'] == Type.rook:
+        if nearest_piece_info and nearest_piece_info['type'] == Type.ROOK:
             nearest_piece = self[nearest_piece_info['position']]
             king = self[king_position]
             is_check = self.is_check(king_color, king_position)
@@ -300,14 +300,14 @@ class ChessBoard:
             Direction to look in. Ex MoveDirection.f_right_diag
         :return:
         """
-        if direction != MoveDirection.f_right_diag and direction != MoveDirection.f_left_diag:
+        if direction != MoveDirection.F_RIGHT_DIAG and direction != MoveDirection.F_LEFT_DIAG:
             return False
 
         if self.is_position_occupied(position) and self.last_move['end']:
             piece_on_position = self[position]
-            pieces_are_pawns = piece_on_position.type == self.last_move['piece_type'] == Type.pawn
+            pieces_are_pawns = piece_on_position.type == self.last_move['piece_type'] == Type.PAWN
             pieces_are_diff_color = piece_on_position.color != self.last_move['piece_color']
-            check_direction = MoveDirection.left if direction == MoveDirection.f_left_diag else MoveDirection.right
+            check_direction = MoveDirection.LEFT if direction == MoveDirection.F_LEFT_DIAG else MoveDirection.RIGHT
             nearest_piece_info = self._get_nearest_piece_in_direction(position,
                                                                       check_direction,
                                                                       piece_on_position.color)
@@ -349,7 +349,7 @@ class ChessBoard:
             possible_positions = self._get_possible_positions(position, move_direction, piece_on_position.color)
 
             # Handle special case for Knight
-            if move_direction == MoveDirection.l_shape:
+            if move_direction == MoveDirection.L_SHAPE:
                 for possible_position in possible_positions:
                     ghost_pieces = {
                         position: None,
@@ -385,7 +385,7 @@ class ChessBoard:
                         }
                     }
 
-                    if piece_on_position.type == Type.king:
+                    if piece_on_position.type == Type.KING:
                         if not self.is_check(piece_on_position.color, possible_position, ghost_pieces):
                             try:
                                 can_castle = self.can_castle(piece_on_position.color, move_direction)
@@ -407,18 +407,18 @@ class ChessBoard:
                                 break
                         else:  # Piece is same color as one we are working with
                             break
-                    elif piece_on_position.type == Type.pawn and not self.is_check(piece_on_position.color, piece_king_position, ghost_pieces):
-                        if (not destination_occupied and move_direction != MoveDirection.f_left_diag
-                                and move_direction != MoveDirection.f_right_diag):
+                    elif piece_on_position.type == Type.PAWN and not self.is_check(piece_on_position.color, piece_king_position, ghost_pieces):
+                        if (not destination_occupied and move_direction != MoveDirection.F_LEFT_DIAG
+                                and move_direction != MoveDirection.F_RIGHT_DIAG):
                             possible_moves.append(possible_position)
                         elif (self[possible_position] and self[possible_position].color != piece_on_position.color and
-                                (move_direction == MoveDirection.f_left_diag or
-                                    move_direction == MoveDirection.f_right_diag) and
-                                position_num == 0):
+                              (move_direction == MoveDirection.F_LEFT_DIAG or
+                                 move_direction == MoveDirection.F_RIGHT_DIAG) and
+                              position_num == 0):
                             possible_moves.append(possible_position)
                             break
-                        elif (move_direction == MoveDirection.f_left_diag or
-                              move_direction == MoveDirection.f_right_diag) and\
+                        elif (move_direction == MoveDirection.F_LEFT_DIAG or
+                              move_direction == MoveDirection.F_RIGHT_DIAG) and\
                                 self.can_en_passant(position, move_direction):
                             possible_moves.append(possible_position)
                         else:  # Piece is same color as one we are working with
@@ -500,8 +500,8 @@ class ChessBoard:
         current_column, current_row = self._position_to_row_and_column(
             self._index_to_position(current_index, piece_color),
             piece_color)
-        if move_direction == MoveDirection.l_shape:
-            for shift in self.PIECE_SHIFTING[MoveDirection.l_shape]:
+        if move_direction == MoveDirection.L_SHAPE:
+            for shift in self.PIECE_SHIFTING[MoveDirection.L_SHAPE]:
                 try:
                     next_index = current_index + shift
                     self._index_to_position(next_index, piece_color)
@@ -538,7 +538,7 @@ class ChessBoard:
         if not ChessHelper.is_valid_position(position):
             raise InvalidPositionError(position)
 
-        if piece_color == Color.white:
+        if piece_color == Color.WHITE:
             column = 'abcdefgh'.index(position[0])
             row = int(position[1]) - 1
         else:
@@ -569,24 +569,24 @@ class ChessBoard:
         num_spaces = max_movement
         current_x_coord, current_y_coord = self._position_to_row_and_column(start_position, piece_color)
 
-        if move_direction == MoveDirection.forward:
+        if move_direction == MoveDirection.FORWARD:
             max_movement = board_length - current_y_coord - 1
-        elif move_direction == MoveDirection.f_right_diag:
+        elif move_direction == MoveDirection.F_RIGHT_DIAG:
             from_right = board_length - current_x_coord - 1
             from_top = board_length - current_y_coord - 1
             max_movement = min(from_top, from_right)
-        elif move_direction == MoveDirection.right:
+        elif move_direction == MoveDirection.RIGHT:
             max_movement = board_length - current_x_coord - 1
-        elif move_direction == MoveDirection.b_right_diag:
+        elif move_direction == MoveDirection.B_RIGHT_DIAG:
             from_right = board_length - current_x_coord - 1
             max_movement = min(current_y_coord, from_right)
-        elif move_direction == MoveDirection.backward:
+        elif move_direction == MoveDirection.BACKWARD:
             max_movement = current_y_coord
-        elif move_direction == MoveDirection.b_left_diag:
+        elif move_direction == MoveDirection.B_LEFT_DIAG:
             max_movement = min(current_y_coord, current_x_coord)
-        elif move_direction == MoveDirection.left:
+        elif move_direction == MoveDirection.LEFT:
             max_movement = current_x_coord
-        elif move_direction == MoveDirection.f_left_diag:
+        elif move_direction == MoveDirection.F_LEFT_DIAG:
             from_top = board_length - current_y_coord - 1
             max_movement = min(from_top, current_x_coord)
 
@@ -642,7 +642,7 @@ class ChessBoard:
         if not self._is_valid_index(index):
             raise InvalidIndexError(index)
 
-        if piece_color == Color.white:
+        if piece_color == Color.WHITE:
             position = self._board_positions[index]
         else:
             position = self._board_positions[len(self._indexes[piece_color]) - index - 1]
@@ -663,7 +663,7 @@ class ChessBoard:
             raise InvalidPositionError(position)
 
         # Color does not matter since both indexes point to the same board
-        index = self._indexes[Color.white][position]
+        index = self._indexes[Color.WHITE][position]
         self._pieces[self._board_positions[index]] = None
 
     def _get_nearest_piece_in_direction(self, start_position, move_direction, piece_color, ghost_pieces=None):
@@ -738,8 +738,8 @@ class ChessBoard:
         :return:
         """
         # Color does not matter when checking if on same row
-        column_one, row_one = self._position_to_row_and_column(position_one, Color.white)
-        column_two, row_two = self._position_to_row_and_column(position_two, Color.white)
+        column_one, row_one = self._position_to_row_and_column(position_one, Color.WHITE)
+        column_two, row_two = self._position_to_row_and_column(position_two, Color.WHITE)
 
         return row_one == row_two
 
@@ -774,21 +774,21 @@ class ChessBoard:
 
         # Determine direction
         if is_forward and is_right:
-            positions_away = {'direction': MoveDirection.f_right_diag, 'offset': (column_diff, row_diff)}
+            positions_away = {'direction': MoveDirection.F_RIGHT_DIAG, 'offset': (column_diff, row_diff)}
         elif is_forward and is_left:
-            positions_away = {'direction': MoveDirection.f_left_diag, 'offset':  (column_diff, row_diff)}
+            positions_away = {'direction': MoveDirection.F_LEFT_DIAG, 'offset':  (column_diff, row_diff)}
         elif is_back and is_right:
-            positions_away = {'direction': MoveDirection.b_right_diag, 'offset':  (column_diff, row_diff)}
+            positions_away = {'direction': MoveDirection.B_RIGHT_DIAG, 'offset':  (column_diff, row_diff)}
         elif is_back and is_left:
-            positions_away = {'direction': MoveDirection.b_left_diag, 'offset':  (column_diff, row_diff)}
+            positions_away = {'direction': MoveDirection.B_LEFT_DIAG, 'offset':  (column_diff, row_diff)}
         elif is_forward:
-            positions_away = {'direction': MoveDirection.forward, 'offset':  (column_diff, row_diff)}
+            positions_away = {'direction': MoveDirection.FORWARD, 'offset':  (column_diff, row_diff)}
         elif is_back:
-            positions_away = {'direction': MoveDirection.backward, 'offset':  (column_diff, row_diff)}
+            positions_away = {'direction': MoveDirection.BACKWARD, 'offset':  (column_diff, row_diff)}
         elif is_right:
-            positions_away = {'direction': MoveDirection.right, 'offset':  (column_diff, row_diff)}
+            positions_away = {'direction': MoveDirection.RIGHT, 'offset':  (column_diff, row_diff)}
         elif is_left:
-            positions_away = {'direction': MoveDirection.left, 'offset': (column_diff, row_diff)}
+            positions_away = {'direction': MoveDirection.LEFT, 'offset': (column_diff, row_diff)}
         else:
             positions_away = {'direction': None, 'offset': (0, 0)}
 
@@ -846,7 +846,7 @@ class ChessBoard:
             raise InvalidPositionError(position)
 
         self._pieces[position] = copy.deepcopy(piece)
-        if piece.type == Type.king:
+        if piece.type == Type.KING:
             self._king_positions[piece.color] = position
 
 

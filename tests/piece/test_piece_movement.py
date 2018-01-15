@@ -23,12 +23,12 @@ class PieceMovementTest(unittest.TestCase):
         """
         start_positions = ['a1', 'h8']
         end_positions = ['a2', 'h7']
-        piece_colors = [Color.white, Color.black]
+        piece_colors = [Color.WHITE, Color.BLACK]
         piece_types = {
-            Type.pawn: Pawn,
-            Type.king: King,
-            Type.queen: Queen,
-            Type.rook: Rook
+            Type.PAWN: Pawn,
+            Type.KING: King,
+            Type.QUEEN: Queen,
+            Type.ROOK: Rook
         }
 
         for start, end, color in zip(start_positions, end_positions, piece_colors):
@@ -54,11 +54,11 @@ class PieceMovementTest(unittest.TestCase):
         """
         start_positions = ['a1', 'h8']
         end_positions = ['b2', 'g7']
-        piece_colors = [Color.white, Color.black]
+        piece_colors = [Color.WHITE, Color.BLACK]
         piece_types = {
-            Type.bishop: Bishop,
-            Type.king: King,
-            Type.queen: Queen,
+            Type.BISHOP: Bishop,
+            Type.KING: King,
+            Type.QUEEN: Queen,
         }
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
@@ -83,11 +83,11 @@ class PieceMovementTest(unittest.TestCase):
         """
         start_positions = ['a1', 'h8']
         end_positions = ['b1', 'g8']
-        piece_colors = [Color.white, Color.black]
+        piece_colors = [Color.WHITE, Color.BLACK]
         piece_types = {
-            Type.king: King,
-            Type.queen: Queen,
-            Type.rook: Rook
+            Type.KING: King,
+            Type.QUEEN: Queen,
+            Type.ROOK: Rook
         }
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
@@ -112,11 +112,11 @@ class PieceMovementTest(unittest.TestCase):
         """
         start_positions = ['a2', 'h7']
         end_positions = ['b1', 'g8']
-        piece_colors = [Color.white, Color.black]
+        piece_colors = [Color.WHITE, Color.BLACK]
         piece_types = {
-            Type.king: King,
-            Type.queen: Queen,
-            Type.bishop: Bishop
+            Type.KING: King,
+            Type.QUEEN: Queen,
+            Type.BISHOP: Bishop
         }
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
@@ -141,11 +141,11 @@ class PieceMovementTest(unittest.TestCase):
         """
         start_positions = ['a2', 'h7']
         end_positions = ['a1', 'h8']
-        piece_colors = [Color.white, Color.black]
+        piece_colors = [Color.WHITE, Color.BLACK]
         piece_types = {
-            Type.king: King,
-            Type.queen: Queen,
-            Type.rook: Rook
+            Type.KING: King,
+            Type.QUEEN: Queen,
+            Type.ROOK: Rook
         }
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
@@ -170,11 +170,11 @@ class PieceMovementTest(unittest.TestCase):
         """
         start_positions = ['b2', 'g7']
         end_positions = ['a1', 'h8']
-        piece_colors = [Color.white, Color.black]
+        piece_colors = [Color.WHITE, Color.BLACK]
         piece_types = {
-            Type.king: King,
-            Type.queen: Queen,
-            Type.bishop: Bishop
+            Type.KING: King,
+            Type.QUEEN: Queen,
+            Type.BISHOP: Bishop
         }
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
@@ -199,11 +199,11 @@ class PieceMovementTest(unittest.TestCase):
         """
         start_positions = ['b1', 'g8']
         end_positions = ['a1', 'h8']
-        piece_colors = [Color.white, Color.black]
+        piece_colors = [Color.WHITE, Color.BLACK]
         piece_types = {
-            Type.king: King,
-            Type.queen: Queen,
-            Type.rook: Rook
+            Type.KING: King,
+            Type.QUEEN: Queen,
+            Type.ROOK: Rook
         }
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
@@ -228,11 +228,11 @@ class PieceMovementTest(unittest.TestCase):
         """
         start_positions = ['b1', 'g8']
         end_positions = ['a2', 'h7']
-        piece_colors = [Color.white, Color.black]
+        piece_colors = [Color.WHITE, Color.BLACK]
         piece_types = {
-            Type.king: King,
-            Type.queen: Queen,
-            Type.bishop: Bishop
+            Type.KING: King,
+            Type.QUEEN: Queen,
+            Type.BISHOP: Bishop
         }
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
@@ -257,7 +257,7 @@ class PieceMovementTest(unittest.TestCase):
         """
         start_position = 'd4'
         end_positions = ['b3', 'b5', 'c2', 'c6', 'e2', 'e6', 'f3', 'f5']
-        piece_colors = [Color.white, Color.black]
+        piece_colors = [Color.WHITE, Color.BLACK]
 
         for color in piece_colors:
             for end_position in end_positions:
@@ -282,11 +282,11 @@ class PieceMovementTest(unittest.TestCase):
         :return:
         """
         castle_expected_result = {
-            Color.white: [
+            Color.WHITE: [
                 {'king_move': ('e1', 'c1'), 'rook_move': ('a1', 'd1')},
                 {'king_move': ('e1', 'g1'), 'rook_move': ('h1', 'f1')}
             ],
-            Color.black: [
+            Color.BLACK: [
                 {'king_move': ('e8', 'c8'), 'rook_move': ('a8', 'd8')},
                 {'king_move': ('e8', 'g8'), 'rook_move': ('h8', 'f8')}
             ]
@@ -303,8 +303,8 @@ class PieceMovementTest(unittest.TestCase):
 
                     move_result = board.move_piece(king_start, king_end)
 
-                    self.assertEqual(Type.king, board[king_end].type, 'King should have moved two spaces')
-                    self.assertEqual(Type.rook, board[rook_end].type, 'Rook should be on other side of king')
+                    self.assertEqual(Type.KING, board[king_end].type, 'King should have moved two spaces')
+                    self.assertEqual(Type.ROOK, board[rook_end].type, 'Rook should be on other side of king')
                     self.assertIsNone(board[rook_start], 'Rook should have been moved')
 
                     expected_result = {

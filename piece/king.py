@@ -14,17 +14,17 @@ class King(Piece):
             Color that this piece should have.
         :return:
         """
-        super().__init__(Type.king, color)
-        self._moves[MoveDirection.forward] = 1
-        self._moves[MoveDirection.backward] = 1
-        self._moves[MoveDirection.left] = 2
-        self._moves[MoveDirection.right] = 2
-        self._moves[MoveDirection.f_left_diag] = 1
-        self._moves[MoveDirection.f_right_diag] = 1
-        self._moves[MoveDirection.b_left_diag] = 1
-        self._moves[MoveDirection.b_right_diag] = 1
+        super().__init__(Type.KING, color)
+        self._moves[MoveDirection.FORWARD] = 1
+        self._moves[MoveDirection.BACKWARD] = 1
+        self._moves[MoveDirection.LEFT] = 2
+        self._moves[MoveDirection.RIGHT] = 2
+        self._moves[MoveDirection.F_LEFT_DIAG] = 1
+        self._moves[MoveDirection.F_RIGHT_DIAG] = 1
+        self._moves[MoveDirection.B_LEFT_DIAG] = 1
+        self._moves[MoveDirection.B_RIGHT_DIAG] = 1
 
-        self._string_value = 'K' if color == Color.white else 'k'
+        self._string_value = 'K' if color == Color.WHITE else 'k'
 
     @property
     def has_moved(self):
@@ -40,6 +40,6 @@ class King(Piece):
         :return:
         """
         Piece.has_moved.fset(self, moved)
-        self._moves[MoveDirection.left] = 1
-        self._moves[MoveDirection.right] = 1
+        self._moves[MoveDirection.LEFT] = 1
+        self._moves[MoveDirection.RIGHT] = 1
 

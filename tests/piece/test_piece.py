@@ -17,12 +17,12 @@ class PieceTest(unittest.TestCase):
 
     def setUp(self):
         self.types = {
-            Type.pawn: Pawn,
-            Type.bishop: Bishop,
-            Type.king: King,
-            Type.knight: Knight,
-            Type.queen: Queen,
-            Type.rook: Rook
+            Type.PAWN: Pawn,
+            Type.BISHOP: Bishop,
+            Type.KING: King,
+            Type.KNIGHT: Knight,
+            Type.QUEEN: Queen,
+            Type.ROOK: Rook
         }
 
     def test_create(self):
@@ -32,8 +32,8 @@ class PieceTest(unittest.TestCase):
         """
         for t, piece_class in self.types.items():
             with self.subTest(t):
-                piece = piece_class(Color.white)
-                self.assertEqual(Color.white, piece.color, 'Color was not set correctly')
+                piece = piece_class(Color.WHITE)
+                self.assertEqual(Color.WHITE, piece.color, 'Color was not set correctly')
                 self.assertEqual(t, piece.type, 'Piece type does not match')
 
     def test_capture(self):
@@ -43,7 +43,7 @@ class PieceTest(unittest.TestCase):
         """
         for t, piece_class in self.types.items():
             with self.subTest(t):
-                piece = piece_class(Color.white)
+                piece = piece_class(Color.WHITE)
                 self.assertFalse(piece.capture, 'Piece should not be captured')
 
                 piece.capture = True
@@ -56,7 +56,7 @@ class PieceTest(unittest.TestCase):
         """
         for t, piece_class in self.types.items():
             with self.subTest(t):
-                piece = piece_class(Color.white)
+                piece = piece_class(Color.WHITE)
                 self.assertFalse(piece.has_moved, 'Piece has not moved')
 
                 piece.has_moved = True
@@ -68,38 +68,38 @@ class PieceTest(unittest.TestCase):
         :return:
         """
         piece_directions = {
-            Type.pawn: {MoveDirection.forward: 2,
-                        MoveDirection.f_right_diag: 1,
-                        MoveDirection.f_left_diag: 1},
-            Type.bishop: {MoveDirection.f_left_diag: -1,
-                          MoveDirection.f_right_diag: -1,
-                          MoveDirection.b_right_diag: -1,
-                          MoveDirection.b_left_diag: -1},
-            Type.king: {MoveDirection.forward: 1,
-                        MoveDirection.f_right_diag: 1,
-                        MoveDirection.right: 2,
-                        MoveDirection.b_right_diag: 1,
-                        MoveDirection.backward: 1,
-                        MoveDirection.b_left_diag: 1,
-                        MoveDirection.left: 2,
-                        MoveDirection.f_left_diag: 1},
-            Type.knight: {MoveDirection.l_shape: True},
-            Type.queen: {MoveDirection.forward: -1,
-                         MoveDirection.f_right_diag: -1,
-                         MoveDirection.right: -1,
-                         MoveDirection.b_right_diag: -1,
-                         MoveDirection.backward: -1,
-                         MoveDirection.b_left_diag: -1,
-                         MoveDirection.left: -1,
-                         MoveDirection.f_left_diag: -1},
-            Type.rook: {MoveDirection.forward: -1,
-                        MoveDirection.right: -1,
-                        MoveDirection.backward: -1,
-                        MoveDirection.left: -1}
+            Type.PAWN: {MoveDirection.FORWARD: 2,
+                        MoveDirection.F_RIGHT_DIAG: 1,
+                        MoveDirection.F_LEFT_DIAG: 1},
+            Type.BISHOP: {MoveDirection.F_LEFT_DIAG: -1,
+                          MoveDirection.F_RIGHT_DIAG: -1,
+                          MoveDirection.B_RIGHT_DIAG: -1,
+                          MoveDirection.B_LEFT_DIAG: -1},
+            Type.KING: {MoveDirection.FORWARD: 1,
+                        MoveDirection.F_RIGHT_DIAG: 1,
+                        MoveDirection.RIGHT: 2,
+                        MoveDirection.B_RIGHT_DIAG: 1,
+                        MoveDirection.BACKWARD: 1,
+                        MoveDirection.B_LEFT_DIAG: 1,
+                        MoveDirection.LEFT: 2,
+                        MoveDirection.F_LEFT_DIAG: 1},
+            Type.KNIGHT: {MoveDirection.L_SHAPE: True},
+            Type.QUEEN: {MoveDirection.FORWARD: -1,
+                         MoveDirection.F_RIGHT_DIAG: -1,
+                         MoveDirection.RIGHT: -1,
+                         MoveDirection.B_RIGHT_DIAG: -1,
+                         MoveDirection.BACKWARD: -1,
+                         MoveDirection.B_LEFT_DIAG: -1,
+                         MoveDirection.LEFT: -1,
+                         MoveDirection.F_LEFT_DIAG: -1},
+            Type.ROOK: {MoveDirection.FORWARD: -1,
+                        MoveDirection.RIGHT: -1,
+                        MoveDirection.BACKWARD: -1,
+                        MoveDirection.LEFT: -1}
         }
         for t, piece_class in self.types.items():
             with self.subTest(t):
-                piece = piece_class(Color.white)
+                piece = piece_class(Color.WHITE)
                 directions = piece.move_directions
                 self.assertDictEqual(piece_directions[t], directions, 'Directions dont match expected')
 
@@ -109,11 +109,11 @@ class PieceTest(unittest.TestCase):
         :return:
         """
         expected_directions = {
-            MoveDirection.forward: 1,
-            MoveDirection.f_right_diag: 1,
-            MoveDirection.f_left_diag: 1
+            MoveDirection.FORWARD: 1,
+            MoveDirection.F_RIGHT_DIAG: 1,
+            MoveDirection.F_LEFT_DIAG: 1
         }
-        for color in [Color.black, Color.white]:
+        for color in [Color.BLACK, Color.WHITE]:
             pawn = Pawn(color)
             pawn.has_moved = True
 
@@ -125,16 +125,16 @@ class PieceTest(unittest.TestCase):
         :return:
         """
         expected_directions = {
-            MoveDirection.forward: 1,
-            MoveDirection.f_right_diag: 1,
-            MoveDirection.right: 1,
-            MoveDirection.b_right_diag: 1,
-            MoveDirection.backward: 1,
-            MoveDirection.b_left_diag: 1,
-            MoveDirection.left: 1,
-            MoveDirection.f_left_diag: 1
+            MoveDirection.FORWARD: 1,
+            MoveDirection.F_RIGHT_DIAG: 1,
+            MoveDirection.RIGHT: 1,
+            MoveDirection.B_RIGHT_DIAG: 1,
+            MoveDirection.BACKWARD: 1,
+            MoveDirection.B_LEFT_DIAG: 1,
+            MoveDirection.LEFT: 1,
+            MoveDirection.F_LEFT_DIAG: 1
         }
-        for color in [Color.black, Color.white]:
+        for color in [Color.BLACK, Color.WHITE]:
             king = King(color)
             king.has_moved = True
 

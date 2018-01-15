@@ -23,8 +23,8 @@ class PieceCaptureTest(unittest.TestCase):
         board = ChessBoard(empty_board=True)
         start_position = 'b1'
         capture_position = 'c2'
-        board[start_position] = Pawn(Color.white)
-        board['c2'] = Bishop(Color.black)
+        board[start_position] = Pawn(Color.WHITE)
+        board['c2'] = Bishop(Color.BLACK)
         expected_possible_moves = ['b2', 'b3', 'c2']
         possible_moves = board.get_legal_moves(start_position)
         possible_moves.sort()
@@ -33,7 +33,7 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertListEqual(expected_possible_moves, possible_moves, message)
 
         # place a second piece and confirm both diagonals show as possible moves
-        board['a2'] = Rook(Color.black)
+        board['a2'] = Rook(Color.BLACK)
         expected_possible_moves = ['a2', 'b2', 'b3', 'c2']
         possible_moves = board.get_legal_moves(start_position)
         possible_moves.sort()
@@ -47,7 +47,7 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertIsInstance(board[capture_position], Pawn, message)
 
         # Test move result
-        expected_move_result = {start_position: None, capture_position: Pawn(Color.white)}
+        expected_move_result = {start_position: None, capture_position: Pawn(Color.WHITE)}
         self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_pawn_cant_capture(self):
@@ -60,8 +60,8 @@ class PieceCaptureTest(unittest.TestCase):
         """
         board = ChessBoard(empty_board=True)
         start_position = 'b1'
-        board[start_position] = Pawn(Color.white)
-        board['c2'] = Bishop(Color.white)
+        board[start_position] = Pawn(Color.WHITE)
+        board['c2'] = Bishop(Color.WHITE)
         expected_possible_moves = ['b2', 'b3']
         possible_moves = board.get_legal_moves(start_position)
         possible_moves.sort()
@@ -79,10 +79,10 @@ class PieceCaptureTest(unittest.TestCase):
         board = ChessBoard(empty_board=True)
         start_position = 'b1'
         capture_position = 'e1'
-        board[start_position] = Rook(Color.white)
-        board['c2'] = Bishop(Color.black)
-        board['c8'] = Pawn(Color.black)
-        board['e1'] = Bishop(Color.black)
+        board[start_position] = Rook(Color.WHITE)
+        board['c2'] = Bishop(Color.BLACK)
+        board['c8'] = Pawn(Color.BLACK)
+        board['e1'] = Bishop(Color.BLACK)
 
         # Test possible moves with several pieces on possible capture squares
         expected_possible_moves = ['a1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'c1', 'd1', 'e1']
@@ -98,7 +98,7 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertIsInstance(board[capture_position], Rook, message)
 
         # Test move result
-        expected_move_result = {start_position: None, capture_position: Rook(Color.white)}
+        expected_move_result = {start_position: None, capture_position: Rook(Color.WHITE)}
         self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_rook_cant_capture(self):
@@ -108,7 +108,7 @@ class PieceCaptureTest(unittest.TestCase):
         moves for the rook.
         :return:
         """
-        color_group = [Color.white, Color.black]
+        color_group = [Color.WHITE, Color.BLACK]
         for color in color_group:
             with self.subTest(color=color):
                 board = ChessBoard(empty_board=True)
@@ -133,8 +133,8 @@ class PieceCaptureTest(unittest.TestCase):
         board = ChessBoard(empty_board=True)
         start_position = 'd4'
         capture_position = 'f5'
-        board[start_position] = Knight(Color.white)
-        board[capture_position] = Bishop(Color.black)
+        board[start_position] = Knight(Color.WHITE)
+        board[capture_position] = Bishop(Color.BLACK)
         expected_possible_moves = ['b3', 'b5', 'c2', 'c6', 'e2', 'e6', 'f3', 'f5']
         possible_moves = board.get_legal_moves(start_position)
         possible_moves.sort()
@@ -148,7 +148,7 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertIsInstance(board[capture_position], Knight, message)
 
         # Test move result
-        expected_move_result = {start_position: None, capture_position: Knight(Color.white)}
+        expected_move_result = {start_position: None, capture_position: Knight(Color.WHITE)}
         self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_bishop_capture(self):
@@ -161,9 +161,9 @@ class PieceCaptureTest(unittest.TestCase):
         board = ChessBoard(empty_board=True)
         start_position = 'd4'
         capture_position = 'h8'
-        board[start_position] = Bishop(Color.white)
-        board['c5'] = Queen(Color.black)
-        board[capture_position] = Pawn(Color.black)
+        board[start_position] = Bishop(Color.WHITE)
+        board['c5'] = Queen(Color.BLACK)
+        board[capture_position] = Pawn(Color.BLACK)
         expected_possible_moves = ['a1', 'b2', 'c3', 'c5', 'e3', 'e5', 'f2', 'f6', 'g1', 'g7', 'h8']
         possible_moves = board.get_legal_moves(start_position)
         possible_moves.sort()
@@ -177,7 +177,7 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertIsInstance(board[capture_position], Bishop, message)
 
         # Test move result
-        expected_move_result = {start_position: None, capture_position: Bishop(Color.white)}
+        expected_move_result = {start_position: None, capture_position: Bishop(Color.WHITE)}
         self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_bishop_cant_capture(self):
@@ -187,7 +187,7 @@ class PieceCaptureTest(unittest.TestCase):
         moves.
         :return:
         """
-        color_group = [Color.white, Color.black]
+        color_group = [Color.WHITE, Color.BLACK]
         for color in color_group:
             with self.subTest(color=color):
                 board = ChessBoard(empty_board=True)
@@ -209,8 +209,8 @@ class PieceCaptureTest(unittest.TestCase):
         board = ChessBoard(empty_board=True)
         start_position = 'd4'
         capture_position = 'e4'
-        board[start_position] = King(Color.white)
-        board[capture_position] = Pawn(Color.black)
+        board[start_position] = King(Color.WHITE)
+        board[capture_position] = Pawn(Color.BLACK)
 
         expected_legal_moves = ['c3', 'c4', 'c5', 'd5', 'e3', 'e4', 'e5']
         possible_moves = board.get_legal_moves(start_position)
@@ -224,7 +224,7 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertIsInstance(board[capture_position], King, message)
 
         # Test move result
-        expected_move_result = {start_position: None, capture_position: King(Color.white)}
+        expected_move_result = {start_position: None, capture_position: King(Color.WHITE)}
         self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_king_cant_capture(self):
@@ -237,9 +237,9 @@ class PieceCaptureTest(unittest.TestCase):
         board = ChessBoard(empty_board=True)
         start_position = 'd4'
         capture_position = 'd5'
-        board[start_position] = King(Color.white)
-        board['e4'] = Pawn(Color.black)
-        board[capture_position] = Pawn(Color.black)
+        board[start_position] = King(Color.WHITE)
+        board['e4'] = Pawn(Color.BLACK)
+        board[capture_position] = Pawn(Color.BLACK)
 
         expected_legal_moves = ['c3', 'c5', 'd5', 'e3', 'e5']
         legal_moves = board.get_legal_moves(start_position)
@@ -249,8 +249,8 @@ class PieceCaptureTest(unittest.TestCase):
 
         # Test king has piece of same color directly in front of it
         board = ChessBoard(empty_board=True)
-        board['d4'] = King(Color.white)
-        board['d5'] = Pawn(Color.white)
+        board['d4'] = King(Color.WHITE)
+        board['d5'] = Pawn(Color.WHITE)
 
         expected_legal_moves = ['c3', 'c4', 'c5', 'd3', 'e3', 'e4', 'e5']
         legal_moves = board.get_legal_moves('d4')
@@ -268,9 +268,9 @@ class PieceCaptureTest(unittest.TestCase):
         board = ChessBoard(empty_board=True)
         start_position = 'd4'
         capture_position = 'e4'
-        board[start_position] = Queen(Color.white)
-        board['d5'] = Pawn(Color.black)
-        board[capture_position] = Pawn(Color.black)
+        board[start_position] = Queen(Color.WHITE)
+        board['d5'] = Pawn(Color.BLACK)
+        board[capture_position] = Pawn(Color.BLACK)
         expected_possible_moves = ['a1', 'a4', 'a7', 'b2', 'b4', 'b6', 'c3', 'c4', 'c5', 'd1',
                                    'd2', 'd3', 'd5', 'e3', 'e4', 'e5', 'f2', 'f6', 'g1', 'g7', 'h8']
         possible_moves = board.get_legal_moves(start_position)
@@ -285,7 +285,7 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertIsInstance(board[capture_position], Queen, message)
 
         # Test move result
-        expected_move_result = {start_position: None, capture_position: Queen(Color.white)}
+        expected_move_result = {start_position: None, capture_position: Queen(Color.WHITE)}
         self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
     def test_queen_cant_capture(self):
@@ -296,8 +296,8 @@ class PieceCaptureTest(unittest.TestCase):
         :return:
         """
         board = ChessBoard(empty_board=True)
-        board['b2'] = Queen(Color.white)
-        board['b3'] = Pawn(Color.white)
+        board['b2'] = Queen(Color.WHITE)
+        board['b3'] = Pawn(Color.WHITE)
 
         expected_legal_moves = ['a1', 'a2', 'a3', 'b1', 'c1',
                                 'c2', 'c3', 'd2', 'd4', 'e2',
@@ -317,25 +317,25 @@ class PieceCaptureTest(unittest.TestCase):
         board = ChessBoard(empty_board=True)
 
         # Check from white perspective
-        board['b5'] = Pawn(Color.white)
-        board['a7'] = Pawn(Color.black)
+        board['b5'] = Pawn(Color.WHITE)
+        board['a7'] = Pawn(Color.BLACK)
         board.move_piece('a7', 'a5')
         move_result = board.move_piece('b5', 'a6')
         self.assertIsNone(board['a5'], 'Expected black pawn to be captured')
 
         # Test move result
-        expected_move_result = {'b5': None, 'a5': None, 'a6': Pawn(Color.white)}
+        expected_move_result = {'b5': None, 'a5': None, 'a6': Pawn(Color.WHITE)}
         self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
         # Check from black perspective
-        board['e4'] = Pawn(Color.black)
-        board['d2'] = Pawn(Color.white)
+        board['e4'] = Pawn(Color.BLACK)
+        board['d2'] = Pawn(Color.WHITE)
         board.move_piece('d2', 'd4')
         move_result = board.move_piece('e4', 'd3')
         self.assertIsNone(board['d4'], 'Expected black pawn to be captured')
 
         # Test move result
-        expected_move_result = {'e4': None, 'd4': None, 'd3': Pawn(Color.black)}
+        expected_move_result = {'e4': None, 'd4': None, 'd3': Pawn(Color.BLACK)}
         self.assertDictEqual(expected_move_result, move_result, 'Expected move result does not match actual')
 
 

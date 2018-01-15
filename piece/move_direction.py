@@ -5,12 +5,12 @@ class MoveDirection(Enum):
     """
     Enumeration for all possible directions a piece can move.
     """
-    forward = 0
-    backward = 1
-    left = 2
-    right = 3
-    f_left_diag = 4
-    f_right_diag = 5
-    b_left_diag = 6
-    b_right_diag = 7
-    l_shape = 8
+    FORWARD = 0
+    BACKWARD = 1
+    LEFT = 2
+    RIGHT = 3
+    F_LEFT_DIAG = 4
+    F_RIGHT_DIAG = 5
+    B_LEFT_DIAG = 6
+    B_RIGHT_DIAG = 7
+    L_SHAPE = 8

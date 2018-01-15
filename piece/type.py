@@ -3,9 +3,9 @@ from enum import Enum
 
 class Type(Enum):
     """ Enumeration class used for assigning the type to a piece. """
-    pawn = 0
-    rook = 1
-    knight = 2
-    bishop = 3
-    queen = 4
-    king = 5
+    PAWN = 0
+    ROOK = 1
+    KNIGHT = 2
+    BISHOP = 3
+    QUEEN = 4
+    KING = 5

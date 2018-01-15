@@ -18,14 +18,14 @@ class PieceLegalMovesTest(unittest.TestCase):
         :return:
         """
         start_positions = {
-            Color.white: {
+            Color.WHITE: {
                 'a1': ['a2', 'a3'],
                 'a8': [],
                 'h1': ['h2', 'h3'],
                 'h8': [],
                 'd4': ['d5', 'd6']
             },
-            Color.black: {
+            Color.BLACK: {
                 'a1': [],
                 'a8': ['a6', 'a7'],
                 'h1': [],
@@ -46,7 +46,7 @@ class PieceLegalMovesTest(unittest.TestCase):
 
         # Confirm pawn can only move one square after it is moved
         board = ChessBoard(empty_board=True)
-        board['a1'] = Pawn(Color.white)
+        board['a1'] = Pawn(Color.WHITE)
         board.move_piece('a1', 'a3')
         possible_moves = board.get_legal_moves('a3')
         expected_possible_moves = ['a4']
@@ -60,21 +60,21 @@ class PieceLegalMovesTest(unittest.TestCase):
         :return:
         """
         piece_movements = {
-            Color.white: [
+            Color.WHITE: [
                 [('h2', 'h5'), ('g7', 'g5')],
                 [('a2', 'a5'), ('b7', 'b5')]
             ],
-            Color.black: [
+            Color.BLACK: [
                 [('a7', 'a4'), ('b2', 'b4')],
                 [('h7', 'h4'), ('g2', 'g4')]
             ]
         }
         expected_moves = {
-            Color.white: {
+            Color.WHITE: {
                 'h5': ['g6', 'h6'],
                 'a5': ['a6', 'b6']
             },
-            Color.black: {
+            Color.BLACK: {
                 'a4': ['a3', 'b3'],
                 'h4': ['g3', 'h3']
             }
@@ -97,12 +97,12 @@ class PieceLegalMovesTest(unittest.TestCase):
         Expected result is there are is one legal move for the pawn that is blocked.
         :return:
         """
-        opposing_colors = [[Color.black, Color.white], [Color.white, Color.black]]
+        opposing_colors = [[Color.BLACK, Color.WHITE], [Color.WHITE, Color.BLACK]]
         for opposing_color in opposing_colors:
             start_positions = ['b2', 'g7']
             blocking_positions = ['b4', 'g5']
             expected_moves = [['b3'], ['g6']]
-            pawn_colors = [Color.white, Color.black]
+            pawn_colors = [Color.WHITE, Color.BLACK]
             for start, blocking, expected, pawn_color, opposing in zip(start_positions, blocking_positions, expected_moves, pawn_colors, opposing_color):
                 with self.subTest(start=start, blocking=blocking, expected=expected, pawn_color=pawn_color, opposing=opposing):
                     board = ChessBoard(empty_board=True)
@@ -122,14 +122,14 @@ class PieceLegalMovesTest(unittest.TestCase):
         :return:
         """
         start_positions = {
-            Color.white: {
+            Color.WHITE: {
                 'a1': ['a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1'],
                 'a8': ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8'],
                 'h1': ['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8'],
                 'h8': ['a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7'],
                 'd4': ['a4', 'b4', 'c4', 'd1', 'd2', 'd3', 'd5', 'd6', 'd7', 'd8', 'e4', 'f4', 'g4', 'h4']
             },
-            Color.black: {
+            Color.BLACK: {
                 'a1': ['a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1'],
                 'a8': ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8'],
                 'h1': ['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8'],
@@ -155,7 +155,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         :return:
         """
         start_positions = {
-            Color.white: {
+            Color.WHITE: {
                 'a1': ['b3', 'c2'],
                 'a8': ['b6', 'c7'],
                 'h1': ['f2', 'g3'],
@@ -163,7 +163,7 @@ class PieceLegalMovesTest(unittest.TestCase):
                 'd4': ['b3', 'b5', 'c2', 'c6', 'e2', 'e6', 'f3', 'f5'],
                 'g7': ['e6', 'e8', 'f5', 'h5']
             },
-            Color.black: {
+            Color.BLACK: {
                 'a1': ['b3', 'c2'],
                 'a8': ['b6', 'c7'],
                 'h1': ['f2', 'g3'],
@@ -190,14 +190,14 @@ class PieceLegalMovesTest(unittest.TestCase):
         :return:
         """
         start_positions = {
-            Color.white: {
+            Color.WHITE: {
                 'a1': ['b2', 'c3', 'd4', 'e5', 'f6', 'g7', 'h8'],
                 'a8': ['b7', 'c6', 'd5', 'e4', 'f3', 'g2', 'h1'],
                 'h1': ['a8', 'b7', 'c6', 'd5', 'e4', 'f3', 'g2'],
                 'h8': ['a1', 'b2', 'c3', 'd4', 'e5', 'f6', 'g7'],
                 'd4': ['a1', 'a7', 'b2', 'b6', 'c3', 'c5', 'e3', 'e5', 'f2', 'f6', 'g1', 'g7', 'h8']
             },
-            Color.black: {
+            Color.BLACK: {
                 'a1': ['b2', 'c3', 'd4', 'e5', 'f6', 'g7', 'h8'],
                 'a8': ['b7', 'c6', 'd5', 'e4', 'f3', 'g2', 'h1'],
                 'h1': ['a8', 'b7', 'c6', 'd5', 'e4', 'f3', 'g2'],
@@ -223,7 +223,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         :return:
         """
         start_positions = {
-            Color.white: {
+            Color.WHITE: {
                 'a1': ['a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8',
                        'b1', 'b2', 'c1', 'c3', 'd1', 'd4', 'e1',
                        'e5', 'f1', 'f6', 'g1', 'g7', 'h1', 'h8'],
@@ -241,7 +241,7 @@ class PieceLegalMovesTest(unittest.TestCase):
                        'd7', 'd8', 'e3', 'e4', 'e5', 'f2', 'f4',
                        'f6', 'g1', 'g4', 'g7', 'h4', 'h8']
             },
-            Color.black: {
+            Color.BLACK: {
                 'a1': ['a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8',
                        'b1', 'b2', 'c1', 'c3', 'd1', 'd4', 'e1',
                        'e5', 'f1', 'f6', 'g1', 'g7', 'h1', 'h8'],
@@ -278,14 +278,14 @@ class PieceLegalMovesTest(unittest.TestCase):
         :return:
         """
         start_positions = {
-            Color.white: {
+            Color.WHITE: {
                 'a1': ['a2', 'b1', 'b2'],
                 'a8': ['a7', 'b7', 'b8'],
                 'h1': ['g1', 'g2', 'h2'],
                 'h8': ['g7', 'g8', 'h7'],
                 'd4': ['c3', 'c4', 'c5', 'd3', 'd5', 'e3', 'e4', 'e5']
             },
-            Color.black: {
+            Color.BLACK: {
                 'a1': ['a2', 'b1', 'b2'],
                 'a8': ['a7', 'b7', 'b8'],
                 'h1': ['g1', 'g2', 'h2'],
@@ -311,10 +311,10 @@ class PieceLegalMovesTest(unittest.TestCase):
         :return:
         """
         board = ChessBoard(empty_board=True)
-        board['a1'] = Rook(Color.white)
-        board['e1'] = King(Color.white)
-        board['a8'] = Rook(Color.black)
-        board['e8'] = King(Color.black)
+        board['a1'] = Rook(Color.WHITE)
+        board['e1'] = King(Color.WHITE)
+        board['a8'] = Rook(Color.BLACK)
+        board['e8'] = King(Color.BLACK)
 
         # Try with just one rook.
         expected_legal_moves = {
@@ -328,8 +328,8 @@ class PieceLegalMovesTest(unittest.TestCase):
                 self.assertListEqual(expected_moves, legal_moves, 'Castle move should be in legal move list')
 
         # Try with both rooks.
-        board['h1'] = Rook(Color.white)
-        board['h8'] = Rook(Color.black)
+        board['h1'] = Rook(Color.WHITE)
+        board['h8'] = Rook(Color.BLACK)
         expected_legal_moves = {
             'e1': ['c1', 'd1', 'd2', 'e2', 'f1', 'f2', 'g1'],
             'e8': ['c8', 'd7', 'd8', 'e7', 'f7', 'f8', 'g8'],
@@ -346,7 +346,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         Expected result is the space directly to the right and in front of king is not in legal moves list.
         :return:
         """
-        color_group = [(Color.white, Color.black), (Color.black, Color.white)]
+        color_group = [(Color.WHITE, Color.BLACK), (Color.BLACK, Color.WHITE)]
         for group in color_group:
             with self.subTest(group=group):
                 board = ChessBoard(empty_board=True)
@@ -367,45 +367,45 @@ class PieceLegalMovesTest(unittest.TestCase):
         """
         # Pawn pined
         board = ChessBoard(empty_board=True)
-        board['c3'] = King(Color.white)
-        board['d4'] = Pawn(Color.white)
-        board['f6'] = Bishop(Color.black)
+        board['c3'] = King(Color.WHITE)
+        board['d4'] = Pawn(Color.WHITE)
+        board['f6'] = Bishop(Color.BLACK)
 
         legal_moves = board.get_legal_moves('d4')
         self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
 
         # Rook pined
         board = ChessBoard(empty_board=True)
-        board['c3'] = King(Color.white)
-        board['d4'] = Rook(Color.white)
-        board['f6'] = Bishop(Color.black)
+        board['c3'] = King(Color.WHITE)
+        board['d4'] = Rook(Color.WHITE)
+        board['f6'] = Bishop(Color.BLACK)
 
         legal_moves = board.get_legal_moves('d4')
         self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
 
         # Knight pined
         board = ChessBoard(empty_board=True)
-        board['c3'] = King(Color.white)
-        board['d4'] = Knight(Color.white)
-        board['f6'] = Bishop(Color.black)
+        board['c3'] = King(Color.WHITE)
+        board['d4'] = Knight(Color.WHITE)
+        board['f6'] = Bishop(Color.BLACK)
 
         legal_moves = board.get_legal_moves('d4')
         self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
 
         # Bishop pined
         board = ChessBoard(empty_board=True)
-        board['c3'] = King(Color.white)
-        board['c5'] = Bishop(Color.white)
-        board['c6'] = Rook(Color.black)
+        board['c3'] = King(Color.WHITE)
+        board['c5'] = Bishop(Color.WHITE)
+        board['c6'] = Rook(Color.BLACK)
 
         legal_moves = board.get_legal_moves('c5')
         self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
 
         # Queen kinda pined
         board = ChessBoard(empty_board=True)
-        board['c3'] = King(Color.white)
-        board['c4'] = Queen(Color.white)
-        board['c6'] = Rook(Color.black)
+        board['c3'] = King(Color.WHITE)
+        board['c4'] = Queen(Color.WHITE)
+        board['c6'] = Rook(Color.BLACK)
 
         legal_moves = board.get_legal_moves('c4')
         self.assertListEqual(['c5', 'c6'], legal_moves, 'Legal moves dont match expected moves.')
