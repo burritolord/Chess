@@ -1,4 +1,4 @@
-from piece.Type import Type
+from piece.type import Type
 
 
 class BoardError(Exception):

@@ -1,7 +1,7 @@
-from piece.Type import Type
-from piece.Piece import Piece
-from piece.Color import Color
-from piece.MoveDirection import MoveDirection
+from piece.type import Type
+from piece.piece import Piece
+from piece.color import Color
+from piece.move_direction import MoveDirection
 
 
 class King(Piece):

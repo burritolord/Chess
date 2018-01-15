@@ -1,13 +1,13 @@
 import unittest
-from piece.King import King
-from piece.Pawn import Pawn
-from piece.Queen import Queen
-from piece.Bishop import Bishop
-from piece.Knight import Knight
-from piece.Rook import Rook
-from piece.MoveDirection import MoveDirection
-from piece.Color import Color
-from piece.Type import Type
+from piece.king import King
+from piece.pawn import Pawn
+from piece.queen import Queen
+from piece.bishop import Bishop
+from piece.knight import Knight
+from piece.rook import Rook
+from piece.move_direction import MoveDirection
+from piece.color import Color
+from piece.type import Type
 
 
 class PieceTest(unittest.TestCase):

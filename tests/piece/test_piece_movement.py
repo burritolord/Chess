@@ -1,13 +1,13 @@
 import unittest
-from board.ChessBoard import ChessBoard
-from piece.King import King
-from piece.Pawn import Pawn
-from piece.Queen import Queen
-from piece.Bishop import Bishop
-from piece.Knight import Knight
-from piece.Rook import Rook
-from piece.Color import Color
-from piece.Type import Type
+from board.chess_board import ChessBoard
+from piece.king import King
+from piece.pawn import Pawn
+from piece.queen import Queen
+from piece.bishop import Bishop
+from piece.knight import Knight
+from piece.rook import Rook
+from piece.color import Color
+from piece.type import Type
 
 
 class PieceMovementTest(unittest.TestCase):

@@ -2,8 +2,8 @@
 # Maintain who's turn it is
 # Maintain board state
 # Check for end game: win, lose, draw
-from board.ChessBoard import ChessBoard
-from piece.Color import Color
+from board.chess_board import ChessBoard
+from piece.color import Color
 from game.Player import Player
 
 
