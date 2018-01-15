@@ -164,6 +164,8 @@ class ChessBoard:
         :return: bool
             True if king is in checkmate, False otherwise.
         """
+        # TODO confirm no piece can block the piece putting king in check. If there is a piece,
+        # need to be sure piece is not pinned
         king_position = self._king_positions[king_color]
         check = self.is_check(king_color)
         possible_moves = self.get_legal_moves(king_position)

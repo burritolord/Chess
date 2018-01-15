@@ -31,12 +31,14 @@ class ChessGameTest(unittest.TestCase):
         """
         pass
 
-    def test_get_game_results(self):
+    def test_game_state_king_in_check(self):
         """
-        Test game reports correct results.
-        Game should inform who the game state and winner if there is one
+        Put king of each color in check.
+        Game should return the game state indicating which king is in check
         :return:
         """
+        game = ChessGame()
+
         pass
         # Game state should be Constant from Game Class?
         # Win, draw, In progress

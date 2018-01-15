@@ -20,9 +20,12 @@ class ChessHelper:
     @staticmethod
     def is_valid_position(position):
         """
+        Check if provided position is valid algebraic notation
 
-        :param position:
-        :return:
+        :param position: string
+            Valid or invalid algebraic notation
+        :return: boolean
+            True if position is valid, False otherwise
         """
         pattern = re.compile('^[a-h][0-8]$')
         match = pattern.match(position)

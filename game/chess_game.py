@@ -14,8 +14,8 @@ class ChessGame:
         self._board = ChessBoard()
         self._current_player = Color.WHITE
         self._game_over = False
-        self._white_player_id = None
-        self._black_player_id = None
+        self._white_player = None
+        self._black_player = None
 
     def get_legal_moves(self, position):
         return self._board.get_legal_moves(position)
@@ -43,15 +43,13 @@ class ChessGame:
         # - Checkmate
         # - Draw
 
-    def load(self, game_id):
-        pass
-
     @property
     def current_player(self):
         """
-
+        Retrieve the current player
         :return Player:
         """
+        # TODO. Return player object or player color? I think player object
         return self._current_player
 
     def promote_piece(self, position, piece_type):
@@ -67,4 +65,9 @@ class ChessGame:
         # [king]: color of king in check or checkmate
         # [winner]: Player id, player name, player color
 
-
+    def generate_fen(self):
+        """
+        Return FEN string based on current game state
+        :return:
+        """
+        pass
