@@ -338,7 +338,7 @@ class BoardStateTest(unittest.TestCase):
                 self.assertEqual(promotion_type, piece.type, 'Pawn was not correctly promoted.')
 
     @unittest.skip('Feature not written')
-    def test_cannot_promote_piece(self):
+    def test_cannot_promote_pawn(self):
         """
         Test a couple scenarios where pawn cannot be promoted.
         Expected result is pawn will not be promoted when it is not on the last row and after it has already been

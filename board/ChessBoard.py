@@ -8,7 +8,12 @@ from piece.Queen import Queen
 from piece.Color import Color
 from piece.Type import Type
 from piece.MoveDirection import MoveDirection
-from helper.ChessHelper import ChessHelper
+from utils.ChessHelper import ChessHelper
+from board.exception import PieceTypeError
+from board.exception import IncorrectPositionError
+from board.exception import EmptyPositionError
+from board.exception import InvalidPositionError
+from board.exception import InvalidIndexError
 
 
 class ChessBoard:
@@ -88,11 +93,9 @@ class ChessBoard:
         :return: bool
             True if piece on position, False otherwise
         """
-        try:
-            # Since both indexes point to the same board, it does not matter which index we use.
-            self._indexes[Color.white][position]
-        except IndexError:
-            raise Exception(position + " is not a valid position")
+        if not ChessHelper.is_valid_position(position):
+            raise InvalidPositionError(position)
+
         return self._pieces[position] is not None
 
     def is_check(self, king_color, position=None, ghost_pieces=None):
@@ -108,8 +111,10 @@ class ChessBoard:
         :return: bool
             True if king is in check, False otherwise.
         """
-        king_position = position if position else self._king_positions[king_color]
+        if position and not ChessHelper.is_valid_position(position):
+            raise InvalidPositionError(position)
 
+        king_position = position if position else self._king_positions[king_color]
         if not self._king_positions[king_color]:
             return False
 
@@ -199,9 +204,14 @@ class ChessBoard:
         :return: dict
             [position]: Piece. Use None if position is now empty
         """
+        if not ChessHelper.is_valid_position(start_position):
+            raise InvalidPositionError(start_position)
+        if not ChessHelper.is_valid_position(end_position):
+            raise InvalidPositionError(end_position)
+
         start_position_piece = self[start_position]
         if not start_position_piece:
-            raise Exception("start_position is not occupied by a piece")
+            raise EmptyPositionError(start_position)
 
         updated_positions = {}
         move_info = self._direction_and_position_offset(start_position, end_position, start_position_piece.color)
@@ -482,6 +492,9 @@ class ChessBoard:
             List of positions in algebraic notation. Positions in the list are sorted by the offset from the start
             position. Index 0 is the nearest position in the specified direction.
         """
+        if not ChessHelper.is_valid_position(start_position):
+            raise InvalidPositionError(start_position)
+
         possible_positions = []
         current_index = next_index = self._position_to_index(start_position, piece_color)
         current_column, current_row = self._position_to_row_and_column(
@@ -492,7 +505,7 @@ class ChessBoard:
                 try:
                     next_index = current_index + shift
                     self._index_to_position(next_index, piece_color)
-                except IndexError:
+                except InvalidIndexError:
                     continue
                 else:
                     next_column, next_row = self._position_to_row_and_column(
@@ -522,7 +535,9 @@ class ChessBoard:
             The coordinates for the position.
             Ex (1,1) from white perspective is B2 but G7 from black perspective.
         """
-        position = ChessHelper.to_string(position)
+        if not ChessHelper.is_valid_position(position):
+            raise InvalidPositionError(position)
+
         if piece_color == Color.white:
             column = 'abcdefgh'.index(position[0])
             row = int(position[1]) - 1
@@ -546,6 +561,9 @@ class ChessBoard:
         :return: int
             Number of squares till the edge of the board.
         """
+        if not ChessHelper.is_valid_position(start_position):
+            raise InvalidPositionError(start_position)
+
         board_length = self.get_dimension()
         max_movement = board_length - 1
         num_spaces = max_movement
@@ -588,6 +606,9 @@ class ChessBoard:
         :return: string
             Algebraic notation position.
         """
+        if not ChessHelper.is_valid_position(position):
+            raise InvalidPositionError(position)
+
         index = self._position_to_index(position, piece_color)
         shifted_index = index + self.PIECE_SHIFTING[direction] * offset
         return self._index_to_position(shifted_index, piece_color)
@@ -603,6 +624,9 @@ class ChessBoard:
         :return: int
             Index for that position.
         """
+        if not ChessHelper.is_valid_position(position):
+            raise InvalidPositionError(position)
+
         return self._indexes[piece_color][position]
 
     def _index_to_position(self, index, piece_color):
@@ -615,8 +639,8 @@ class ChessBoard:
             Color of player who's perspective should be used.
         :return:
         """
-        if index < 0 or index > len(self._indexes[Color.white]):
-            raise IndexError('Index out of range')
+        if not self._is_valid_index(index):
+            raise InvalidIndexError(index)
 
         if piece_color == Color.white:
             position = self._board_positions[index]
@@ -632,16 +656,15 @@ class ChessBoard:
         :param position: string
             Algebraic notation for a position.
         :return:
-        :raises: Exception
+        :raises: InvalidPositionError
             If position is not valid, exception will be raised.
         """
-        try:
-            # Color does not matter since both indexes point to the same board
-            index = self._indexes[Color.white][position]
-        except IndexError:
-            raise Exception(position + " is not a valid position")
-        else:
-            self._pieces[self._board_positions[index]] = None
+        if not ChessHelper.is_valid_position(position):
+            raise InvalidPositionError(position)
+
+        # Color does not matter since both indexes point to the same board
+        index = self._indexes[Color.white][position]
+        self._pieces[self._board_positions[index]] = None
 
     def _get_nearest_piece_in_direction(self, start_position, move_direction, piece_color, ghost_pieces=None):
         """
@@ -662,6 +685,9 @@ class ChessBoard:
             [offset]
             [type]
         """
+        if not ChessHelper.is_valid_position(start_position):
+            raise InvalidPositionError(start_position)
+
         offset = 0
         positions = self._get_possible_positions(start_position, move_direction, piece_color)
 
@@ -692,9 +718,12 @@ class ChessBoard:
 
     def _is_valid_index(self, index):
         """
+        Check if an index is in valid range
 
+        :param index: int
+            Index value
         """
-        if index < 0 or index >= len(self._indexes):
+        if index < 0 or index >= self.get_dimension() ** 2:
             return False
         return True
 
@@ -727,6 +756,11 @@ class ChessBoard:
             end_position is away. Treats start_position as 0,0 on x,y coordinate system. Ex a2 would be (1,1) from a1
         :return: MoveDirection value
         """
+        if not ChessHelper.is_valid_position(start_position):
+            raise InvalidPositionError(start_position)
+        if not ChessHelper.is_valid_position(end_position):
+            raise InvalidPositionError(end_position)
+
         start_column, start_row = self._position_to_row_and_column(start_position, color)
         end_column, end_row = self._position_to_row_and_column(end_position, color)
         row_diff = end_row - start_row
@@ -808,6 +842,9 @@ class ChessBoard:
             Piece object.
         :return:
         """
+        if not ChessHelper.is_valid_position(position):
+            raise InvalidPositionError(position)
+
         self._pieces[position] = copy.deepcopy(piece)
         if piece.type == Type.king:
             self._king_positions[piece.color] = position
