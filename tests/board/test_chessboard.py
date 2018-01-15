@@ -9,6 +9,7 @@ from piece.rook import Rook
 from piece.color import Color
 from piece.type import Type
 from piece.move_direction import MoveDirection
+from board.exception import *
 
 
 class BoardStateTest(unittest.TestCase):
@@ -312,7 +313,6 @@ class BoardStateTest(unittest.TestCase):
         legal_moves.sort()
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
 
-    @unittest.skip('Feature not written')
     def test_promoting_pawn(self):
         """
         Move a pawn from starting position all the way to the last row.
@@ -324,20 +324,24 @@ class BoardStateTest(unittest.TestCase):
             Color.WHITE: ('a7', 'a8'),
             Color.BLACK: ('a2', 'a1')
         }
-        promotion_types = [Type.ROOK, Type.KNIGHT, Type.BISHOP, Type.QUEEN]
+        promotion_types = {
+            Type.ROOK: Rook,
+            Type.KNIGHT: Knight,
+            Type.BISHOP: Bishop,
+            Type.QUEEN: Queen
+        }
 
-        for promotion_type in promotion_types:
+        for promotion_type, promotion_class in promotion_types.items():
             board = ChessBoard(empty_board=True)
             for color, position in positions.items():
-                start, end = positions
+                start, end = position
                 board[start] = Pawn(color)
                 board.move_piece(start, end)
                 board.promote_pawn(end, promotion_type)
 
                 piece = board[end]
-                self.assertEqual(promotion_type, piece.type, 'Pawn was not correctly promoted.')
+                self.assertEqual(promotion_class(color), piece, 'Pawn was not correctly promoted.')
 
-    @unittest.skip('Feature not written')
     def test_cannot_promote_pawn(self):
         """
         Test a couple scenarios where pawn cannot be promoted.
@@ -350,21 +354,29 @@ class BoardStateTest(unittest.TestCase):
         # Pawn cannot be promoted when not on last row
         board['h7'] = Pawn(Color.WHITE)
 
-        with self.assertRaises(LookupError) as context:
+        with self.assertRaises(InvalidPositionError) as context:
             board.promote_pawn('h7', Type.QUEEN)
-            self.assertTrue('Pawn not on last row' in str(context.exception))
+        self.assertIn('Pawn must be on last row to be promoted. Current position: h7', str(context.exception))
 
         # Pawn cannot be promoted after it has been promoted
-        board.promote_pawn('h7', Type.QUEEN)
-        with self.assertRaises(LookupError) as context:
-            board.promote_pawn('h7', Type.QUEEN)
-            self.assertTrue('Piece on provided position is not a pawn' in str(context.exception))
+        board.move_piece('h7', 'h8')
+        board.promote_pawn('h8', Type.QUEEN)
+        with self.assertRaises(PieceTypeError) as context:
+            board.promote_pawn('h8', Type.QUEEN)
+        self.assertIn('Cannot promote a non pawn piece', str(context.exception))
 
-        # Pawn cannot be promoted to king
-        board['a8'] = Pawn(Color.WHITE)
-        with self.assertRaises(LookupError) as context:
-            board.promote_pawn('a8', Type.KING)
-            self.assertTrue('Pawn cannot be promoted to a king' in str(context.exception))
+        # Pawn cannot be promoted to king or pawn
+        for invalid_type in [Type.PAWN, Type.KING]:
+            with self.subTest(invalid_type=invalid_type):
+                board['a8'] = Pawn(Color.WHITE)
+                with self.assertRaises(PieceTypeError) as context:
+                    board.promote_pawn('a8', invalid_type)
+                self.assertIn('Cannot promote pawn to supplied piece type', str(context.exception))
+
+        # Cannot promote empty position
+        with self.assertRaises(EmptyPositionError) as context:
+            board.promote_pawn('h5', Type.QUEEN)
+        self.assertIn('No piece exist on position: h5', str(context.exception))
 
 
 if __name__ == '__main__':

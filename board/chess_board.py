@@ -10,7 +10,6 @@ from piece.type import Type
 from piece.move_direction import MoveDirection
 from utils.chess_helper import ChessHelper
 from board.exception import PieceTypeError
-from board.exception import IncorrectPositionError
 from board.exception import EmptyPositionError
 from board.exception import InvalidPositionError
 from board.exception import InvalidIndexError
@@ -471,11 +470,33 @@ class ChessBoard:
 
         :param position: string
             Algebraic notation for pawn position.
-        :param promotion_type: string
-
+        :param promotion_type: Type
+            Value from Type enum
         :return:
         """
-        pass
+        if not ChessHelper.is_valid_position(position):
+            raise InvalidPositionError(position)
+        if promotion_type not in [Type.ROOK, Type.KNIGHT, Type.BISHOP, Type.QUEEN]:
+            raise PieceTypeError(promotion_type, 'Cannot promote pawn to supplied piece type')
+        if self[position] is None:
+            raise EmptyPositionError(position)
+
+        piece = self[position]
+        if piece.type != Type.PAWN:
+            raise PieceTypeError(piece.type, 'Cannot promote a non pawn piece')
+
+        column, row = self._position_to_row_and_column(position, piece.color)
+        if row != self.get_dimension() - 1:
+            message = 'Pawn must be on last row to be promoted. Current position: ' + position
+            raise InvalidPositionError(position, message)
+
+        piece_class = {
+            Type.ROOK: Rook,
+            Type.KNIGHT: Knight,
+            Type.BISHOP: Bishop,
+            Type.QUEEN: Queen
+        }
+        self[position] = piece_class[promotion_type](piece.color)
 
     def _get_possible_positions(self, start_position, move_direction, piece_color):
         """

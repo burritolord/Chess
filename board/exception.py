@@ -1,5 +1,7 @@
 from piece.type import Type
 
+__all__ = ['PieceTypeError', 'EmptyPositionError', 'InvalidPositionError', 'InvalidIndexError']
+
 
 class BoardError(Exception):
     """
@@ -11,7 +13,7 @@ class BoardError(Exception):
 class PieceTypeError(BoardError):
     def __init__(self, piece_type, msg=None):
         """
-        Exception to be used when an action cannot be performed on piece type
+        Exception to be used when an
 
         :param piece_type: Type
             Piece type
@@ -19,7 +21,7 @@ class PieceTypeError(BoardError):
             Message to display
         """
         if not msg and isinstance(piece_type, Type):
-            msg = 'Invalid action for piece type: {}'.format(piece_type.name)
+            msg = 'Invalid piece type: {}'.format(piece_type.name)
         super(PieceTypeError, self).__init__(msg)
         self._piece_type = piece_type
 
@@ -37,25 +39,6 @@ class EmptyPositionError(BoardError):
         if not msg:
             msg = 'No piece exist on position: {}'.format(position)
         super(EmptyPositionError, self).__init__(msg)
-        self._position = position
-
-
-class IncorrectPositionError(BoardError):
-    def __init__(self, piece_type, position, msg=None):
-        """
-        Exception to be used when piece is on the incorrect position for the action being performed
-
-        :param piece_type: Type
-            Piece type
-        :param position: str
-            Algebraic notation position
-        :param msg: str
-            Message to display
-        """
-        if not msg and isinstance(piece_type, Type):
-            msg = 'Invalid action for piece type: {} on position: {}'.format(piece_type.name, position)
-        super(IncorrectPositionError, self).__init__(msg)
-        self.piece_type = piece_type
         self._position = position
 
 
