@@ -302,13 +302,48 @@ class BoardStateTest(unittest.TestCase):
         legal_moves.sort()
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
 
-        # Check after rook moves
+        # Check after left rook moves
         board = ChessBoard(empty_board=True)
         board['a1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
         board.move_piece('a1', 'b1')
 
         expected_moves = ['d1', 'd2', 'e2', 'f1', 'f2']
+        legal_moves = board.get_legal_moves('e1')
+        legal_moves.sort()
+        self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
+
+        # Check after right rook moves
+        board = ChessBoard(empty_board=True)
+        board['h1'] = Rook(Color.WHITE)
+        board['e1'] = King(Color.WHITE)
+        board.move_piece('h1', 'h2')
+
+        expected_moves = ['d1', 'd2', 'e2', 'f1', 'f2']
+        legal_moves = board.get_legal_moves('e1')
+        legal_moves.sort()
+        self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
+
+        # Check with both rooks after right rook moves
+        board = ChessBoard(empty_board=True)
+        board['a1'] = Rook(Color.WHITE)
+        board['h1'] = Rook(Color.WHITE)
+        board['e1'] = King(Color.WHITE)
+        board.move_piece('h1', 'h2')
+
+        expected_moves = ['c1','d1', 'd2', 'e2', 'f1', 'f2']
+        legal_moves = board.get_legal_moves('e1')
+        legal_moves.sort()
+        self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
+
+        # Check with both rooks after right rook moves
+        board = ChessBoard(empty_board=True)
+        board['a1'] = Rook(Color.WHITE)
+        board['h1'] = Rook(Color.WHITE)
+        board['e1'] = King(Color.WHITE)
+        board.move_piece('a1', 'a2')
+
+        expected_moves = ['d1', 'd2', 'e2', 'f1', 'f2', 'g1']
         legal_moves = board.get_legal_moves('e1')
         legal_moves.sort()
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')

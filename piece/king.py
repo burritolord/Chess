@@ -26,20 +26,3 @@ class King(Piece):
 
         self._string_value = 'K' if color == Color.WHITE else 'k'
 
-    @property
-    def has_moved(self):
-        return super().has_moved
-
-    @Piece.has_moved.setter
-    def has_moved(self, moved):
-        """
-        Extends super class version. Changes the moves structure for castling.
-
-        :param moved: bool
-            True if the piece has moved, False otherwise.
-        :return:
-        """
-        Piece.has_moved.fset(self, moved)
-        self._moves[MoveDirection.LEFT] = 1
-        self._moves[MoveDirection.RIGHT] = 1
-

@@ -8,6 +8,7 @@ from piece.knight import Knight
 from piece.rook import Rook
 from piece.color import Color
 from piece.type import Type
+from piece.move_direction import MoveDirection
 
 
 class PieceMovementTest(unittest.TestCase):
@@ -36,12 +37,10 @@ class PieceMovementTest(unittest.TestCase):
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
                     board = ChessBoard(empty_board=True)
                     board[start] = piece_class(color)
-                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
                     move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
-                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
                     self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
@@ -65,12 +64,10 @@ class PieceMovementTest(unittest.TestCase):
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
                     board = ChessBoard(empty_board=True)
                     board[start] = piece_class(color)
-                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
                     move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
-                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
                     self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
@@ -94,12 +91,10 @@ class PieceMovementTest(unittest.TestCase):
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
                     board = ChessBoard(empty_board=True)
                     board[start] = piece_class(color)
-                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
                     move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
-                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
                     self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
@@ -123,12 +118,10 @@ class PieceMovementTest(unittest.TestCase):
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
                     board = ChessBoard(empty_board=True)
                     board[start] = piece_class(color)
-                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
                     move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
-                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
                     self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
@@ -152,12 +145,10 @@ class PieceMovementTest(unittest.TestCase):
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
                     board = ChessBoard(empty_board=True)
                     board[start] = piece_class(color)
-                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
                     move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
-                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
                     self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
@@ -181,12 +172,10 @@ class PieceMovementTest(unittest.TestCase):
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
                     board = ChessBoard(empty_board=True)
                     board[start] = piece_class(color)
-                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
                     move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
-                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
                     self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
@@ -210,12 +199,10 @@ class PieceMovementTest(unittest.TestCase):
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
                     board = ChessBoard(empty_board=True)
                     board[start] = piece_class(color)
-                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
                     move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
-                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
                     self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
@@ -239,12 +226,10 @@ class PieceMovementTest(unittest.TestCase):
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
                     board = ChessBoard(empty_board=True)
                     board[start] = piece_class(color)
-                    self.assertFalse(board[start].has_moved, 'Piece has never moved')
 
                     move_result = board.move_piece(start, end)
                     self.assertIsNone(board[start], 'There should no longer be a piece on square ' + start)
                     self.assertIsInstance(board[end], piece_class, 'There should be a piece on square ' + end)
-                    self.assertTrue(board[end].has_moved, 'Piece has moved')
 
                     expected_result = {start: None, end: piece_class(color)}
                     self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
@@ -264,15 +249,139 @@ class PieceMovementTest(unittest.TestCase):
                 with self.subTest(color=color, end_position=end_position):
                     board = ChessBoard(empty_board=True)
                     board[start_position] = Knight(color)
-                    self.assertFalse(board[start_position].has_moved, 'Piece has never moved')
 
                     move_result = board.move_piece(start_position, end_position)
                     self.assertIsNone(board[start_position], 'There should no longer be a piece on start position')
                     self.assertIsInstance(board[end_position], Knight, 'There should be a piece on end position')
-                    self.assertTrue(board[end_position].has_moved, 'Piece has moved flag not updated')
 
                     expected_result = {start_position: None, end_position: Knight(color)}
                     self.assertDictEqual(expected_result, move_result, 'Expected move result does not match actual')
+
+    def test_pawn_movement_adjusted_after_moving(self):
+        """
+        Move a pawn of each color
+        Expected result is pawn cannot move forward two squares once it has moved.
+        :return:
+        """
+        board = ChessBoard(empty_board=True)
+        positions = {
+            Color.WHITE: ('b2', 'b3'),
+            Color.BLACK: ('b7', 'b6')
+        }
+        expected_directions = {
+            MoveDirection.FORWARD: 1,
+            MoveDirection.F_RIGHT_DIAG: 1,
+            MoveDirection.F_LEFT_DIAG: 1
+        }
+        for color in [Color.BLACK, Color.WHITE]:
+            with self.subTest(color=color, movement=positions[color]):
+                start_pos, end_pos = positions[color]
+                board[start_pos] = Pawn(color)
+                board.move_piece(start_pos, end_pos)
+
+                self.assertDictEqual(expected_directions, board[end_pos].move_directions, 'Incorrect move_directions')
+
+    def test_king_movement_adjusted_after_moving(self):
+        """
+        Move a king of each color
+        Expected result is king cannot move left or right two squares once it has moved.
+        :return:
+        """
+        board = ChessBoard(empty_board=True)
+        positions = {
+            Color.WHITE: ('e1', 'e2'),
+            Color.BLACK: ('e8', 'e7')
+        }
+        expected_directions = {
+            MoveDirection.FORWARD: 1,
+            MoveDirection.F_RIGHT_DIAG: 1,
+            MoveDirection.RIGHT: 1,
+            MoveDirection.B_RIGHT_DIAG: 1,
+            MoveDirection.BACKWARD: 1,
+            MoveDirection.B_LEFT_DIAG: 1,
+            MoveDirection.LEFT: 1,
+            MoveDirection.F_LEFT_DIAG: 1
+        }
+
+        for color in [Color.BLACK, Color.WHITE]:
+            with self.subTest(color=color, movement=positions[color]):
+                start_pos, end_pos = positions[color]
+                board[start_pos] = King(color)
+                board.move_piece(start_pos, end_pos)
+
+                self.assertDictEqual(expected_directions, board[end_pos].move_directions, 'Incorrect move_directions')
+
+    def test_king_movement_adjusted_after_left_rook_moves(self):
+        """
+        Move the king side rook for white and black player
+        Expected result is king can no longer castle king side.
+        :return:
+        """
+        board = ChessBoard(empty_board=True)
+        king_positions = {
+            Color.WHITE: 'e1',
+            Color.BLACK: 'e8'
+        }
+        rook_positions = {
+            Color.WHITE: ('a1', 'e2'),
+            Color.BLACK: ('h8', 'h7')
+        }
+        expected_directions = {
+            MoveDirection.FORWARD: 1,
+            MoveDirection.F_RIGHT_DIAG: 1,
+            MoveDirection.RIGHT: 2,
+            MoveDirection.B_RIGHT_DIAG: 1,
+            MoveDirection.BACKWARD: 1,
+            MoveDirection.B_LEFT_DIAG: 1,
+            MoveDirection.LEFT: 1,
+            MoveDirection.F_LEFT_DIAG: 1
+        }
+
+        for color in [Color.BLACK, Color.WHITE]:
+            with self.subTest(color=color, king_pos=king_positions[color], rook_pos=rook_positions[color]):
+                king_pos = king_positions[color]
+                rook_start, rook_end = rook_positions[color]
+                board[king_pos] = King(color)
+                board[rook_start] = Rook(color)
+                board.move_piece(rook_start, rook_end)
+
+                self.assertDictEqual(expected_directions, board[king_pos].move_directions, 'Incorrect move_directions')
+
+    def test_king_movement_adjusted_after_right_rook_moves(self):
+        """
+        Move the queen side rook for white and black player
+        Expected result is king can no longer castle queen side.
+        :return:
+        """
+        board = ChessBoard(empty_board=True)
+        king_positions = {
+            Color.WHITE: 'e1',
+            Color.BLACK: 'e8'
+        }
+        rook_positions = {
+            Color.WHITE: ('h1', 'h2'),
+            Color.BLACK: ('a8', 'a7')
+        }
+        expected_directions = {
+            MoveDirection.FORWARD: 1,
+            MoveDirection.F_RIGHT_DIAG: 1,
+            MoveDirection.RIGHT: 1,
+            MoveDirection.B_RIGHT_DIAG: 1,
+            MoveDirection.BACKWARD: 1,
+            MoveDirection.B_LEFT_DIAG: 1,
+            MoveDirection.LEFT: 2,
+            MoveDirection.F_LEFT_DIAG: 1
+        }
+
+        for color in [Color.BLACK, Color.WHITE]:
+            with self.subTest(color=color, king_pos=king_positions[color], rook_pos=rook_positions[color]):
+                king_pos = king_positions[color]
+                rook_start, rook_end = rook_positions[color]
+                board[king_pos] = King(color)
+                board[rook_start] = Rook(color)
+                board.move_piece(rook_start, rook_end)
+
+                self.assertDictEqual(expected_directions, board[king_pos].move_directions, 'Incorrect move_directions')
 
     def test_king_perform_castle(self):
         """

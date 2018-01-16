@@ -219,35 +219,50 @@ class ChessBoard:
         direction = move_info['direction']
         column_offset, row_offset = move_info['offset']
 
-        # Check for en passant
-        if start_position_piece.type == Type.PAWN and (direction == MoveDirection.F_RIGHT_DIAG or
-                                                       direction == MoveDirection.F_LEFT_DIAG):
-            if self.can_en_passant(start_position, direction):
-                if self._on_same_row(start_position, self.last_move['end']):
-                    self._remove_piece(self.last_move['end'])
-                    updated_positions[self.last_move['end']] = None
-        # Check for castling
-        elif start_position_piece.type == Type.KING and abs(column_offset) == 2 and\
-                self.can_castle(start_position_piece.color, direction):
-            rook_positions = {
-                Color.WHITE: {MoveDirection.LEFT: 'a1', MoveDirection.RIGHT: 'h1'},
-                Color.BLACK: {MoveDirection.LEFT: 'h8', MoveDirection.RIGHT: 'a8'}
-            }
-            rook_position = self._get_position_shifted_by_offset(start_position, direction, 1,
-                                                                 start_position_piece.color)
-            self[rook_position] = self[rook_positions[start_position_piece.color][direction]]
-            self._remove_piece(rook_positions[start_position_piece.color][direction])
-            updated_positions[rook_position] = copy.deepcopy(self[rook_position])
-            updated_positions[rook_positions[start_position_piece.color][direction]] = None
-
         # Have to clone the piece before moving it. Otherwise, it makes it really hard to compare
-        # expected move result to actual move result since the piece here will have a modified
-        # has_moved attribute and diff values for move_directions. Plus, we don't really care about
-        # any values other than piece type and color
+        # expected move result to actual move result since the piece here could have a modified
+        # move_directions . Plus, we don't really care about any values other than piece type and color
         updated_positions[end_position] = copy.deepcopy(start_position_piece)
         updated_positions[start_position] = None
 
-        start_position_piece.has_moved = True
+        # Check for en passant
+        if start_position_piece.type == Type.PAWN:
+            start_position_piece.move_directions[MoveDirection.FORWARD] = 1
+            if direction == MoveDirection.F_RIGHT_DIAG or direction == MoveDirection.F_LEFT_DIAG:
+                if self.can_en_passant(start_position, direction):
+                    if self._on_same_row(start_position, self.last_move['end']):
+                        self._remove_piece(self.last_move['end'])
+                        updated_positions[self.last_move['end']] = None
+        # Check for castling
+        elif start_position_piece.type == Type.KING:
+            if abs(column_offset) == 2 and self.can_castle(start_position_piece.color, direction):
+                rook_positions = {
+                    Color.WHITE: {MoveDirection.LEFT: 'a1', MoveDirection.RIGHT: 'h1'},
+                    Color.BLACK: {MoveDirection.LEFT: 'h8', MoveDirection.RIGHT: 'a8'}
+                }
+                rook_position = self._get_position_shifted_by_offset(start_position, direction, 1,
+                                                                     start_position_piece.color)
+                self[rook_position] = self[rook_positions[start_position_piece.color][direction]]
+                self._remove_piece(rook_positions[start_position_piece.color][direction])
+                updated_positions[rook_position] = copy.deepcopy(self[rook_position])
+                updated_positions[rook_positions[start_position_piece.color][direction]] = None
+
+            start_position_piece.move_directions[MoveDirection.LEFT] = 1
+            start_position_piece.move_directions[MoveDirection.RIGHT] = 1
+        elif start_position_piece.type == Type.ROOK:
+            king_position = self._king_positions[start_position_piece.color]
+            column, row = self._position_to_row_and_column(start_position, start_position_piece.color)
+            rook_direction = None
+            if column == 0:
+                rook_direction = MoveDirection.LEFT
+            elif column == self.get_dimension() - 1:
+                rook_direction = MoveDirection.RIGHT
+            # Check needed because might be dealing with a board without a king
+            if king_position and rook_direction:
+                king = self[king_position]
+                if king.move_directions[rook_direction] > 1:
+                    king.move_directions[rook_direction] = 1
+
         self._remove_piece(start_position)
         self._remove_piece(end_position)
         self[end_position] = start_position_piece
@@ -277,11 +292,10 @@ class ChessBoard:
         nearest_piece_info = self._get_nearest_piece_in_direction(king_position, direction, king_color)
 
         if nearest_piece_info and nearest_piece_info['type'] == Type.ROOK:
-            nearest_piece = self[nearest_piece_info['position']]
             king = self[king_position]
             is_check = self.is_check(king_color, king_position)
 
-            if not nearest_piece.has_moved and not king.has_moved and not is_check:
+            if king.move_directions[direction] == 2 and not is_check:
                 king_index = self._position_to_index(king_position, king.color)
                 index_one = king_index + self.PIECE_SHIFTING[direction]
                 index_two = index_one + self.PIECE_SHIFTING[direction]

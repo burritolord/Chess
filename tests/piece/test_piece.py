@@ -49,19 +49,6 @@ class PieceTest(unittest.TestCase):
                 piece.capture = True
                 self.assertTrue(piece.capture, 'Piece should not be captured')
 
-    def test_has_moved(self):
-        """
-        Test has_moved property
-        :return:
-        """
-        for t, piece_class in self.types.items():
-            with self.subTest(t):
-                piece = piece_class(Color.WHITE)
-                self.assertFalse(piece.has_moved, 'Piece has not moved')
-
-                piece.has_moved = True
-                self.assertTrue(piece.has_moved, 'Piece has moved')
-
     def test_move_directions(self):
         """
         Test move directions per piece
@@ -101,44 +88,7 @@ class PieceTest(unittest.TestCase):
             with self.subTest(t):
                 piece = piece_class(Color.WHITE)
                 directions = piece.move_directions
-                self.assertDictEqual(piece_directions[t], directions, 'Directions dont match expected')
-
-    def test_pawn_movement_adjusted_after_moving(self):
-        """
-        Test a pawn cannot move forward two squares once it has moved.
-        :return:
-        """
-        expected_directions = {
-            MoveDirection.FORWARD: 1,
-            MoveDirection.F_RIGHT_DIAG: 1,
-            MoveDirection.F_LEFT_DIAG: 1
-        }
-        for color in [Color.BLACK, Color.WHITE]:
-            pawn = Pawn(color)
-            pawn.has_moved = True
-
-            self.assertDictEqual(expected_directions, pawn.move_directions, 'Directions do not match expected')
-
-    def test_king_movement_adjusted_after_moving(self):
-        """
-        Test a king cannot move left or right two squares once it has moved.
-        :return:
-        """
-        expected_directions = {
-            MoveDirection.FORWARD: 1,
-            MoveDirection.F_RIGHT_DIAG: 1,
-            MoveDirection.RIGHT: 1,
-            MoveDirection.B_RIGHT_DIAG: 1,
-            MoveDirection.BACKWARD: 1,
-            MoveDirection.B_LEFT_DIAG: 1,
-            MoveDirection.LEFT: 1,
-            MoveDirection.F_LEFT_DIAG: 1
-        }
-        for color in [Color.BLACK, Color.WHITE]:
-            king = King(color)
-            king.has_moved = True
-
-            self.assertDictEqual(expected_directions, king.move_directions, 'Directions do not match expected')
+                self.assertDictEqual(piece_directions[t], directions, 'Directions do not match expected')
 
 
 if __name__ == '__main__':

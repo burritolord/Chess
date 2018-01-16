@@ -21,22 +21,6 @@ class Pawn(Piece):
         self._moves[MoveDirection.F_LEFT_DIAG] = 1
         self._string_value = 'P' if color == Color.WHITE else 'p'
 
-    @property
-    def has_moved(self):
-        return super().has_moved
-
-    @Piece.has_moved.setter
-    def has_moved(self, moved):
-        """
-        Extends super class version. Changes the moves structure after piece has moved.
-
-        :param moved: bool
-            True if the piece has moved, False otherwise.
-        :return:
-        """
-        Piece.has_moved.fset(self, moved)
-        self._moves[MoveDirection.FORWARD] = 1
-
 
 
 

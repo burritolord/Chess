@@ -4,7 +4,6 @@ from abc import ABCMeta
 class Piece(metaclass=ABCMeta):
 
     def __init__(self, piece_type, color):
-        self._has_moved = False
         self._type = piece_type
         self._color = color
         self._captured = False
@@ -34,14 +33,6 @@ class Piece(metaclass=ABCMeta):
     @capture.setter
     def capture(self, captured):
         self._captured = captured
-
-    @property
-    def has_moved(self):
-        return self._has_moved
-
-    @has_moved.setter
-    def has_moved(self, moved):
-        self._has_moved = moved
 
     @property
     def move_directions(self):
