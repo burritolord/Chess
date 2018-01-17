@@ -43,7 +43,7 @@ class ChessBoard:
         board_length = self.get_dimension()
 
         # Hold the last move made on this board. Needed to be able to do en passant check.
-        self.last_move = {'start': '', 'end': '', 'piece_type': '', 'piece_color': ''}
+        self._en_passant_info = {'target_position':None, 'pawn_position':None}
 
         # List of all squares with algebraic notation.
         self._board_positions = [file+str(rank+1) for rank in range(0, board_length) for file in "abcdefgh"]
@@ -219,20 +219,31 @@ class ChessBoard:
         direction = move_info['direction']
         column_offset, row_offset = move_info['offset']
 
+        # Copy of en_passant info
+        en_passant_info = copy.copy(self._en_passant_info)
+
         # Have to clone the piece before moving it. Otherwise, it makes it really hard to compare
         # expected move result to actual move result since the piece here could have a modified
         # move_directions . Plus, we don't really care about any values other than piece type and color
         updated_positions[end_position] = copy.deepcopy(start_position_piece)
         updated_positions[start_position] = None
 
+        if start_position_piece.type == Type.PAWN and row_offset == 2:
+            tartget_position = self._get_position_shifted_by_offset(start_position, MoveDirection.FORWARD, 1,
+                                                                    start_position_piece.color)
+            en_passant_info['pawn_position'] = end_position
+            en_passant_info['target_position'] = tartget_position
+        else:
+            en_passant_info['pawn_position'] = None
+            en_passant_info['target_position'] = None
+
         # Check for en passant
         if start_position_piece.type == Type.PAWN:
-            start_position_piece.move_directions[MoveDirection.FORWARD] = 1
-            if direction == MoveDirection.F_RIGHT_DIAG or direction == MoveDirection.F_LEFT_DIAG:
-                if self.can_en_passant(start_position, direction):
-                    if self._on_same_row(start_position, self.last_move['end']):
-                        self._remove_piece(self.last_move['end'])
-                        updated_positions[self.last_move['end']] = None
+            if start_position_piece.move_directions[MoveDirection.FORWARD] > 1:
+                start_position_piece.move_directions[MoveDirection.FORWARD] = 1
+            if self.can_en_passant(start_position, direction):
+                self._remove_piece(self._en_passant_info['pawn_position'])
+                updated_positions[self._en_passant_info['pawn_position']] = None
         # Check for castling
         elif start_position_piece.type == Type.KING:
             if abs(column_offset) == 2 and self.can_castle(start_position_piece.color, direction):
@@ -263,14 +274,10 @@ class ChessBoard:
                 if king.move_directions[rook_direction] > 1:
                     king.move_directions[rook_direction] = 1
 
+        self._en_passant_info = en_passant_info
         self._remove_piece(start_position)
         self._remove_piece(end_position)
         self[end_position] = start_position_piece
-
-        self.last_move['start'] = start_position
-        self.last_move['end'] = end_position
-        self.last_move['piece_type'] = start_position_piece.type
-        self.last_move['piece_color'] = start_position_piece.color
 
         return updated_positions
 
@@ -318,28 +325,17 @@ class ChessBoard:
         if direction != MoveDirection.F_RIGHT_DIAG and direction != MoveDirection.F_LEFT_DIAG:
             return False
 
-        if self.is_position_occupied(position) and self.last_move['end']:
-            piece_on_position = self[position]
-            pieces_are_pawns = piece_on_position.type == self.last_move['piece_type'] == Type.PAWN
-            pieces_are_diff_color = piece_on_position.color != self.last_move['piece_color']
-            check_direction = MoveDirection.LEFT if direction == MoveDirection.F_LEFT_DIAG else MoveDirection.RIGHT
-            nearest_piece_info = self._get_nearest_piece_in_direction(position,
-                                                                      check_direction,
-                                                                      piece_on_position.color)
+        pawn = self[position]
+        if not pawn:
+            return False
+        if pawn.type != Type.PAWN:
+            return False
 
-            if nearest_piece_info and pieces_are_pawns and pieces_are_diff_color:
-                last_file_start, last_rank_start = self._position_to_row_and_column(self.last_move['start'],
-                                                                                    self.last_move['piece_color'])
-                last_file_end, last_rank_end = self._position_to_row_and_column(self.last_move['end'],
-                                                                                self.last_move['piece_color'])
-                current_file, current_rank = self._position_to_row_and_column(position, self.last_move['piece_color'])
+        # Check if en_passant target_position is equal to the position passed in
+        new_position = self._get_position_shifted_by_offset(position, direction, 1, pawn.color)
+        if new_position == self._en_passant_info['target_position']:
+            return True
 
-                opp_pawn_move_two = abs(last_rank_end - last_rank_start) == 2
-                pawns_on_same_rank = last_rank_end == current_rank
-                pawn_side_by_side = abs(last_file_end - current_file) == 1
-                last_piece_correct_direction = nearest_piece_info['position'] == self.last_move['end']
-                if opp_pawn_move_two and pawns_on_same_rank and pawn_side_by_side and last_piece_correct_direction:
-                    return True
         return False
 
     def get_legal_moves(self, position):
