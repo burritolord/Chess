@@ -43,7 +43,7 @@ class ChessBoard:
         board_length = self.get_dimension()
 
         # Hold the last move made on this board. Needed to be able to do en passant check.
-        self._en_passant_info = {'target_position':None, 'pawn_position':None}
+        self._en_passant_info = {'target_position': None, 'pawn_position': None}
 
         # List of all squares with algebraic notation.
         self._board_positions = [file+str(rank+1) for rank in range(0, board_length) for file in "abcdefgh"]
