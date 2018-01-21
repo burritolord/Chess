@@ -23,7 +23,7 @@ class BoardStateTest(unittest.TestCase):
         for positions in piece_positions:
             pawn_position, king_position = positions
             with self.subTest(pawn_position=pawn_position, king_position=king_position):
-                board = ChessBoard(empty_board=True)
+                board = ChessBoard()
                 board[pawn_position] = Pawn(Color.BLACK)
                 board[king_position] = King(Color.WHITE)
                 self.assertTrue(board.is_check(Color.WHITE), 'Pawn should put king in check')
@@ -41,7 +41,7 @@ class BoardStateTest(unittest.TestCase):
         for positions in piece_positions:
             knight_position, king_position = positions
             with self.subTest(knight_position=knight_position, king_position=king_position):
-                board = ChessBoard(empty_board=True)
+                board = ChessBoard()
                 board[knight_position] = Knight(Color.BLACK)
                 board[king_position] = King(Color.WHITE)
                 self.assertTrue(board.is_check(Color.WHITE), 'Knight should put king in check')
@@ -56,7 +56,7 @@ class BoardStateTest(unittest.TestCase):
         for positions in piece_positions:
             bishop_position, king_position = positions
             with self.subTest(bishop_position=bishop_position, king_position=king_position):
-                board = ChessBoard(empty_board=True)
+                board = ChessBoard()
                 board[bishop_position] = Bishop(Color.BLACK)
                 board[king_position] = King(Color.WHITE)
                 self.assertTrue(board.is_check(Color.WHITE), 'Bishop should put king in check')
@@ -73,7 +73,7 @@ class BoardStateTest(unittest.TestCase):
         for positions in piece_positions:
             rook_position, king_position = positions
             with self.subTest(rook_position=rook_position, king_position=king_position):
-                board = ChessBoard(empty_board=True)
+                board = ChessBoard()
                 board[rook_position] = Rook(Color.BLACK)
                 board[king_position] = King(Color.WHITE)
                 self.assertTrue(board.is_check(Color.WHITE), 'Rook should put king in check')
@@ -90,7 +90,7 @@ class BoardStateTest(unittest.TestCase):
         for positions in piece_positions:
             queen_position, king_position = positions
             with self.subTest(queen_position=queen_position, king_position=king_position):
-                board = ChessBoard(empty_board=True)
+                board = ChessBoard()
                 board[queen_position] = Queen(Color.BLACK)
                 board[king_position] = King(Color.WHITE)
                 self.assertTrue(board.is_check(Color.WHITE), 'Queen should put king in check')
@@ -100,7 +100,7 @@ class BoardStateTest(unittest.TestCase):
         Test that a pawn will put a king of the opposite color in checkmate
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a1'] = King(Color.WHITE)
         board['a2'] = Pawn(Color.WHITE)
         board['b1'] = Bishop(Color.WHITE)
@@ -113,7 +113,7 @@ class BoardStateTest(unittest.TestCase):
         Test that a rook will put a king of the opposite color in checkmate
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a3'] = King(Color.WHITE)
         board['a5'] = Rook(Color.BLACK)
         board['b8'] = Rook(Color.BLACK)
@@ -124,7 +124,7 @@ class BoardStateTest(unittest.TestCase):
         Test that a knight will put a king of the opposite color in checkmate
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['b4'] = Bishop(Color.BLACK)
         board['c5'] = Rook(Color.BLACK)
         board['d1'] = King(Color.WHITE)
@@ -137,7 +137,7 @@ class BoardStateTest(unittest.TestCase):
         Test that a queen will put a king of the opposite color in checkmate
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a8'] = King(Color.WHITE)
         board['a6'] = Knight(Color.BLACK)
         board['b6'] = King(Color.BLACK)
@@ -149,7 +149,7 @@ class BoardStateTest(unittest.TestCase):
         Test that a queen will put a king of the opposite color in checkmate
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['d6'] = King(Color.BLACK)
         board['c5'] = Pawn(Color.BLACK)
         board['e5'] = Pawn(Color.BLACK)
@@ -165,7 +165,7 @@ class BoardStateTest(unittest.TestCase):
         Expected result is a stalemate has occurred.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a1'] = King(Color.BLACK)
         board['b4'] = Rook(Color.WHITE)
         board['c2'] = King(Color.WHITE)
@@ -181,7 +181,7 @@ class BoardStateTest(unittest.TestCase):
         :return:
         """
         # Try for king
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a8'] = King(Color.BLACK)
         board['c1'] = Rook(Color.WHITE)
         board['d7'] = Rook(Color.WHITE)
@@ -190,7 +190,7 @@ class BoardStateTest(unittest.TestCase):
         self.assertFalse(is_stalemate, 'Board configuration should not result in stalemate')
 
         # Try for piece other than king
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a8'] = King(Color.BLACK)
         board['b1'] = Rook(Color.WHITE)
         board['d7'] = Rook(Color.WHITE)
@@ -204,7 +204,7 @@ class BoardStateTest(unittest.TestCase):
         Test that a pawn can perform en passant move.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
 
         # En passant from white's perspective.
         board['b5'] = Pawn(Color.WHITE)
@@ -223,7 +223,7 @@ class BoardStateTest(unittest.TestCase):
         Test that a pawn cannot perform en passant move.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
 
         # Confirm pawn that just moved 2 spaces can't perform enpassant.
         board['b5'] = Pawn(Color.WHITE)
@@ -243,7 +243,7 @@ class BoardStateTest(unittest.TestCase):
         Test that a king can perform a castle
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
 
         # Check from white perspective
         board['a1'] = Rook(Color.WHITE)
@@ -267,7 +267,7 @@ class BoardStateTest(unittest.TestCase):
         :return:
         """
         # Check case where king would pass through check
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
         board['d5'] = Rook(Color.BLACK)
@@ -292,7 +292,7 @@ class BoardStateTest(unittest.TestCase):
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
 
         # Check after king moves
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
         board.move_piece('e1', 'd1')
@@ -303,7 +303,7 @@ class BoardStateTest(unittest.TestCase):
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
 
         # Check after left rook moves
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
         board.move_piece('a1', 'b1')
@@ -314,7 +314,7 @@ class BoardStateTest(unittest.TestCase):
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
 
         # Check after right rook moves
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['h1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
         board.move_piece('h1', 'h2')
@@ -325,7 +325,7 @@ class BoardStateTest(unittest.TestCase):
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
 
         # Check with both rooks after right rook moves
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a1'] = Rook(Color.WHITE)
         board['h1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
@@ -337,7 +337,7 @@ class BoardStateTest(unittest.TestCase):
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
 
         # Check with both rooks after right rook moves
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a1'] = Rook(Color.WHITE)
         board['h1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
@@ -367,7 +367,7 @@ class BoardStateTest(unittest.TestCase):
         }
 
         for promotion_type, promotion_class in promotion_types.items():
-            board = ChessBoard(empty_board=True)
+            board = ChessBoard()
             for color, position in positions.items():
                 start, end = position
                 board[start] = Pawn(color)
@@ -384,7 +384,7 @@ class BoardStateTest(unittest.TestCase):
         promoted.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
 
         # Pawn cannot be promoted when not on last row
         board['h7'] = Pawn(Color.WHITE)

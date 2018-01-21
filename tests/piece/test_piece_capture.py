@@ -20,7 +20,7 @@ class PieceCaptureTest(unittest.TestCase):
         :return:
         """
         # Test diagonal move when a piece of the opposite color is present
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         start_position = 'b1'
         capture_position = 'c2'
         board[start_position] = Pawn(Color.WHITE)
@@ -58,7 +58,7 @@ class PieceCaptureTest(unittest.TestCase):
         moves for the pawn.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         start_position = 'b1'
         board[start_position] = Pawn(Color.WHITE)
         board['c2'] = Bishop(Color.WHITE)
@@ -76,7 +76,7 @@ class PieceCaptureTest(unittest.TestCase):
         moves for the rook. One opposing piece is also successfully captured by rook.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         start_position = 'b1'
         capture_position = 'e1'
         board[start_position] = Rook(Color.WHITE)
@@ -111,7 +111,7 @@ class PieceCaptureTest(unittest.TestCase):
         color_group = [Color.WHITE, Color.BLACK]
         for color in color_group:
             with self.subTest(color=color):
-                board = ChessBoard(empty_board=True)
+                board = ChessBoard()
                 board['d4'] = Rook(color)
                 board['e4'] = Pawn(color)
 
@@ -130,7 +130,7 @@ class PieceCaptureTest(unittest.TestCase):
         when knight moves to that position.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         start_position = 'd4'
         capture_position = 'f5'
         board[start_position] = Knight(Color.WHITE)
@@ -158,7 +158,7 @@ class PieceCaptureTest(unittest.TestCase):
         when bishop moves to that position.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         start_position = 'd4'
         capture_position = 'h8'
         board[start_position] = Bishop(Color.WHITE)
@@ -190,7 +190,7 @@ class PieceCaptureTest(unittest.TestCase):
         color_group = [Color.WHITE, Color.BLACK]
         for color in color_group:
             with self.subTest(color=color):
-                board = ChessBoard(empty_board=True)
+                board = ChessBoard()
                 board['b2'] = Bishop(color)
                 board['c3'] = Pawn(color)
 
@@ -206,7 +206,7 @@ class PieceCaptureTest(unittest.TestCase):
         when king moves to that position.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         start_position = 'd4'
         capture_position = 'e4'
         board[start_position] = King(Color.WHITE)
@@ -234,7 +234,7 @@ class PieceCaptureTest(unittest.TestCase):
         :return:
         """
         # Test scenario where opponent piece backing up other opponent piece.
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         start_position = 'd4'
         capture_position = 'd5'
         board[start_position] = King(Color.WHITE)
@@ -248,7 +248,7 @@ class PieceCaptureTest(unittest.TestCase):
         self.assertListEqual(expected_legal_moves, legal_moves, 'Expected move list does not match actual move list')
 
         # Test king has piece of same color directly in front of it
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['d4'] = King(Color.WHITE)
         board['d5'] = Pawn(Color.WHITE)
 
@@ -265,7 +265,7 @@ class PieceCaptureTest(unittest.TestCase):
         position.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         start_position = 'd4'
         capture_position = 'e4'
         board[start_position] = Queen(Color.WHITE)
@@ -295,7 +295,7 @@ class PieceCaptureTest(unittest.TestCase):
         moves.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['b2'] = Queen(Color.WHITE)
         board['b3'] = Pawn(Color.WHITE)
 
@@ -314,7 +314,7 @@ class PieceCaptureTest(unittest.TestCase):
         Expected result is opponents piece is successfully captured when en passant move is performed.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
 
         # Check from white perspective
         board['b5'] = Pawn(Color.WHITE)

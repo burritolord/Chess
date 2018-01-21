@@ -35,7 +35,7 @@ class PieceMovementTest(unittest.TestCase):
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start] = piece_class(color)
 
                     move_result = board.move_piece(start, end)
@@ -62,7 +62,7 @@ class PieceMovementTest(unittest.TestCase):
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start] = piece_class(color)
 
                     move_result = board.move_piece(start, end)
@@ -89,7 +89,7 @@ class PieceMovementTest(unittest.TestCase):
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start] = piece_class(color)
 
                     move_result = board.move_piece(start, end)
@@ -116,7 +116,7 @@ class PieceMovementTest(unittest.TestCase):
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start] = piece_class(color)
 
                     move_result = board.move_piece(start, end)
@@ -143,7 +143,7 @@ class PieceMovementTest(unittest.TestCase):
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start] = piece_class(color)
 
                     move_result = board.move_piece(start, end)
@@ -170,7 +170,7 @@ class PieceMovementTest(unittest.TestCase):
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start] = piece_class(color)
 
                     move_result = board.move_piece(start, end)
@@ -197,7 +197,7 @@ class PieceMovementTest(unittest.TestCase):
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start] = piece_class(color)
 
                     move_result = board.move_piece(start, end)
@@ -224,7 +224,7 @@ class PieceMovementTest(unittest.TestCase):
         for start, end, color in zip(start_positions, end_positions, piece_colors):
             for t, piece_class in piece_types.items():
                 with self.subTest(t=t, piece_class=piece_class, start=start, end=end, color=color):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start] = piece_class(color)
 
                     move_result = board.move_piece(start, end)
@@ -247,7 +247,7 @@ class PieceMovementTest(unittest.TestCase):
         for color in piece_colors:
             for end_position in end_positions:
                 with self.subTest(color=color, end_position=end_position):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start_position] = Knight(color)
 
                     move_result = board.move_piece(start_position, end_position)
@@ -263,7 +263,7 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is pawn cannot move forward two squares once it has moved.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         positions = {
             Color.WHITE: ('b2', 'b3'),
             Color.BLACK: ('b7', 'b6')
@@ -287,7 +287,7 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is king cannot move left or right two squares once it has moved.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         positions = {
             Color.WHITE: ('e1', 'e2'),
             Color.BLACK: ('e8', 'e7')
@@ -317,7 +317,7 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is king can no longer castle king side.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         king_positions = {
             Color.WHITE: 'e1',
             Color.BLACK: 'e8'
@@ -353,7 +353,7 @@ class PieceMovementTest(unittest.TestCase):
         Expected result is king can no longer castle queen side.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         king_positions = {
             Color.WHITE: 'e1',
             Color.BLACK: 'e8'
@@ -404,7 +404,7 @@ class PieceMovementTest(unittest.TestCase):
         for color, left_right_castle in castle_expected_result.items():
             for castle_info in left_right_castle:
                 with self.subTest(color=color, castle_info=castle_info):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     king_start, king_end = castle_info['king_move']
                     rook_start, rook_end = castle_info['rook_move']
                     board[king_start] = King(color)

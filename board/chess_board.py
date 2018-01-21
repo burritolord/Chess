@@ -1,9 +1,8 @@
 import copy
-from piece.pawn import Pawn
+from board.fen import Fen
 from piece.rook import Rook
 from piece.knight import Knight
 from piece.bishop import Bishop
-from piece.king import King
 from piece.queen import Queen
 from piece.color import Color
 from piece.type import Type
@@ -32,12 +31,12 @@ class ChessBoard:
         MoveDirection.L_SHAPE: [-17, -15, -10, -6, 6, 10, 15, 17]
     }
 
-    def __init__(self, empty_board=False):
+    def __init__(self, fen=None):
         """
         Create a ChessBoard object.
 
-        :param empty_board: bool
-            True if the board should be empty, False if board should be created with all starting pieces.
+        :param fen: Fen
+            Object containing initial board configuration
         :return:
         """
         board_length = self.get_dimension()
@@ -61,27 +60,19 @@ class ChessBoard:
         for position, index in zip(reversed(self._board_positions), range(0, board_length**2)):
             self._indexes[Color.BLACK][position] = index
 
-        if not empty_board:
-            # Set the starting pieces for white
-            for index in range(board_length, board_length*2):
-                self._pieces[self._board_positions[index]] = Pawn(Color.WHITE)
-            self._pieces['a1'], self._pieces['h1'] = Rook(Color.WHITE), Rook(Color.WHITE)
-            self._pieces['b1'], self._pieces['g1'] = Knight(Color.WHITE), Knight(Color.WHITE)
-            self._pieces['c1'], self._pieces['f1'] = Bishop(Color.WHITE), Bishop(Color.WHITE)
-            self._pieces['d1'] = Queen(Color.WHITE)
-            self._pieces['e1'] = King(Color.WHITE)
+        if fen and fen.board:
+            for position, piece in fen.board.items():
+                self._pieces[position] = copy.deepcopy(piece)
 
-            # Set the starting pieces for black
-            for index in range(board_length*6, board_length*7):
-                self._pieces[self._board_positions[index]] = Pawn(Color.BLACK)
-            self._pieces['a8'], self._pieces['h8'] = Rook(Color.BLACK), Rook(Color.BLACK)
-            self._pieces['b8'], self._pieces['g8'] = Knight(Color.BLACK), Knight(Color.BLACK)
-            self._pieces['c8'], self._pieces['f8'] = Bishop(Color.BLACK), Bishop(Color.BLACK)
-            self._pieces['d8'] = Queen(Color.BLACK)
-            self._pieces['e8'] = King(Color.BLACK)
+                # Set king positions
+                if piece.type == Type.KING:
+                    self._king_positions[piece.color] = position
 
-            self._king_positions[Color.WHITE] = 'e1'
-            self._king_positions[Color.BLACK] = 'e8'
+                # Set en passant position if there is one
+                if fen.en_passant_position:
+                    self._en_passant_info['target_position'] = fen.en_passant_position
+                    push_pawn = self._get_position_shifted_by_offset(position, MoveDirection.BACKWARD, 1, piece.color)
+                    self._en_passant_info['pawn_position'] = push_pawn
 
     def is_position_occupied(self, position):
         """
@@ -884,5 +875,6 @@ class ChessBoard:
 
 
 if __name__ == '__main__':
-    board = ChessBoard()
+    fen = Fen()
+    board = ChessBoard(fen)
     print(board)

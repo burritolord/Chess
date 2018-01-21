@@ -7,6 +7,7 @@ from piece.bishop import Bishop
 from piece.knight import Knight
 from piece.rook import Rook
 from piece.color import Color
+from board.fen import Fen, FenIncorrectFormatError
 
 
 class PieceLegalMovesTest(unittest.TestCase):
@@ -36,7 +37,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         for color, positions in start_positions.items():
             for start_position, expected_moves in positions.items():
                 with self.subTest(color=color, start_position=start_position, expected_moves=expected_moves):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start_position] = Pawn(color)
                     possible_moves = board.get_legal_moves(start_position)
                     possible_moves.sort()
@@ -45,7 +46,7 @@ class PieceLegalMovesTest(unittest.TestCase):
                     self.assertListEqual(expected_moves, possible_moves, message)
 
         # Confirm pawn can only move one square after it is moved
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a1'] = Pawn(Color.WHITE)
         board.move_piece('a1', 'a3')
         possible_moves = board.get_legal_moves('a3')
@@ -79,10 +80,11 @@ class PieceLegalMovesTest(unittest.TestCase):
                 'h4': ['g3', 'h3']
             }
         }
+        fen = Fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -')
         for (c1, moves_for_color), (c2, expected_for_color) in zip(piece_movements.items(), expected_moves.items()):
             for piece_moves, (check_position, expected_list) in zip(moves_for_color, expected_for_color.items()):
                 with self.subTest(piece_moves=piece_moves, check_position=check_position, expected_list=expected_list):
-                    board = ChessBoard()
+                    board = ChessBoard(fen)
                     for movements in piece_moves:
                         start, end = movements
                         board.move_piece(start, end)
@@ -105,7 +107,7 @@ class PieceLegalMovesTest(unittest.TestCase):
             pawn_colors = [Color.WHITE, Color.BLACK]
             for start, blocking, expected, pawn_color, opposing in zip(start_positions, blocking_positions, expected_moves, pawn_colors, opposing_color):
                 with self.subTest(start=start, blocking=blocking, expected=expected, pawn_color=pawn_color, opposing=opposing):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start] = Pawn(pawn_color)
                     board[blocking] = Pawn(opposing)
 
@@ -140,7 +142,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         for color, positions in start_positions.items():
             for start_position, expected_moves in positions.items():
                 with self.subTest(color=color, start_position=start_position, expected_moves=expected_moves):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start_position] = Rook(color)
                     possible_moves = board.get_legal_moves(start_position)
                     possible_moves.sort()
@@ -175,7 +177,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         for color, positions in start_positions.items():
             for start_position, expected_moves in positions.items():
                 with self.subTest(color=color, start_position=start_position, expected_moves=expected_moves):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start_position] = Knight(color)
                     possible_moves = board.get_legal_moves(start_position)
                     possible_moves.sort()
@@ -208,7 +210,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         for color, positions in start_positions.items():
             for start_position, expected_moves in positions.items():
                 with self.subTest(color=color, start_position=start_position, expected_moves=expected_moves):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start_position] = Bishop(color)
                     possible_moves = board.get_legal_moves(start_position)
                     possible_moves.sort()
@@ -263,7 +265,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         for color, positions in start_positions.items():
             for start_position, expected_moves in positions.items():
                 with self.subTest(color=color, start_position=start_position, expected_moves=expected_moves):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start_position] = Queen(color)
                     possible_moves = board.get_legal_moves(start_position)
                     possible_moves.sort()
@@ -296,7 +298,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         for color, positions in start_positions.items():
             for start_position, expected_moves in positions.items():
                 with self.subTest(color=color, start_position=start_position, expected_moves=expected_moves):
-                    board = ChessBoard(empty_board=True)
+                    board = ChessBoard()
                     board[start_position] = King(color)
                     possible_moves = board.get_legal_moves(start_position)
                     possible_moves.sort()
@@ -310,7 +312,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         Expected result is that queen side and king side castling is listed in legal moves list.
         :return:
         """
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['a1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
         board['a8'] = Rook(Color.BLACK)
@@ -349,7 +351,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         color_group = [(Color.WHITE, Color.BLACK), (Color.BLACK, Color.WHITE)]
         for group in color_group:
             with self.subTest(group=group):
-                board = ChessBoard(empty_board=True)
+                board = ChessBoard()
                 king_color, rook_color = group
                 board['d4'] = King(king_color)
                 board['e5'] = Rook(rook_color)
@@ -366,7 +368,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         :return:
         """
         # Pawn pined
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['c3'] = King(Color.WHITE)
         board['d4'] = Pawn(Color.WHITE)
         board['f6'] = Bishop(Color.BLACK)
@@ -375,7 +377,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
 
         # Rook pined
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['c3'] = King(Color.WHITE)
         board['d4'] = Rook(Color.WHITE)
         board['f6'] = Bishop(Color.BLACK)
@@ -384,7 +386,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
 
         # Knight pined
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['c3'] = King(Color.WHITE)
         board['d4'] = Knight(Color.WHITE)
         board['f6'] = Bishop(Color.BLACK)
@@ -393,7 +395,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
 
         # Bishop pined
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['c3'] = King(Color.WHITE)
         board['c5'] = Bishop(Color.WHITE)
         board['c6'] = Rook(Color.BLACK)
@@ -402,7 +404,7 @@ class PieceLegalMovesTest(unittest.TestCase):
         self.assertListEqual([], legal_moves, 'Piece should not have any legal moves.')
 
         # Queen kinda pined
-        board = ChessBoard(empty_board=True)
+        board = ChessBoard()
         board['c3'] = King(Color.WHITE)
         board['c4'] = Queen(Color.WHITE)
         board['c6'] = Rook(Color.BLACK)

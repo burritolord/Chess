@@ -5,13 +5,15 @@
 from board.chess_board import ChessBoard
 from piece.color import Color
 from game.player import Player
+from board.fen import Fen, FenIncorrectFormatError
 
 
 class ChessGame:
 
     def __init__(self):
+        fen = Fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -')
         self._id = None
-        self._board = ChessBoard()
+        self._board = ChessBoard(fen)
         self._current_player = Color.WHITE
         self._game_over = False
         self._white_player = None
