@@ -1,7 +1,7 @@
-from piece.type import Type
-from piece.piece import Piece
-from piece.color import Color
-from piece.move_direction import MoveDirection
+from src.piece.type import Type
+from src.piece.piece import Piece
+from src.piece.color import Color
+from src.piece.move_direction import MoveDirection
 
 
 class Queen(Piece):

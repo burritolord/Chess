@@ -1,17 +1,17 @@
 import copy
-from board.fen import Fen
-from piece.rook import Rook
-from piece.knight import Knight
-from piece.bishop import Bishop
-from piece.queen import Queen
-from piece.color import Color
-from piece.type import Type
-from piece.move_direction import MoveDirection
-from utils.chess_helper import ChessHelper
-from board.exception import PieceTypeError
-from board.exception import EmptyPositionError
-from board.exception import InvalidPositionError
-from board.exception import InvalidIndexError
+from src.board.fen import Fen
+from src.piece.rook import Rook
+from src.piece.knight import Knight
+from src.piece.bishop import Bishop
+from src.piece.queen import Queen
+from src.piece.color import Color
+from src.piece.type import Type
+from src.piece.move_direction import MoveDirection
+from src.utils.chess_helper import ChessHelper
+from src.board.exception import PieceTypeError
+from src.board.exception import EmptyPositionError
+from src.board.exception import InvalidPositionError
+from src.board.exception import InvalidIndexError
 
 
 class ChessBoard:

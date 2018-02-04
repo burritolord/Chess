@@ -1,4 +1,4 @@
-from piece.type import Type
+from src.piece.type import Type
 
 __all__ = ['PieceTypeError', 'EmptyPositionError', 'InvalidPositionError', 'InvalidIndexError']
 
