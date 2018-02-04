@@ -157,6 +157,10 @@ class ChessBoard:
         """
         # TODO confirm no piece can block the piece putting king in check. If there is a piece,
         # need to be sure piece is not pinned
+        # How is check being performed. Row, column, diag, knight
+        # Can piece putting king in check be captured
+        # Can a piece block the path of check and not put king in check
+        # Can only block row, columng, diag
         king_position = self._king_positions[king_color]
         check = self.is_check(king_color)
         possible_moves = self.get_legal_moves(king_position)
