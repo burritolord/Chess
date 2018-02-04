@@ -2,10 +2,9 @@
 # Maintain who's turn it is
 # Maintain board state
 # Check for end game: win, lose, draw
-from board.chess_board import ChessBoard
-from piece.color import Color
-from game.player import Player
-from board.fen import Fen, FenIncorrectFormatError
+from src.board.chess_board import ChessBoard
+from src.piece.color import Color
+from src.board.fen import Fen
 
 
 class ChessGame:

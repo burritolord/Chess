@@ -1,13 +1,13 @@
 import copy
 import re
-from piece.pawn import Pawn
-from piece.rook import Rook
-from piece.knight import Knight
-from piece.bishop import Bishop
-from piece.queen import Queen
-from piece.king import King
-from piece.color import Color
-from piece.move_direction import MoveDirection
+from src.piece.pawn import Pawn
+from src.piece.rook import Rook
+from src.piece.knight import Knight
+from src.piece.bishop import Bishop
+from src.piece.queen import Queen
+from src.piece.king import King
+from src.piece.color import Color
+from src.piece.move_direction import MoveDirection
 
 
 class FenError(Exception):
@@ -70,6 +70,10 @@ class Fen:
     @property
     def en_passant_position(self):
         return self._en_passant_position
+
+    @classmethod
+    def generate_fen(cls, board, current_player, castle_positions, en_passant):
+        pass
 
     def _parse_castle(self, castle, color):
         """

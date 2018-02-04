@@ -1,13 +1,13 @@
 import unittest
-from board.chess_board import ChessBoard
-from piece.king import King
-from piece.pawn import Pawn
-from piece.queen import Queen
-from piece.bishop import Bishop
-from piece.knight import Knight
-from piece.rook import Rook
-from piece.color import Color
-from board.fen import Fen, FenIncorrectFormatError
+from src.board.chess_board import ChessBoard
+from src.piece.king import King
+from src.piece.pawn import Pawn
+from src.piece.queen import Queen
+from src.piece.bishop import Bishop
+from src.piece.knight import Knight
+from src.piece.rook import Rook
+from src.piece.color import Color
+from src.board.fen import Fen
 
 
 class PieceLegalMovesTest(unittest.TestCase):
