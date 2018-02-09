@@ -72,8 +72,45 @@ class Fen:
         return self._en_passant_position
 
     @classmethod
-    def generate_fen(cls, board, current_player, castle_positions, en_passant):
-        pass
+    def generate_fen(cls, board, current_player, white_castle, black_castle, en_passant):
+        # TODO add some validation
+        rows = '87654321'
+        columns = 'abcdefgh'
+        possible_positions = [column + row for row in rows for column in columns]
+        board_sections = ['' for _ in range(8)]
+
+        count_between = 0
+        for position, index in zip(possible_positions, [i for i in range(0, 8) for _ in range(0, 8)]):
+            if board[position]:
+                section_piece = "{}{}".format(count_between, board[position]) if count_between else str(board[position])
+                board_sections[index] += section_piece
+                count_between = 0
+                continue
+
+            if count_between == 7:
+                board_sections[index] += str(count_between + 1)
+                count_between = 0
+            else:
+                count_between += 1
+
+        fen_board = '/'.join(board_sections)
+
+        fen_current_player = 'w' if current_player == Color.WHITE else 'b'
+
+        fen_white_castle = ''
+        for direction in white_castle:
+            fen_white_castle += 'K' if direction == MoveDirection.RIGHT else 'Q'
+
+        fen_black_castle = ''
+        for direction in black_castle:
+            fen_black_castle += 'k' if direction == MoveDirection.RIGHT else 'q'
+
+        fen_castle_info = '{}{}'.format(fen_white_castle, fen_black_castle)
+        fen_castle_info = fen_castle_info if fen_castle_info else '-'
+
+        fen_enpassant = en_passant if en_passant else '-'
+
+        return '{} {} {} {}'.format(fen_board, fen_current_player, fen_castle_info, fen_enpassant)
 
     def _parse_castle(self, castle, color):
         """
