@@ -2,7 +2,7 @@
 import unittest
 from tests.piece import *
 from tests.board import *
-from tests.game import *
+from tests.models import *
 
 # initialize the test suite
 loader = unittest.TestLoader()

@@ -87,6 +87,7 @@ class Fen:
                 count_between = 0
                 continue
 
+            # If reached the end of the row, reset count between and add the count to the board section
             if count_between == 7:
                 board_sections[index] += str(count_between + 1)
                 count_between = 0

@@ -146,6 +146,13 @@ class ChessBoard:
 
         return False
 
+    def get_enpassant_position(self):
+        """
+        Retrieve the en passant target position.
+        :return:
+        """
+        return self._en_passant_info['target_position']
+
     def is_checkmate(self, king_color):
         """
         Test for checkmate against king of the specified color.
@@ -470,6 +477,29 @@ class ChessBoard:
         for transaction in game_transactions:
             player, piece, start_pos, end_pos = transaction
             self.move_piece(start_pos, end_pos)
+
+    def can_promote_pawn(self, position):
+        """
+        Test if pawn promotion is possible for the provided position.
+
+        :param position: string
+            Algebraic notation position.
+        :return:
+        """
+        if not ChessHelper.is_valid_position(position):
+            raise InvalidPositionError(position)
+        if self[position] is None:
+            return False
+
+        piece = self[position]
+        if piece.type != Type.PAWN:
+            return False
+
+        column, row = self._position_to_row_and_column(position, piece.color)
+        if row == self.get_dimension() - 1:
+            return True
+
+        return False
 
     def promote_pawn(self, position, promotion_type):
         """
