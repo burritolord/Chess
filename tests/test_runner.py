@@ -16,7 +16,7 @@ suite.addTests(loader.loadTestsFromModule(test_piece_capture))
 
 suite.addTests(loader.loadTestsFromModule(test_chessboard))
 suite.addTest(loader.loadTestsFromModule(test_fen))
-# suite.addTests(loader.loadTestsFromModule(test_chess_game))
+suite.addTests(loader.loadTestsFromModule(test_chess_game))
 
 # initialize a runner, pass it your suite and run it
 runner = unittest.TextTestRunner(verbosity=2)

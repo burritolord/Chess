@@ -1,14 +1,77 @@
-
-# Maintain who's turn it is
-# Maintain board state
-# Check for end game: win, lose, draw
 from src.board.chess_board import ChessBoard
+from src.board.fen import Fen
 from src.piece.move_direction import MoveDirection
 from src.piece.color import Color
-from src.board.fen import Fen
+from src.piece.queen import Queen
+from src.piece.bishop import Bishop
+from src.piece.knight import Knight
+from src.piece.rook import Rook
 from src.models.game_score import GameScore
 from src.db import db
-from src.board.move_result import MoveResult
+from src.piece.type import Type
+from src.utils.chess_helper import ChessHelper
+from src.board.exception import *
+
+
+class MoveResult:
+    """
+    Contain info on results of performing a move.
+    """
+
+    def __init__(self):
+        self._update_positions = {}
+        self._king_in_check = None
+        self._king_in_checkmate = None
+        self._pawn_promote = None
+        self._draw = False
+
+    @property
+    def update_positions(self):
+        return self._update_positions
+
+    @update_positions.setter
+    def update_positions(self, positions):
+        self._update_positions = positions
+
+    @property
+    def king_in_check(self):
+        return self._king_in_check
+
+    @king_in_check.setter
+    def king_in_check(self, king):
+        self._king_in_check = king
+
+    @property
+    def king_in_checkmate(self):
+        return self._king_in_checkmate
+
+    @king_in_checkmate.setter
+    def king_in_checkmate(self, king):
+        self._king_in_checkmate = king
+
+    @property
+    def pawn_promote_info(self):
+        # - [color]
+        # - [promote_types]: Types of pieces the pawn can promote to
+        return self._pawn_promote
+
+    @pawn_promote_info.setter
+    def pawn_promote_info(self, position):
+        self._pawn_promote = position
+
+    @property
+    def draw(self):
+        return self._draw
+
+    @draw.setter
+    def draw(self, draw):
+        self._draw = draw
+
+    def __eq__(self, other):
+        """Overrides the default implementation"""
+        if isinstance(self, other.__class__):
+            return self.__dict__ == other.__dict__
+        return False
 
 
 class ChessGame(db.Model):
@@ -18,7 +81,7 @@ class ChessGame(db.Model):
     fen = db.Column(db.String(100))
     white_player_id = db.Column(db.Integer, db.ForeignKey('players.id'))
     black_player_id = db.Column(db.Integer, db.ForeignKey('players.id'))
-    game_over = db.Column(db.Boolean, default=False)
+    is_over = db.Column(db.Boolean, default=False)
 
     white_player = db.relationship("Player", foreign_keys=white_player_id)
     black_player = db.relationship("Player", foreign_keys=black_player_id)
@@ -34,7 +97,8 @@ class ChessGame(db.Model):
         """
         super().__init__(**kwargs)
 
-        fen = fen if Fen(fen) else Fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -')
+        self.fen = fen if fen else 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -'
+        fen = Fen(self.fen)
         self._board = ChessBoard(fen)
 
     def get_legal_moves(self, position):
@@ -59,6 +123,17 @@ class ChessGame(db.Model):
         current_fen = Fen(self.fen)
         current_player = current_fen.current_player
         move_result = MoveResult()
+
+        # If moving a pawn to the end of the board, dont update anything on the board.
+        # Instead, just return the pawn promote info.
+        if self.can_promote_pawn(start_position, end_position):
+            player = self._get_player_by_color(current_player)
+            promote_info = {
+                'player': player,
+                'promote_types': self.get_pawn_promote_types()
+            }
+            move_result.pawn_promote_info = promote_info
+            return move_result
 
         move_result.update_positions = self._board.move_piece(start_position, end_position)
 
@@ -85,16 +160,16 @@ class ChessGame(db.Model):
         is_checkmate = self._board.is_checkmate(next_player)
         is_stalemate = self._board.is_stalemate(next_player)
         if is_checkmate or is_stalemate:
-            self.game_over = True
+            self.is_over = True
             if is_checkmate:
                 if current_player == Color.WHITE:
                     self.score = GameScore(game=self, white_score=1)
                     player_in_checkmate = self.black_player
-                    player_in_checkmate.color = 'black'
+                    player_in_checkmate.color = Color.BLACK
                 else:
                     self.score = GameScore(game=self, black_score=1)
                     player_in_checkmate = self.white_player
-                    player_in_checkmate.color = 'white'
+                    player_in_checkmate.color = Color.WHITE
                 move_result.king_in_checkmate = player_in_checkmate
             else:
                 self.score = GameScore(game=self, white_score=0.5, black_score=0.5)
@@ -104,14 +179,10 @@ class ChessGame(db.Model):
         is_check = self._board.is_check(next_player)
         if is_check:
             if current_player == Color.WHITE:
-                player_in_check = self.black_player
-                player_in_check.color = 'black'
+                player_in_check = self._get_player_by_color(Color.BLACK)
             else:
-                player_in_check = self.white_player
-                player_in_check.color = 'white'
+                player_in_check = self._get_player_by_color(Color.WHITE)
             move_result.king_in_check = player_in_check
-
-        move_result.pawn_promote_position = end_position if self._board.can_promote_pawn(end_position) else None
 
         return move_result
 
@@ -127,21 +198,43 @@ class ChessGame(db.Model):
         current_player_color = fen.current_player
         current_player = self.white_player if current_player_color == Color.WHITE else self.black_player
         # Dynamically add color field so UI can know player info and color.
-        current_player.color = 'white' if current_player_color == Color.WHITE else 'black'
+        if current_player:
+            current_player.color = Color.WHITE if current_player_color == Color.WHITE else Color.BLACK
 
         return current_player
 
-    def promote_piece(self, position, promotion_type):
+    def promote_pawn(self, start_position, end_position, piece_type):
         """
         Promote a pawn to another piece type.
 
-        :param position: string
+        :param start_position: string
             Algebraic notation for pawn position.
-        :param promotion_type: Type
+        :param end_position: string
+            Algebraic notation for destination position.
+        :param piece_type: Type
             Value from Type enum
         :return:
         """
-        self._board.promote_pawn(position, promotion_type)
+        if not ChessHelper.is_valid_position(start_position):
+            raise InvalidPositionError(start_position)
+        if not ChessHelper.is_valid_position(end_position):
+            raise InvalidPositionError(end_position)
+        if piece_type not in self.get_pawn_promote_types():
+            raise PieceTypeError(piece_type, 'Cannot promote pawn to supplied piece type')
+        if self._board[start_position] is None:
+            raise EmptyPositionError(start_position)
+        # TODO confirm pawn on second to last row
+
+        piece = self._board[start_position]
+        piece_class = {
+            Type.ROOK: Rook,
+            Type.KNIGHT: Knight,
+            Type.BISHOP: Bishop,
+            Type.QUEEN: Queen
+        }
+        self._board[start_position] = piece_class[piece_type](piece.color)
+
+        return self.move_piece(start_position, end_position)
 
     def get_winner(self):
         """
@@ -152,7 +245,78 @@ class ChessGame(db.Model):
         # Check if score obj exist. If so, return winner
         pass
 
+    def save_to_db(self):
+        """
+        Save game to db.
+
+        :return:
+        """
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_from_db(self):
+        """
+        Delete this game from the db.
+
+        :return:
+        """
+        db.session.delete(self)
+        db.session.commit()
+
+    def get_pawn_promote_types(self):
+        """
+        Retrieve the piece types a pawn can promote to.
+
+        :return: Type[]
+        """
+        return [Type.ROOK, Type.KNIGHT, Type.BISHOP, Type.QUEEN]
+
+    def can_promote_pawn(self, start_position, end_position):
+        """
+        Test if pawn promotion is possible for the provided position.
+
+        :param start_position: string
+            Algebraic notation position.
+        :param end_position: string
+            Algebraic notation position.
+        :return:
+        """
+        if not ChessHelper.is_valid_position(start_position):
+            raise InvalidPositionError(start_position)
+        if self._board[start_position] is None:
+            return False
+        if self._board[end_position] is not None:
+            return False
+
+        piece = self._board[start_position]
+        if piece.type != Type.PAWN:
+            return False
+
+        _, start_row = self._board.position_to_row_and_column(start_position, piece.color)
+        _, end_row = self._board.position_to_row_and_column(end_position, piece.color)
+        if start_row == self._board.get_dimension() - 2 and end_row == self._board.get_dimension() - 1:
+            return True
+
+        return False
+
+    def _get_player_by_color(self, color):
+        """
+        Retrieve the player associated with the provided color.
+
+        :param color: Color
+        :return: Player
+        """
+        if color == Color.WHITE:
+            player = self.white_player
+            player.color = Color.WHITE
+        else:
+            player = self.black_player
+            player.color = Color.BLACK
+
+        return player
+
+
 if __name__ == '__main__':
-    g1 = ChessGame(fen='fen stuff')
-    db.session.add(g1)
-    db.session.commit()
+    g1 = ChessGame()
+    # db.session.add(g1)
+    # db.session.commit()

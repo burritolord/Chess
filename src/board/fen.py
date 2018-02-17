@@ -80,19 +80,32 @@ class Fen:
         board_sections = ['' for _ in range(8)]
 
         count_between = 0
+        column_count = 0
+        found_piece = False
         for position, index in zip(possible_positions, [i for i in range(0, 8) for _ in range(0, 8)]):
             if board[position]:
                 section_piece = "{}{}".format(count_between, board[position]) if count_between else str(board[position])
                 board_sections[index] += section_piece
-                count_between = 0
-                continue
+                found_piece = True
 
             # If reached the end of the row, reset count between and add the count to the board section
-            if count_between == 7:
-                board_sections[index] += str(count_between + 1)
+            if found_piece:
                 count_between = 0
+                found_piece = False
             else:
                 count_between += 1
+
+            # if count_between == 7:
+            #     board_sections[index] += str(count_between)
+            #     count_between = 0
+            if count_between and column_count == 7:
+                board_sections[index] += str(count_between)
+                count_between = 0
+
+            if column_count == 7:
+                column_count = 0
+            else:
+                column_count += 1
 
         fen_board = '/'.join(board_sections)
 
