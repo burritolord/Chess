@@ -1,17 +1,14 @@
-class Player:
-    def __init__(self):
-        self._id = None
-        self._name = None
-        self._color = None
+from src.db import db
+from sqlalchemy_utils import PasswordType, EmailType, force_auto_coercion
 
-    @property
-    def id(self):
-        return self._id
+force_auto_coercion()
 
-    @property
-    def name(self):
-        return self._name
 
-    @property
-    def color(self):
-        return self._color
+class Player(db.Model):
+    __tablename__ = 'players'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True)
+    fullname = db.Column(db.String(200), nullable=True)
+    email = db.Column(EmailType, unique=True)
+    password = db.Column(PasswordType(schemes=['pbkdf2_sha512']), unique=False)

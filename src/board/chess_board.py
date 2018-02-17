@@ -146,6 +146,13 @@ class ChessBoard:
 
         return False
 
+    def get_enpassant_position(self):
+        """
+        Retrieve the en passant target position.
+        :return:
+        """
+        return self._en_passant_info['target_position']
+
     def is_checkmate(self, king_color):
         """
         Test for checkmate against king of the specified color.
@@ -162,6 +169,14 @@ class ChessBoard:
         # Can a piece block the path of check and not put king in check
         # Can only block row, columng, diag
         king_position = self._king_positions[king_color]
+        # is_check needs to return piece, piece position, and attack squares for piece putting king in check
+        # Can piece putting king in check be captured
+        # Can a non pinned piece block
+        # Iterate over list of pieces.
+        # Check if a piece possible moves includes capturing the piece putting king in check. Ghost piece trying to move
+        # and piece putting king in check
+        # Check if a piece possible moves includes attack squares Ghost piece trying to move
+        # Maybe just create method to return dict of all non pinned pieces
         check = self.is_check(king_color)
         possible_moves = self.get_legal_moves(king_position)
         return check and not possible_moves
@@ -257,7 +272,7 @@ class ChessBoard:
             start_position_piece.move_directions[MoveDirection.RIGHT] = 1
         elif start_position_piece.type == Type.ROOK:
             king_position = self._king_positions[start_position_piece.color]
-            column, row = self._position_to_row_and_column(start_position, start_position_piece.color)
+            column, row = self.position_to_row_and_column(start_position, start_position_piece.color)
             rook_direction = None
             if column == 0:
                 rook_direction = MoveDirection.LEFT
@@ -459,98 +474,7 @@ class ChessBoard:
         """
         return 8
 
-    def load(self, game_transactions):
-        """
-        Inflate the ChessBoard object based on the provided transactions. Each transaction should contain the player who
-        made the move, the piece, the start position, and the end position.
-
-        :param game_transactions:
-        :return:
-        """
-        for transaction in game_transactions:
-            player, piece, start_pos, end_pos = transaction
-            self.move_piece(start_pos, end_pos)
-
-    def promote_pawn(self, position, promotion_type):
-        """
-        Promote a pawn once it has reached the end of the board.
-
-        :param position: string
-            Algebraic notation for pawn position.
-        :param promotion_type: Type
-            Value from Type enum
-        :return:
-        """
-        if not ChessHelper.is_valid_position(position):
-            raise InvalidPositionError(position)
-        if promotion_type not in [Type.ROOK, Type.KNIGHT, Type.BISHOP, Type.QUEEN]:
-            raise PieceTypeError(promotion_type, 'Cannot promote pawn to supplied piece type')
-        if self[position] is None:
-            raise EmptyPositionError(position)
-
-        piece = self[position]
-        if piece.type != Type.PAWN:
-            raise PieceTypeError(piece.type, 'Cannot promote a non pawn piece')
-
-        column, row = self._position_to_row_and_column(position, piece.color)
-        if row != self.get_dimension() - 1:
-            message = 'Pawn must be on last row to be promoted. Current position: ' + position
-            raise InvalidPositionError(position, message)
-
-        piece_class = {
-            Type.ROOK: Rook,
-            Type.KNIGHT: Knight,
-            Type.BISHOP: Bishop,
-            Type.QUEEN: Queen
-        }
-        self[position] = piece_class[promotion_type](piece.color)
-
-    def _get_possible_positions(self, start_position, move_direction, piece_color):
-        """
-        Get a list of all possible positions in the direction provided as if the board were empty. Positions returned
-        are in algebraic notation.
-
-        :param start_position: string
-            Algebraic notation position.
-        :param move_direction: int
-            Direction to move. Ex MoveDirection.forward
-        :param piece_color: Color
-            Color of player who's perspective should be used.
-        :return: list
-            List of positions in algebraic notation. Positions in the list are sorted by the offset from the start
-            position. Index 0 is the nearest position in the specified direction.
-        """
-        if not ChessHelper.is_valid_position(start_position):
-            raise InvalidPositionError(start_position)
-
-        possible_positions = []
-        current_index = next_index = self._position_to_index(start_position, piece_color)
-        current_column, current_row = self._position_to_row_and_column(
-            self._index_to_position(current_index, piece_color),
-            piece_color)
-        if move_direction == MoveDirection.L_SHAPE:
-            for shift in self.PIECE_SHIFTING[MoveDirection.L_SHAPE]:
-                try:
-                    next_index = current_index + shift
-                    self._index_to_position(next_index, piece_color)
-                except InvalidIndexError:
-                    continue
-                else:
-                    next_column, next_row = self._position_to_row_and_column(
-                        self._index_to_position(next_index, piece_color),
-                        piece_color)
-                    column_diff = abs(next_column - current_column)
-                    if current_row != next_row and column_diff <= 2:
-                        possible_positions.append(self._index_to_position(next_index, piece_color))
-        else:
-            num_spaces = self._get_direction_square_count(start_position, move_direction, piece_color)
-            for count in range(0, num_spaces):
-                next_index += self.PIECE_SHIFTING[move_direction]
-                possible_positions.append(self._index_to_position(next_index, piece_color))
-
-        return possible_positions
-
-    def _position_to_row_and_column(self, position, piece_color):
+    def position_to_row_and_column(self, position, piece_color):
         """
         Treat position at bottom left corner as the origin in x,y coordinate system. Return offset the passed in
         position is from the origin.
@@ -576,6 +500,51 @@ class ChessBoard:
 
         return column, row
 
+    def _get_possible_positions(self, start_position, move_direction, piece_color):
+        """
+        Get a list of all possible positions in the direction provided as if the board were empty. Positions returned
+        are in algebraic notation.
+
+        :param start_position: string
+            Algebraic notation position.
+        :param move_direction: int
+            Direction to move. Ex MoveDirection.forward
+        :param piece_color: Color
+            Color of player who's perspective should be used.
+        :return: list
+            List of positions in algebraic notation. Positions in the list are sorted by the offset from the start
+            position. Index 0 is the nearest position in the specified direction.
+        """
+        if not ChessHelper.is_valid_position(start_position):
+            raise InvalidPositionError(start_position)
+
+        possible_positions = []
+        current_index = next_index = self._position_to_index(start_position, piece_color)
+        current_column, current_row = self.position_to_row_and_column(
+            self._index_to_position(current_index, piece_color),
+            piece_color)
+        if move_direction == MoveDirection.L_SHAPE:
+            for shift in self.PIECE_SHIFTING[MoveDirection.L_SHAPE]:
+                try:
+                    next_index = current_index + shift
+                    self._index_to_position(next_index, piece_color)
+                except InvalidIndexError:
+                    continue
+                else:
+                    next_column, next_row = self.position_to_row_and_column(
+                        self._index_to_position(next_index, piece_color),
+                        piece_color)
+                    column_diff = abs(next_column - current_column)
+                    if current_row != next_row and column_diff <= 2:
+                        possible_positions.append(self._index_to_position(next_index, piece_color))
+        else:
+            num_spaces = self._get_direction_square_count(start_position, move_direction, piece_color)
+            for count in range(0, num_spaces):
+                next_index += self.PIECE_SHIFTING[move_direction]
+                possible_positions.append(self._index_to_position(next_index, piece_color))
+
+        return possible_positions
+
     def _get_direction_square_count(self, start_position, move_direction, piece_color):
         """
         Retrieve the number of squares from the starting position to the edge of the board in the direction specified.
@@ -595,7 +564,7 @@ class ChessBoard:
         board_length = self.get_dimension()
         max_movement = board_length - 1
         num_spaces = max_movement
-        current_x_coord, current_y_coord = self._position_to_row_and_column(start_position, piece_color)
+        current_x_coord, current_y_coord = self.position_to_row_and_column(start_position, piece_color)
 
         if move_direction == MoveDirection.FORWARD:
             max_movement = board_length - current_y_coord - 1
@@ -766,8 +735,8 @@ class ChessBoard:
         :return:
         """
         # Color does not matter when checking if on same row
-        column_one, row_one = self._position_to_row_and_column(position_one, Color.WHITE)
-        column_two, row_two = self._position_to_row_and_column(position_two, Color.WHITE)
+        column_one, row_one = self.position_to_row_and_column(position_one, Color.WHITE)
+        column_two, row_two = self.position_to_row_and_column(position_two, Color.WHITE)
 
         return row_one == row_two
 
@@ -789,8 +758,8 @@ class ChessBoard:
         if not ChessHelper.is_valid_position(end_position):
             raise InvalidPositionError(end_position)
 
-        start_column, start_row = self._position_to_row_and_column(start_position, color)
-        end_column, end_row = self._position_to_row_and_column(end_position, color)
+        start_column, start_row = self.position_to_row_and_column(start_position, color)
+        end_column, end_row = self.position_to_row_and_column(end_position, color)
         row_diff = end_row - start_row
         column_diff = end_column - start_column
 
