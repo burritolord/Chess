@@ -1,5 +1,5 @@
-from src import app
-# from src.app import socketio
+from src import app, socketio
+from flask import render_template
 # from src import db
 # from src.models.player import Player
 # from src.models.chess_game import ChessGame
@@ -9,6 +9,7 @@ from src import app
 
 
 @app.route('/')
+@app.route('/index')
 def homepage():
     # chars = string.ascii_letters
     # email1 = ''.join((random.choice(chars)) for _ in range(10))
@@ -35,4 +36,9 @@ def homepage():
     # db.session.add(s2)
     # db.session.commit()
 
-    return "Hola"
+    return render_template('index.html')
+
+
+@app.route('/chess')
+def chess():
+    return render_template('chess.html')

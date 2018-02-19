@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% if title %}
+        <title>{{ title }}</title>
+    {% else %}
+        <title>My Chess App!</title>
+    {% endif %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    {% block scripts %}{% endblock %}
+</head>
+<body>
+    <a href="/index">Home</a> | <a href="/chess">Chess</a>
+    {% block content %}{% endblock %}
+</body>
+</html>

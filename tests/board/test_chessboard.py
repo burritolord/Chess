@@ -7,7 +7,7 @@ from src.piece.bishop import Bishop
 from src.piece.knight import Knight
 from src.piece.rook import Rook
 from src.piece.color import Color
-from src.piece.type import Type
+from src.board.fen import Fen
 from src.piece.move_direction import MoveDirection
 from src.board.exception import *
 
@@ -315,8 +315,8 @@ class BoardStateTest(unittest.TestCase):
 
         # Check after right rook moves
         board = ChessBoard()
-        board['h1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
+        board['h1'] = Rook(Color.WHITE)
         board.move_piece('h1', 'h2')
 
         expected_moves = ['d1', 'd2', 'e2', 'f1', 'f2']
@@ -327,8 +327,8 @@ class BoardStateTest(unittest.TestCase):
         # Check with both rooks after right rook moves
         board = ChessBoard()
         board['a1'] = Rook(Color.WHITE)
-        board['h1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
+        board['h1'] = Rook(Color.WHITE)
         board.move_piece('h1', 'h2')
 
         expected_moves = ['c1','d1', 'd2', 'e2', 'f1', 'f2']
@@ -339,14 +339,23 @@ class BoardStateTest(unittest.TestCase):
         # Check with both rooks after right rook moves
         board = ChessBoard()
         board['a1'] = Rook(Color.WHITE)
-        board['h1'] = Rook(Color.WHITE)
         board['e1'] = King(Color.WHITE)
-        board.move_piece('a1', 'a2')
+        board['h1'] = Rook(Color.WHITE)
+        board.move_piece('a1', 'b1')
 
         expected_moves = ['d1', 'd2', 'e2', 'f1', 'f2', 'g1']
         legal_moves = board.get_legal_moves('e1')
         legal_moves.sort()
         self.assertListEqual(expected_moves, legal_moves, 'Expected moves does not match actual')
+
+        # Confirm cannot castle even if king and rooks back in starting positions
+        fen = Fen('r3k2r/8/8/8/8/8/8/8 b - -')
+        board = ChessBoard(fen)
+
+        can_castle_left = board.can_castle(Color.BLACK, MoveDirection.LEFT)
+        can_castle_right = board.can_castle(Color.BLACK, MoveDirection.RIGHT)
+        self.assertFalse(can_castle_left, 'King should not be able to castle left')
+        self.assertFalse(can_castle_right, 'King should not be able to castle right')
 
 
 if __name__ == '__main__':

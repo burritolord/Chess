@@ -122,6 +122,7 @@ class ChessGame(db.Model):
         # TODO make sure in algebraic notation and UTF8
         current_fen = Fen(self.fen)
         current_player = current_fen.current_player
+        next_player = Color.WHITE if current_player == Color.BLACK else Color.BLACK
         move_result = MoveResult()
 
         # If moving a pawn to the end of the board, dont update anything on the board.
@@ -138,7 +139,6 @@ class ChessGame(db.Model):
         move_result.update_positions = self._board.move_piece(start_position, end_position)
 
         # Determine which directions castling is possible for.
-        next_player = Color.WHITE if current_player == Color.BLACK else Color.BLACK
         castle_info = {Color.BLACK: [], Color.WHITE: []}
         for color in [Color.WHITE, Color.BLACK]:
             for direction in [MoveDirection.LEFT, MoveDirection.RIGHT]:
@@ -284,8 +284,6 @@ class ChessGame(db.Model):
         if not ChessHelper.is_valid_position(start_position):
             raise InvalidPositionError(start_position)
         if self._board[start_position] is None:
-            return False
-        if self._board[end_position] is not None:
             return False
 
         piece = self._board[start_position]

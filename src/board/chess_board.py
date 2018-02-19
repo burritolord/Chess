@@ -50,6 +50,10 @@ class ChessBoard:
         # Dictionary of all pieces on board keyed by the algebraic notation.
         self._pieces = {file + str(rank + 1): None for rank in range(0, board_length) for file in "abcdefgh"}
         self._king_positions = {Color.WHITE: None, Color.BLACK: None}
+        self._castle_info = {
+            Color.WHITE: [MoveDirection.RIGHT, MoveDirection.LEFT],
+            Color.BLACK: [MoveDirection.RIGHT, MoveDirection.LEFT]
+        }
 
         # Dictionary mapping of algebraic notation to index values. The board is a flat list and position a1 is index 0.
         # This mapping allows for quick offset computations. Shifting over to the right by the board width will move us
@@ -67,6 +71,10 @@ class ChessBoard:
                 # Set king positions
                 if piece.type == Type.KING:
                     self._king_positions[piece.color] = position
+
+                # Update castle info.
+                self._castle_info[Color.WHITE] = fen.white_castle
+                self._castle_info[Color.BLACK] = fen.black_castle
 
                 # Set en passant position if there is one
                 if fen.en_passant_position:
@@ -243,10 +251,12 @@ class ChessBoard:
             en_passant_info['pawn_position'] = None
             en_passant_info['target_position'] = None
 
-        # Check for en passant
+        # Check pawn special movements
         if start_position_piece.type == Type.PAWN:
+            # Update move_directions after pawn moves forward twice
             if start_position_piece.move_directions[MoveDirection.FORWARD] > 1:
                 start_position_piece.move_directions[MoveDirection.FORWARD] = 1
+            # Check for en passant
             if self.can_en_passant(start_position, direction):
                 self._remove_piece(self._en_passant_info['pawn_position'])
                 updated_positions[self._en_passant_info['pawn_position']] = None
@@ -257,12 +267,16 @@ class ChessBoard:
                     Color.WHITE: {MoveDirection.LEFT: 'a1', MoveDirection.RIGHT: 'h1'},
                     Color.BLACK: {MoveDirection.LEFT: 'h8', MoveDirection.RIGHT: 'a8'}
                 }
-                rook_position = self._get_position_shifted_by_offset(start_position, direction, 1,
+                new_rook_position = self._get_position_shifted_by_offset(start_position, direction, 1,
                                                                      start_position_piece.color)
-                self[rook_position] = self[rook_positions[start_position_piece.color][direction]]
+                self[new_rook_position] = self[rook_positions[start_position_piece.color][direction]]
                 self._remove_piece(rook_positions[start_position_piece.color][direction])
-                updated_positions[rook_position] = copy.deepcopy(self[rook_position])
+                updated_positions[new_rook_position] = copy.deepcopy(self[new_rook_position])
                 updated_positions[rook_positions[start_position_piece.color][direction]] = None
+
+                # Update King left and right move_directions
+                start_position_piece.move_directions[MoveDirection.LEFT] = 1
+                start_position_piece.move_directions[MoveDirection.RIGHT] = 1
 
             start_position_piece.move_directions[MoveDirection.LEFT] = 1
             start_position_piece.move_directions[MoveDirection.RIGHT] = 1
@@ -307,14 +321,20 @@ class ChessBoard:
         if nearest_piece_info and nearest_piece_info['type'] == Type.ROOK:
             king = self[king_position]
             is_check = self.is_check(king_color, king_position)
+            if king_color == Color.WHITE:
+                expected_rook_offset = 3 if direction == MoveDirection.RIGHT else 4
+            else:
+                expected_rook_offset = 4 if direction == MoveDirection.RIGHT else 3
+            is_expected_offset = expected_rook_offset == nearest_piece_info['offset']
 
-            if king.move_directions[direction] == 2 and not is_check:
+            if king.move_directions[direction] == 2 and not is_check and is_expected_offset:
                 king_index = self._position_to_index(king_position, king.color)
                 index_one = king_index + self.PIECE_SHIFTING[direction]
                 index_two = index_one + self.PIECE_SHIFTING[direction]
                 position_one_is_check = self.is_check(king_color, self._index_to_position(index_one, king_color))
                 position_two_is_check = self.is_check(king_color, self._index_to_position(index_two, king_color))
-                if not position_one_is_check and not position_two_is_check:
+                can_still_castle_direction = direction in self._castle_info[king_color]
+                if not position_one_is_check and not position_two_is_check and can_still_castle_direction:
                     return True
 
         return False
@@ -587,7 +607,7 @@ class ChessBoard:
 
     def _get_position_shifted_by_offset(self, position, direction, offset, piece_color):
         """
-        Retrieve position after shifting over by in the direction specified by the offset amount. Ex position=a1,
+        Retrieve position after shifting over by offset in the direction specified. Ex position=a1,
         direction=MoveDirection.right, offset=1, piece_color=Color.white. Return value is a2
 
         :param position: string
