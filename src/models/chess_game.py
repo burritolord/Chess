@@ -7,7 +7,7 @@ from src.piece.bishop import Bishop
 from src.piece.knight import Knight
 from src.piece.rook import Rook
 from src.models.game_score import GameScore
-from src.db import db
+from src import db
 from src.piece.type import Type
 from src.utils.chess_helper import ChessHelper
 from src.board.exception import *

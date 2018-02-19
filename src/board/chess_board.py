@@ -164,10 +164,6 @@ class ChessBoard:
         """
         # TODO confirm no piece can block the piece putting king in check. If there is a piece,
         # need to be sure piece is not pinned
-        # How is check being performed. Row, column, diag, knight
-        # Can piece putting king in check be captured
-        # Can a piece block the path of check and not put king in check
-        # Can only block row, columng, diag
         king_position = self._king_positions[king_color]
         # is_check needs to return piece, piece position, and attack squares for piece putting king in check
         # Can piece putting king in check be captured
@@ -434,7 +430,7 @@ class ChessBoard:
                             possible_moves.append(possible_position)
                         elif (self[possible_position] and self[possible_position].color != piece_on_position.color and
                               (move_direction == MoveDirection.F_LEFT_DIAG or
-                                 move_direction == MoveDirection.F_RIGHT_DIAG) and
+                               move_direction == MoveDirection.F_RIGHT_DIAG) and
                               position_num == 0):
                             possible_moves.append(possible_position)
                             break

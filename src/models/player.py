@@ -1,4 +1,4 @@
-from src.db import db
+from src import db
 from sqlalchemy_utils import PasswordType, EmailType, force_auto_coercion
 
 force_auto_coercion()
