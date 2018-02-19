@@ -50,10 +50,6 @@ class ChessBoard:
         # Dictionary of all pieces on board keyed by the algebraic notation.
         self._pieces = {file + str(rank + 1): None for rank in range(0, board_length) for file in "abcdefgh"}
         self._king_positions = {Color.WHITE: None, Color.BLACK: None}
-        self._castle_info = {
-            Color.WHITE: [MoveDirection.RIGHT, MoveDirection.LEFT],
-            Color.BLACK: [MoveDirection.RIGHT, MoveDirection.LEFT]
-        }
 
         # Dictionary mapping of algebraic notation to index values. The board is a flat list and position a1 is index 0.
         # This mapping allows for quick offset computations. Shifting over to the right by the board width will move us
@@ -72,15 +68,24 @@ class ChessBoard:
                 if piece.type == Type.KING:
                     self._king_positions[piece.color] = position
 
-                # Update castle info.
-                self._castle_info[Color.WHITE] = fen.white_castle
-                self._castle_info[Color.BLACK] = fen.black_castle
-
                 # Set en passant position if there is one
                 if fen.en_passant_position:
                     self._en_passant_info['target_position'] = fen.en_passant_position
                     push_pawn = self._get_position_shifted_by_offset(position, MoveDirection.BACKWARD, 1, piece.color)
                     self._en_passant_info['pawn_position'] = push_pawn
+
+            # Update king move directions
+            for direction in [MoveDirection.LEFT, MoveDirection.RIGHT]:
+                if self._king_positions[Color.WHITE]:
+                    king = self[self._king_positions[Color.WHITE]]
+                    if direction not in fen.white_castle:
+                        king.move_directions[direction] = 1
+
+            for direction in [MoveDirection.LEFT, MoveDirection.RIGHT]:
+                if self[self._king_positions[Color.BLACK]]:
+                    king = self[self._king_positions[Color.BLACK]]
+                    if direction not in fen.black_castle:
+                        king.move_directions[direction] = 1
 
     def is_position_occupied(self, position):
         """
@@ -333,8 +338,7 @@ class ChessBoard:
                 index_two = index_one + self.PIECE_SHIFTING[direction]
                 position_one_is_check = self.is_check(king_color, self._index_to_position(index_one, king_color))
                 position_two_is_check = self.is_check(king_color, self._index_to_position(index_two, king_color))
-                can_still_castle_direction = direction in self._castle_info[king_color]
-                if not position_one_is_check and not position_two_is_check and can_still_castle_direction:
+                if not position_one_is_check and not position_two_is_check:
                     return True
 
         return False

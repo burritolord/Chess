@@ -149,7 +149,8 @@ class ChessGame(db.Model):
         next_fen = Fen()
         next_fen_str = next_fen.generate_fen(
             self._board.get_board_pieces(),
-            next_player, castle_info[Color.WHITE],
+            next_player,
+            castle_info[Color.WHITE],
             castle_info[Color.BLACK],
             self._board.get_enpassant_position()
         )

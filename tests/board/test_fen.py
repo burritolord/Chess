@@ -79,19 +79,20 @@ class FenTest(unittest.TestCase):
         """
         castle_values = ['KQ', 'Kk', 'Qq', 'kq', 'Kkq', 'KQk', '-']
         expected_castle = [
-            {Color.WHITE: [MoveDirection.RIGHT, MoveDirection.LEFT], Color.BLACK: []},
-            {Color.WHITE: [MoveDirection.RIGHT], Color.BLACK: [MoveDirection.RIGHT]},
-            {Color.WHITE: [MoveDirection.LEFT], Color.BLACK: [MoveDirection.LEFT]},
-            {Color.WHITE: [], Color.BLACK: [MoveDirection.RIGHT, MoveDirection.LEFT]},
-            {Color.WHITE: [MoveDirection.RIGHT], Color.BLACK: [MoveDirection.RIGHT, MoveDirection.LEFT]},
-            {Color.WHITE: [MoveDirection.RIGHT, MoveDirection.LEFT], Color.BLACK: [MoveDirection.RIGHT]},
+            {Color.WHITE: [MoveDirection.LEFT, MoveDirection.RIGHT], Color.BLACK: []},
+            {Color.WHITE: [MoveDirection.RIGHT], Color.BLACK: [MoveDirection.LEFT]},
+            {Color.WHITE: [MoveDirection.LEFT], Color.BLACK: [MoveDirection.RIGHT]},
+            {Color.WHITE: [], Color.BLACK: [MoveDirection.LEFT, MoveDirection.RIGHT]},
+            {Color.WHITE: [MoveDirection.RIGHT], Color.BLACK: [MoveDirection.LEFT, MoveDirection.RIGHT]},
+            {Color.WHITE: [MoveDirection.LEFT, MoveDirection.RIGHT], Color.BLACK: [MoveDirection.LEFT]},
             {Color.WHITE: [], Color.BLACK: []}
         ]
         fen_str = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w {} -'
         for castle, expected in zip(castle_values, expected_castle):
-            fen = Fen(fen_str.format(castle))
-            self.assertEqual(expected[Color.WHITE], fen.white_castle)
-            self.assertEqual(expected[Color.BLACK], fen.black_castle)
+            with self.subTest(castle=castle, expected=expected):
+                fen = Fen(fen_str.format(castle))
+                self.assertEqual(expected[Color.WHITE], fen.white_castle)
+                self.assertEqual(expected[Color.BLACK], fen.black_castle)
 
     def test_fen_current_player(self):
         """

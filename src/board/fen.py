@@ -8,6 +8,7 @@ from src.piece.queen import Queen
 from src.piece.king import King
 from src.piece.color import Color
 from src.piece.move_direction import MoveDirection
+from operator import attrgetter
 
 
 class FenError(Exception):
@@ -117,7 +118,7 @@ class Fen:
 
         fen_black_castle = ''
         for direction in black_castle:
-            fen_black_castle += 'k' if direction == MoveDirection.RIGHT else 'q'
+            fen_black_castle += 'q' if direction == MoveDirection.RIGHT else 'k'
 
         fen_castle_info = '{}{}'.format(fen_white_castle, fen_black_castle)
         fen_castle_info = fen_castle_info if fen_castle_info else '-'
@@ -143,12 +144,16 @@ class Fen:
 
         castle_directions = []
         pattern = {Color.WHITE: r'[KQ]', Color.BLACK: r'[kq]'}
-        direction = {'k': MoveDirection.RIGHT, 'q': MoveDirection.LEFT}
+        if color == Color.WHITE:
+            direction = {'k': MoveDirection.RIGHT, 'q': MoveDirection.LEFT}
+        else:
+            direction = {'k': MoveDirection.LEFT, 'q': MoveDirection.RIGHT}
         for letter in castle:
             match = re.search(pattern[color], letter)
             if match:
                 castle_directions.append(direction[match.string.lower()])
 
+        castle_directions.sort(key=attrgetter('value'))
         return castle_directions
 
     def _parse_board(self, fen_board):
