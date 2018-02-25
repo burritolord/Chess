@@ -53,52 +53,65 @@ def add_users():
 
 @app.route('/chess', methods=['GET', 'POST'])
 def chess():
-    removegame_form = RemoveGame()
-    joingame_form = JoinGame()
-    movepiece_form = MovePiece()
-    creategame_form = CreateGame()
     currentgame_form = CurrentGame()
     template_vars = {
-        'removegame_form': removegame_form,
-        'joingame_form': joingame_form,
-        'movepiece_form': movepiece_form,
+        'removegame_form': RemoveGame(),
+        'joingame_form': JoinGame(),
+        'movepiece_form': MovePiece(),
         'currentgame_form': currentgame_form,
-        'creategame_form': creategame_form
+        'creategame_form': CreateGame(),
+        'players': Player.query.all(),
+        'games': ChessGame.query.all()
     }
-
-    if request.method == 'POST' and creategame_form.validate_on_submit() and creategame_form.hidden.data == 'create_form':
-        chessgame = ChessGame()
-        chessgame.save_to_db()
-        return redirect(url_for('chess'))
-
-    if request.method == 'POST' and removegame_form.validate_on_submit() and removegame_form.hidden.data == 'remove_form':
-        game = ChessGame.load_by_id(removegame_form.remove_game_id.data)
-        if game:
-            game.delete_from_db()
-            return redirect(url_for('chess'))
-
-    if request.method == 'POST' and joingame_form.validate_on_submit() and joingame_form.hidden.data == 'join_form':
-        game = ChessGame.load_by_id(joingame_form.join_game_id.data)
-        player = Player.load_by_id(joingame_form.user_id.data)
-        if game and player:
-            color = joingame_form.color.data
-            if int(color) == Color.WHITE.value:
-                game.white_player = player
-                game.save_to_db()
-                template_vars['new_game'] = game
-            elif int(color) == Color.BLACK.value:
-                game.black_player = player
-                game.save_to_db()
-                template_vars['new_game'] = game
-
-            return redirect(url_for('chess'))
-
-
-    template_vars['players'] = Player.query.all()
-    template_vars['games'] = ChessGame.query.all()
 
     return render_template('chess.html', **template_vars)
 
+
+@app.route('/chess/new-game', methods=['POST'])
+def new_game():
+    form = CreateGame()
+    if request.method == 'POST' and form.validate_on_submit():
+        game = ChessGame()
+        game.save_to_db()
+
+    return redirect(url_for('chess'))
+
+
+@app.route('/chess/remove-game', methods=['POST'])
+def remove_game():
+    form = RemoveGame()
+    if form.validate_on_submit():
+        game = ChessGame.load_by_id(form.remove_game_id.data)
+        if game:
+            game.delete_from_db()
+
+    return redirect(url_for('chess'))
+
+
+@app.route('/chess/join-game', methods=['POST'])
+def join_game():
+    form = JoinGame()
+    game = ChessGame.load_by_id(form.join_game_id.data)
+    player = Player.load_by_id(form.user_id.data)
+    if game and player:
+        color = form.color.data
+        if int(color) == Color.WHITE.value:
+            game.white_player = player
+            game.save_to_db()
+            new_game = game
+        elif int(color) == Color.BLACK.value:
+            game.black_player = player
+            game.save_to_db()
+            new_game = game
+
+    # TODO add new game id to session? That way it can be passed to chess.html template
+
+    return redirect(url_for('chess'))
+
+
+@app.route('/chess/move-piece', methods=['POST'])
+def move_piece():
+    pass
 
 @socketio.on('new_game', namespace='/chess-game')
 def new_game(json):

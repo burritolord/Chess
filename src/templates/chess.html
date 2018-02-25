@@ -14,27 +14,25 @@
     <h1>Chess Game!</h1>
     <div>
         <h3>Create new game</h3>
-        <form action="" method="post" class="new-game">
+        <form action="{{ url_for('new_game') }}" method="post" class="new-game">
             {{ removegame_form.csrf_token }}
             <label>{{ creategame_form.fen.label }}</label>
             {{ creategame_form.fen(size=100) }}
             {{ creategame_form.submit() }}
-            {{ creategame_form.hidden() }}
         </form>
 
         <!-- Remove a game -->
         <h3>Remove a game</h3>
-        <form action="" method="post">
+        <form action="{{ url_for('remove_game') }}" method="post" class="remove-game">
             {{ removegame_form.csrf_token }}
             <label>{{ removegame_form.remove_game_id.label }}: </label>
             {{ removegame_form.remove_game_id(size=3) }}
             {{ removegame_form.submit() }}
-            {{ removegame_form.hidden() }}
         </form>
 
         <!-- Join a game -->
         <h3>Join a game</h3>
-        <form action="" method="post" class="join-game">
+        <form action="{{ url_for('join_game') }}" method="post" class="join-game">
             {{ joingame_form.csrf_token }}
             <label>{{ joingame_form.join_game_id.label }}: </label>
             {{ joingame_form.join_game_id(size=3) }}
@@ -45,7 +43,6 @@
             <label>{{ joingame_form.color.label }}: </label>
             {{ joingame_form.color() }}
             {{ joingame_form.submit() }}
-            {{ joingame_form.hidden() }}
         </form>
 
         <!-- Move a piece -->
