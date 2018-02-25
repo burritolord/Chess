@@ -3,11 +3,82 @@
 {% block scripts %}
     <!-- Need to learn how to use the url_for function to grab the path -->
     <script src="../static/js/board.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="../static/css/test.css">
 {% endblock %}
 
 {% block content %}
     <h1>Chess Game!</h1>
     <div>
+        <h3>Create new game</h3>
+        <div class="new-game">
+            <button class="submit">create</button>
+        </div>
+
+        <!-- Remove a game -->
+        <h3>Remove a game</h3>
+        <div class="remove-game">
+            <label>{{ removegame_form.game_id.label }}: </label>
+            {{ removegame_form.game_id(size=3) }}
+            <button class="submit">remove</button>
+        </div>
+
+        <!-- Join a game -->
+        <h3>Join a game</h3>
+        <div class="join-game">
+            <label>{{ joingame_form.game_id.label }}: </label>
+            {{ joingame_form.game_id(size=3) }}
+
+            <label>{{ joingame_form.user_id.label }}: </label>
+            {{ joingame_form.user_id(size=3) }}
+
+            <label>{{ joingame_form.color.label }}: </label>
+            {{ joingame_form.color() }}
+            <button class="submit">join</button>
+
+        </div>
+
+        <!-- Move a piece -->
+
+        <!-- Display current game info -->
+
+        <h3>Games in database</h3>
+        <table id="games">
+            <tr>
+                <th>Game id</th>
+                <th>White Player</th>
+                <th>Black Player</th>
+            </tr>
+            {% if games %}
+                {% for game in games %}
+                    <tr id="game-{{ game.id }}">
+                        <td>{{ game.id }}</td>
+                        <td>{{ game.white_player.username }}</td>
+                        <td>{{ game.black_player.username }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </table>
+
+        <h3>Players in database</h3>
+        <table>
+            <tr>
+                <th>User id</th>
+                <th>Username</th>
+
+            </tr>
+            {% if players %}
+                {% for player in players %}
+                    <tr>
+                        <td>{{ player.id }}</td>
+                        <td>{{ player.username }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </table>
 
     </div>
 {% endblock %}

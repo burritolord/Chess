@@ -12,3 +12,7 @@ class Player(db.Model):
     fullname = db.Column(db.String(200), nullable=True)
     email = db.Column(EmailType, unique=True)
     password = db.Column(PasswordType(schemes=['pbkdf2_sha512']), unique=False)
+
+    @classmethod
+    def load_by_id(cls, player_id):
+        return cls.query.get(player_id)

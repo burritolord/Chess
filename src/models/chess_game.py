@@ -75,6 +75,9 @@ class MoveResult:
 
 
 class ChessGame(db.Model):
+    """
+    Create new chess game
+    """
     __tablename__ = 'game'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -246,24 +249,6 @@ class ChessGame(db.Model):
         # Check if score obj exist. If so, return winner
         pass
 
-    def save_to_db(self):
-        """
-        Save game to db.
-
-        :return:
-        """
-        db.session.add(self)
-        db.session.commit()
-
-    def delete_from_db(self):
-        """
-        Delete this game from the db.
-
-        :return:
-        """
-        db.session.delete(self)
-        db.session.commit()
-
     def get_pawn_promote_types(self):
         """
         Retrieve the piece types a pawn can promote to.
@@ -298,6 +283,28 @@ class ChessGame(db.Model):
 
         return False
 
+    def save_to_db(self):
+        """
+        Save game to db.
+
+        :return:
+        """
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_from_db(self):
+        """
+        Delete this game from the db.
+
+        :return:
+        """
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def load_by_id(cls, game_id):
+        return cls.query.get(game_id)
+
     def _get_player_by_color(self, color):
         """
         Retrieve the player associated with the provided color.
@@ -313,6 +320,9 @@ class ChessGame(db.Model):
             player.color = Color.BLACK
 
         return player
+
+    def __str__(self):
+        return str(self._board)
 
 
 if __name__ == '__main__':
