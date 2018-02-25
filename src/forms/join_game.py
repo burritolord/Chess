@@ -1,10 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField
+from wtforms import StringField, SubmitField, SelectField, HiddenField
+from wtforms.validators import DataRequired
 from src.piece.color import Color
 
 
 class JoinGame(FlaskForm):
-    game_id = StringField('Game id')
-    user_id = StringField('User id')
-    color = SelectField('Color', choices=[(Color.WHITE.value, 'White'), (Color.BLACK.value, 'Black')])
+    join_game_id = StringField('Game id', validators=[DataRequired()])
+    user_id = StringField('User id', validators=[DataRequired()])
+    color = SelectField('Color', choices=[(str(Color.WHITE.value), 'White'), (str(Color.BLACK.value), 'Black')])
     submit = SubmitField('join')
+    hidden = HiddenField('Join Game Form', default='join_form')

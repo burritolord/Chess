@@ -10,3 +10,4 @@ class CurrentGame(FlaskForm):
     black_player_name = StringField('Name')
     game_over = StringField('Game over')
     game_board = TextAreaField('Board')
+    pawn_promotion = StringField('Pawn promotion')

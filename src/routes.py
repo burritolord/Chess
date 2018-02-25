@@ -8,6 +8,7 @@ from src.forms.delete_game import RemoveGame
 from src.forms.join_game import JoinGame
 from src.forms.move_piece import MovePiece
 from src.forms.current_game import CurrentGame
+from src.forms.create_game import CreateGame
 import string
 import random
 from flask_socketio import SocketIO, emit, join_room, leave_room, close_room, rooms, disconnect
@@ -52,17 +53,46 @@ def add_users():
 
 @app.route('/chess', methods=['GET', 'POST'])
 def chess():
-    template_vars = {}
-    template_vars['removegame_form'] = RemoveGame()
-    template_vars['joingame_form'] = JoinGame()
-    template_vars['movepiece_form'] = MovePiece()
-    template_vars['currentgame_form'] = CurrentGame()
+    removegame_form = RemoveGame()
+    joingame_form = JoinGame()
+    movepiece_form = MovePiece()
+    creategame_form = CreateGame()
+    currentgame_form = CurrentGame()
+    template_vars = {
+        'removegame_form': removegame_form,
+        'joingame_form': joingame_form,
+        'movepiece_form': movepiece_form,
+        'currentgame_form': currentgame_form,
+        'creategame_form': creategame_form
+    }
 
-    if template_vars['removegame_form'].validate_on_submit():
-        chessgame = ChessGame.load_by_id(template_vars['removegame_form'].game_id.data)
-        if chessgame:
-            chessgame.delete_from_db()
-            redirect(url_for('chess'))
+    if request.method == 'POST' and creategame_form.validate_on_submit() and creategame_form.hidden.data == 'create_form':
+        chessgame = ChessGame()
+        chessgame.save_to_db()
+        return redirect(url_for('chess'))
+
+    if request.method == 'POST' and removegame_form.validate_on_submit() and removegame_form.hidden.data == 'remove_form':
+        game = ChessGame.load_by_id(removegame_form.remove_game_id.data)
+        if game:
+            game.delete_from_db()
+            return redirect(url_for('chess'))
+
+    if request.method == 'POST' and joingame_form.validate_on_submit() and joingame_form.hidden.data == 'join_form':
+        game = ChessGame.load_by_id(joingame_form.join_game_id.data)
+        player = Player.load_by_id(joingame_form.user_id.data)
+        if game and player:
+            color = joingame_form.color.data
+            if int(color) == Color.WHITE.value:
+                game.white_player = player
+                game.save_to_db()
+                template_vars['new_game'] = game
+            elif int(color) == Color.BLACK.value:
+                game.black_player = player
+                game.save_to_db()
+                template_vars['new_game'] = game
+
+            return redirect(url_for('chess'))
+
 
     template_vars['players'] = Player.query.all()
     template_vars['games'] = ChessGame.query.all()

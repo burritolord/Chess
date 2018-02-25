@@ -14,32 +14,39 @@
     <h1>Chess Game!</h1>
     <div>
         <h3>Create new game</h3>
-        <div class="new-game">
-            <button class="submit">create</button>
-        </div>
+        <form action="" method="post" class="new-game">
+            {{ removegame_form.csrf_token }}
+            <label>{{ creategame_form.fen.label }}</label>
+            {{ creategame_form.fen(size=100) }}
+            {{ creategame_form.submit() }}
+            {{ creategame_form.hidden() }}
+        </form>
 
         <!-- Remove a game -->
         <h3>Remove a game</h3>
-        <div class="remove-game">
-            <label>{{ removegame_form.game_id.label }}: </label>
-            {{ removegame_form.game_id(size=3) }}
-            <button class="submit">remove</button>
-        </div>
+        <form action="" method="post">
+            {{ removegame_form.csrf_token }}
+            <label>{{ removegame_form.remove_game_id.label }}: </label>
+            {{ removegame_form.remove_game_id(size=3) }}
+            {{ removegame_form.submit() }}
+            {{ removegame_form.hidden() }}
+        </form>
 
         <!-- Join a game -->
         <h3>Join a game</h3>
-        <div class="join-game">
-            <label>{{ joingame_form.game_id.label }}: </label>
-            {{ joingame_form.game_id(size=3) }}
+        <form action="" method="post" class="join-game">
+            {{ joingame_form.csrf_token }}
+            <label>{{ joingame_form.join_game_id.label }}: </label>
+            {{ joingame_form.join_game_id(size=3) }}
 
             <label>{{ joingame_form.user_id.label }}: </label>
             {{ joingame_form.user_id(size=3) }}
 
             <label>{{ joingame_form.color.label }}: </label>
             {{ joingame_form.color() }}
-            <button class="submit">join</button>
-
-        </div>
+            {{ joingame_form.submit() }}
+            {{ joingame_form.hidden() }}
+        </form>
 
         <!-- Move a piece -->
 
