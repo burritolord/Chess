@@ -8,3 +8,4 @@ class Config:
     # postgresql 'postgresql://chess@localhost/chess'
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SESSION_TYPE = 'filesystem'

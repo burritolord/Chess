@@ -46,8 +46,47 @@
         </form>
 
         <!-- Move a piece -->
+        <h3>Move a piece</h3>
+        <div class="move-piece">
+            <label>{{ movepiece_form.start_position.label }}</label>
+            {{ movepiece_form.end_position(size=2) }}
+            <label>{{ movepiece_form.end_position.label }}</label>
+            {{ movepiece_form.end_position(size=2) }}
+            <button class="submit">move</button>
+        </div>
 
         <!-- Display current game info -->
+        <h3>Current game</h3>
+        <form action="">
+            <div>
+                <label>{{ currentgame_form.game_id.label }}: </label>
+                {{ currentgame_form.game_id(size=3) }}
+            </div>
+            <div>
+                <label>{{ currentgame_form.white_player_id.label }}: </label>
+                {{ currentgame_form.white_player_id(size=3) }}
+            </div>
+            <div>
+                <label>{{ currentgame_form.white_player_name.label }}: </label>
+                {{ currentgame_form.white_player_name(size=30) }}
+            </div>
+            <div>
+                <label>{{ currentgame_form.black_player_id.label }}: </label>
+                {{ currentgame_form.black_player_id(size=3) }}
+            </div>
+            <div>
+                <label>{{ currentgame_form.black_player_name.label }}: </label>
+                {{ currentgame_form.black_player_name(size=30) }}
+            </div>
+            <div>
+                <label>{{ currentgame_form.game_over.label }}: </label>
+                {{ currentgame_form.game_over(size=10) }}
+            </div>
+            <div>
+                <label>{{ currentgame_form.game_board.label }}: </label>
+                {{ currentgame_form.game_board(rows='10', cols='16') }}
+            </div>
+        </form>
 
         <h3>Games in database</h3>
         <table id="games">
@@ -83,6 +122,7 @@
                 {% endfor %}
             {% endif %}
         </table>
+        <button id="test">Click me</button>
 
     </div>
 {% endblock %}

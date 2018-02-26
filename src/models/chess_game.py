@@ -303,7 +303,11 @@ class ChessGame(db.Model):
 
     @classmethod
     def load_by_id(cls, game_id):
-        return cls.query.get(game_id)
+        game = cls.query.get(game_id)
+        if game:
+            # TODO add board property
+            game._board = ChessBoard(Fen(game.fen))
+        return game
 
     def _get_player_by_color(self, color):
         """

@@ -3,5 +3,5 @@ from wtforms import StringField, SubmitField
 
 
 class CreateGame(FlaskForm):
-    fen = StringField('Fen')
+    fen = StringField('Fen', default='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -')
     submit = SubmitField('create')

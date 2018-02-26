@@ -1,5 +1,7 @@
+import string
+import random
 from src import app, socketio
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for, request, session
 from src import db
 from src.models.player import Player
 from src.models.chess_game import ChessGame
@@ -9,8 +11,6 @@ from src.forms.join_game import JoinGame
 from src.forms.move_piece import MovePiece
 from src.forms.current_game import CurrentGame
 from src.forms.create_game import CreateGame
-import string
-import random
 from flask_socketio import SocketIO, emit, join_room, leave_room, close_room, rooms, disconnect
 from src.piece.color import Color
 
@@ -53,25 +53,43 @@ def add_users():
 
 @app.route('/chess', methods=['GET', 'POST'])
 def chess():
-    currentgame_form = CurrentGame()
     template_vars = {
         'removegame_form': RemoveGame(),
         'joingame_form': JoinGame(),
         'movepiece_form': MovePiece(),
-        'currentgame_form': currentgame_form,
+        'currentgame_form': CurrentGame(),
         'creategame_form': CreateGame(),
         'players': Player.query.all(),
         'games': ChessGame.query.all()
     }
+
+    if 'current_game' in session:
+        game = ChessGame.load_by_id(session['current_game'])
+        if game:
+            wp = game.white_player if game.white_player else None
+            bp = game.black_player if game.black_player else None
+            template_vars['currentgame_form'].game_id.data = game.id
+            template_vars['currentgame_form'].white_player_id.data = wp.id if wp else ''
+            template_vars['currentgame_form'].white_player_name.data = wp.username if wp else ''
+            template_vars['currentgame_form'].black_player_id.data = bp.id if bp else ''
+            template_vars['currentgame_form'].black_player_name.data = bp.username if bp else ''
+            template_vars['currentgame_form'].game_over.data = 'True' if game.is_over else 'False'
+            template_vars['currentgame_form'].game_board.data = str(game)
 
     return render_template('chess.html', **template_vars)
 
 
 @app.route('/chess/new-game', methods=['POST'])
 def new_game():
+    session['stuff james'] = 9
     form = CreateGame()
     if request.method == 'POST' and form.validate_on_submit():
-        game = ChessGame()
+        # TODO Need to validate fen value
+        if form.fen.data:
+            game = ChessGame(form.fen.data)
+        else:
+            game = ChessGame()
+
         game.save_to_db()
 
     return redirect(url_for('chess'))
@@ -94,17 +112,15 @@ def join_game():
     game = ChessGame.load_by_id(form.join_game_id.data)
     player = Player.load_by_id(form.user_id.data)
     if game and player:
+        session['game_room'] = game.id
+        session['current_game'] = game.id
         color = form.color.data
         if int(color) == Color.WHITE.value:
             game.white_player = player
             game.save_to_db()
-            new_game = game
         elif int(color) == Color.BLACK.value:
             game.black_player = player
             game.save_to_db()
-            new_game = game
-
-    # TODO add new game id to session? That way it can be passed to chess.html template
 
     return redirect(url_for('chess'))
 
@@ -113,55 +129,10 @@ def join_game():
 def move_piece():
     pass
 
-@socketio.on('new_game', namespace='/chess-game')
-def new_game(json):
-    # create new room
-    chessgame = ChessGame()
-    chessgame.save_to_db()
-    join_room(chessgame.id)
 
-    emit_data = {
-        'room': chessgame.id,
-        'game_id': chessgame.id,
-        'board': str(chessgame),
-        'white_player': '' if not chessgame.white_player else chessgame.white_player.username,
-        'black_player': '' if not chessgame.black_player else chessgame.black_player.username
-    }
-
-    emit('game_created', emit_data)
-
-
-@socketio.on('remove_game', namespace='/chess-game')
+@socketio.on('leave_game', namespace='/chess-game')
 def remove_game(json):
-    chessgame = ChessGame.load_by_id(json['game_id'])
-    if chessgame:
-        chessgame.delete_from_db()
-
-
-@socketio.on('join_game', namespace='/chess-game')
-def join_game(json):
-    # Need concept of session to add current user but for now, just add
-    # supplied user
-    updated_values = {}
-    chessgame = ChessGame.load_by_id(json['game_id'])
-    player = Player.load_by_id(json['player_id'])
-    if chessgame and player:
-        join_room(chessgame.id)
-        if int(json['color']) == Color.WHITE.value:
-            updated_values['white_player_username'] = player.username
-            updated_values['white_player_id'] = player.id
-            chessgame.white_player = player
-            chessgame.save_to_db()
-            emit('update_game', updated_values, room=chessgame.id)
-        elif int(json['color']) == Color.BLACK.value:
-            updated_values['black_player_username'] = player.username
-            updated_values['black_player_id'] = player.id
-            chessgame.black_player = player
-            chessgame.save_to_db()
-            emit('update_game', updated_values, room=chessgame.id)
-
-    # Emit error?
-
+    pass
 
 
 @socketio.on('move_piece')
