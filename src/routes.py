@@ -51,8 +51,8 @@ def add_users():
     return "users added"
 
 
-@app.route('/chess', methods=['GET', 'POST'])
-def chess():
+@app.route('/chess/test', methods=['GET', 'POST'])
+def chess_test():
     template_vars = {
         'removegame_form': RemoveGame(),
         'joingame_form': JoinGame(),
@@ -79,9 +79,8 @@ def chess():
     return render_template('chess.html', **template_vars)
 
 
-@app.route('/chess/new-game', methods=['POST'])
-def new_game():
-    session['stuff james'] = 9
+@app.route('/chess/test/new-game', methods=['POST'])
+def new_game_test():
     form = CreateGame()
     if request.method == 'POST' and form.validate_on_submit():
         # TODO Need to validate fen value
@@ -92,22 +91,22 @@ def new_game():
 
         game.save_to_db()
 
-    return redirect(url_for('chess'))
+    return redirect(url_for('chess_test'))
 
 
-@app.route('/chess/remove-game', methods=['POST'])
-def remove_game():
+@app.route('/chess/test/remove-game', methods=['POST'])
+def remove_game_test():
     form = RemoveGame()
     if form.validate_on_submit():
         game = ChessGame.load_by_id(form.remove_game_id.data)
         if game:
             game.delete_from_db()
 
-    return redirect(url_for('chess'))
+    return redirect(url_for('chess_test'))
 
 
-@app.route('/chess/join-game', methods=['POST'])
-def join_game():
+@app.route('/chess/test/join-game', methods=['POST'])
+def join_game_test():
     form = JoinGame()
     game = ChessGame.load_by_id(form.join_game_id.data)
     player = Player.load_by_id(form.user_id.data)
@@ -115,32 +114,29 @@ def join_game():
         session['game_room'] = game.id
         session['current_game'] = game.id
         color = form.color.data
-        if int(color) == Color.WHITE.value:
+        if color == Color.WHITE.value:
             game.white_player = player
             game.save_to_db()
-        elif int(color) == Color.BLACK.value:
+        elif color == Color.BLACK.value:
             game.black_player = player
             game.save_to_db()
 
-    return redirect(url_for('chess'))
+    return redirect(url_for('chess_test'))
 
 
-@app.route('/chess/move-piece', methods=['POST'])
-def move_piece():
-    pass
+@socketio.on('move_piece', namespace='/chess-game')
+def move_piece_test(json):
+    if 'current_game' in session:
+        game = ChessGame.load_by_id(session['current_game'])
+        result = game.move_piece(json['start_position'], json['end_position'])
+        game.save_to_db()
+        emit('update_game', {'result': result.to_dict(), 'board': str(game)})
 
 
-@socketio.on('leave_game', namespace='/chess-game')
-def remove_game(json):
-    pass
-
-
-@socketio.on('move_piece')
-def move_piece(json):
-    emit('board_update', {'data': 'message received'})
-    print(str(json))
-
-
-@socketio.on('add_player')
-def add_player(json):
-    pass
+@socketio.on('join_game', namespace='/chess-game')
+def join_game_room(json):
+    game = ChessGame.load_by_id(session['current_game'])
+    if game:
+        my_rooms = rooms()
+        if game.id not in my_rooms:
+            join_room(session['game_room'])

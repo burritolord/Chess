@@ -1,4 +1,5 @@
 from src import db
+from src.piece.color import Color
 
 
 class GameScore(db.Model):
@@ -20,10 +21,10 @@ class GameScore(db.Model):
         winner = None
         if self.white_score == 1:
             winner = self.game.white_player
-            winner.color = 'white'
+            winner.color = Color.WHITE
         elif self.black_score == 1:
             winner = self.game.black_player
-            winner.color = 'black'
+            winner.color = Color.BLACK
 
         return winner
 
@@ -36,10 +37,10 @@ class GameScore(db.Model):
         loser = None
         if self.white_score == 0:
             loser = self.game.white_player
-            loser.color = 'white'
+            loser.color = Color.WHITE
         elif self.black_score == 0:
             loser = self.game.black_player
-            loser.color = 'black'
+            loser.color = Color.BLACK
 
         return loser
 

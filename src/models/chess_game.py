@@ -25,6 +25,32 @@ class MoveResult:
         self._pawn_promote = None
         self._draw = False
 
+    def to_dict(self):
+        """
+        Return dictionary version of object
+        :return:
+        """
+        # TODO learn how to use JSONEncoder
+        updated_positions = {}
+        for position, piece in self.update_positions.items():
+            if piece:
+                updated_positions[position] = piece.to_dict()
+            else:
+                updated_positions[position] = piece
+
+        king_in_check = self.king_in_check.to_dict() if self.king_in_check else self.king_in_check
+        king_in_checkmate = self.king_in_checkmate.to_dict() if self.king_in_checkmate else self.king_in_checkmate
+
+
+
+        return {
+            'update_positions': updated_positions,
+            'king_in_check': king_in_check,
+            'king_in_checkmate': king_in_checkmate,
+            'pawn_promote': self._pawn_promote,
+            'draw': self.draw
+        }
+
     @property
     def update_positions(self):
         return self._update_positions
@@ -103,6 +129,14 @@ class ChessGame(db.Model):
         self.fen = fen if fen else 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -'
         fen = Fen(self.fen)
         self._board = ChessBoard(fen)
+
+    @property
+    def board(self):
+        return self._board
+
+    @board.setter
+    def board(self, board):
+        self._board = board
 
     def get_legal_moves(self, position):
         """
@@ -306,7 +340,7 @@ class ChessGame(db.Model):
         game = cls.query.get(game_id)
         if game:
             # TODO add board property
-            game._board = ChessBoard(Fen(game.fen))
+            game.board = ChessBoard(Fen(game.fen))
         return game
 
     def _get_player_by_color(self, color):

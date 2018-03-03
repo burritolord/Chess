@@ -8,5 +8,6 @@ class CurrentGame(FlaskForm):
     white_player_name = StringField('White Player name')
     black_player_id = StringField('Black Player id')
     black_player_name = StringField('Black Player name')
+    current_player = StringField('Current player')
     game_over = StringField('Game over')
     game_board = TextAreaField('Board')

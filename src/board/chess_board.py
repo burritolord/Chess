@@ -244,8 +244,8 @@ class ChessBoard:
         # Have to clone the piece before moving it. Otherwise, it makes it really hard to compare
         # expected move result to actual move result since the piece here could have a modified
         # move_directions . Plus, we don't really care about any values other than piece type and color
-        updated_positions[end_position] = copy.deepcopy(start_position_piece)
         updated_positions[start_position] = None
+        updated_positions[end_position] = copy.deepcopy(start_position_piece)
 
         if start_position_piece.type == Type.PAWN and row_offset == 2:
             tartget_position = self._get_position_shifted_by_offset(start_position, MoveDirection.FORWARD, 1,

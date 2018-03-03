@@ -38,6 +38,17 @@ class Piece(metaclass=ABCMeta):
     def move_directions(self):
         return self._moves
 
+    def to_dict(self):
+        """
+        Return dictionary of piece.
+        :return:
+        """
+        return {
+            'type': self.type.value,
+            'color': self.color.value,
+            'string_value': self._string_value
+        }
+
     def __str__(self):
         return self._string_value
 
