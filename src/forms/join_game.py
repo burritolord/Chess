@@ -8,4 +8,3 @@ class JoinGame(FlaskForm):
     join_game_id = StringField('Game id', validators=[DataRequired()])
     user_id = StringField('User id', validators=[DataRequired()])
     color = SelectField('Color', choices=[(str(Color.WHITE.value), 'White'), (str(Color.BLACK.value), 'Black')])
-    submit = SubmitField('join')

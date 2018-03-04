@@ -41,7 +41,7 @@ class ChessBoard:
         """
         board_length = self.get_dimension()
 
-        # Hold the last move made on this board. Needed to be able to do en passant check.
+        # Hold en passant target square. Needed to be able to do en passant check.
         self._en_passant_info = {'target_position': None, 'pawn_position': None}
 
         # List of all squares with algebraic notation.
@@ -61,18 +61,19 @@ class ChessBoard:
             self._indexes[Color.BLACK][position] = index
 
         if fen and fen.board:
+            # Set en passant position if there is one
+            if fen.en_passant_position:
+                self._en_passant_info['target_position'] = fen.en_passant_position
+                push_pawn = self._get_position_shifted_by_offset(fen.en_passant_position, MoveDirection.BACKWARD, 1,
+                                                                 fen.current_player)
+                self._en_passant_info['pawn_position'] = push_pawn
+
             for position, piece in fen.board.items():
                 self._pieces[position] = copy.deepcopy(piece)
 
                 # Set king positions
                 if piece.type == Type.KING:
                     self._king_positions[piece.color] = position
-
-                # Set en passant position if there is one
-                if fen.en_passant_position:
-                    self._en_passant_info['target_position'] = fen.en_passant_position
-                    push_pawn = self._get_position_shifted_by_offset(position, MoveDirection.BACKWARD, 1, piece.color)
-                    self._en_passant_info['pawn_position'] = push_pawn
 
             # Update king move directions
             for direction in [MoveDirection.LEFT, MoveDirection.RIGHT]:

@@ -30,7 +30,7 @@ class Fen:
     Class used to parse FEN strings.
     """
 
-    def __init__(self, fen=None):
+    def __init__(self, fen=None, validate=True):
         """
         Initialize fen object
         :param fen: string
@@ -41,8 +41,9 @@ class Fen:
 
         # Basic validation
         pattern = r'([rnbqkRNBQK1-8]+\/)([rnbqkpRNBQKP1-8]+\/){6}([rnbqkRNBQK1-8]+)\s[bw]\s(-|K?Q?k?q?)\s(-|[a-h][36])'
-        if not re.match(pattern, fen):
-            raise FenIncorrectFormatError('Invalid formatted fen. Valid example: ' + default_fen)
+        if validate:
+            if not re.match(pattern, fen):
+                raise FenIncorrectFormatError('Invalid formatted fen. Valid example: ' + default_fen)
 
         fen_pieces = re.split(r'\s+', fen)
 

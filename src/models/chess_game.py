@@ -127,7 +127,7 @@ class ChessGame(db.Model):
         super().__init__(**kwargs)
 
         self.fen = fen if fen else 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -'
-        fen = Fen(self.fen)
+        fen = Fen(self.fen, validate=False)
         self._board = ChessBoard(fen)
 
     @property
