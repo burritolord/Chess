@@ -2,12 +2,12 @@
 
 {% block scripts %}
     <!-- Need to learn how to use the url_for function to grab the path -->
-    <script src="../static/js/board.js"></script>
+    <script src="{{ url_for('static', filename='js/board_test.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
 {% endblock %}
 
 {% block styles %}
-    <link rel="stylesheet" type="text/css" href="../static/css/test.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/test.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -60,31 +60,31 @@
         <form action="">
             <div>
                 <label>{{ currentgame_form.game_id.label }}: </label>
-                {{ currentgame_form.game_id(size=3) }}
+                {{ currentgame_form.game_id(size=3, disabled=True) }}
+            </div>
+            <div>
+                <label>{{ currentgame_form.current_player.label }}: </label>
+                {{ currentgame_form.current_player(size=30, disabled=True) }}
             </div>
             <div>
                 <label>{{ currentgame_form.white_player_id.label }}: </label>
-                {{ currentgame_form.white_player_id(size=3) }}
-            </div>
-            <div>
+                {{ currentgame_form.white_player_id(size=3, disabled=True) }}
                 <label>{{ currentgame_form.white_player_name.label }}: </label>
-                {{ currentgame_form.white_player_name(size=30) }}
+                {{ currentgame_form.white_player_name(size=30, disabled=True) }}
             </div>
             <div>
                 <label>{{ currentgame_form.black_player_id.label }}: </label>
-                {{ currentgame_form.black_player_id(size=3) }}
-            </div>
-            <div>
+                {{ currentgame_form.black_player_id(size=3, disabled=True) }}
                 <label>{{ currentgame_form.black_player_name.label }}: </label>
-                {{ currentgame_form.black_player_name(size=30) }}
+                {{ currentgame_form.black_player_name(size=30, disabled=True) }}
             </div>
             <div>
                 <label>{{ currentgame_form.game_over.label }}: </label>
-                {{ currentgame_form.game_over(size=10) }}
+                {{ currentgame_form.game_over(size=10, disabled=True) }}
             </div>
             <div>
                 <label>{{ currentgame_form.game_board.label }}: </label>
-                {{ currentgame_form.game_board(rows='10', cols='16') }}
+                {{ currentgame_form.game_board(rows='10', cols='16', disabled=True) }}
             </div>
         </form>
 

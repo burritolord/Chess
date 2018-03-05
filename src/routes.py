@@ -73,10 +73,11 @@ def chess_test():
             template_vars['currentgame_form'].white_player_name.data = wp.username if wp else ''
             template_vars['currentgame_form'].black_player_id.data = bp.id if bp else ''
             template_vars['currentgame_form'].black_player_name.data = bp.username if bp else ''
+            template_vars['currentgame_form'].current_player.data = game.current_player.username
             template_vars['currentgame_form'].game_over.data = 'True' if game.is_over else 'False'
             template_vars['currentgame_form'].game_board.data = str(game)
 
-    return render_template('chess.html', **template_vars)
+    return render_template('chess_test.html', **template_vars)
 
 
 @app.route('/chess/test/new-game', methods=['POST'])
@@ -108,24 +109,6 @@ def remove_game_test():
     return redirect(url_for('chess_test'))
 
 
-# @app.route('/chess/test/join-game', methods=['POST'])
-# def join_game_test():
-#     form = JoinGame()
-#     game = ChessGame.load_by_id(form.join_game_id.data)
-#     player = Player.load_by_id(form.user_id.data)
-#     if game and player:
-#         session['game_room'] = game.id
-#         session['current_game'] = game.id
-#         color = form.color.data
-#         if color == Color.WHITE.value:
-#             game.white_player = player
-#             game.save_to_db()
-#         elif color == Color.BLACK.value:
-#             game.black_player = player
-#             game.save_to_db()
-#
-#     return redirect(url_for('chess_test'))
-
 @socketio.on('connect', namespace='/chess-game')
 def connect():
     if 'current_game' in session:
@@ -134,11 +117,16 @@ def connect():
 
 @socketio.on('move_piece', namespace='/chess-game')
 def move_piece_test(json):
-    if 'current_game' in session:
+    if 'current_game' in session and 'game_room' in session:
         game = ChessGame.load_by_id(session['current_game'])
         result = game.move_piece(json['start_position'], json['end_position'])
         game.save_to_db()
-        emit('update_game', {'result': result.to_dict(), 'board': str(game)}, room=session['game_room'])
+
+        game_dict = game.to_dict()
+        game_dict['result'] = result.to_dict()
+        game_dict['board_string'] = str(game)
+
+        emit('update_game', game_dict, room=session['game_room'])
 
 
 @socketio.on('join_game', namespace='/chess-game')
@@ -152,11 +140,14 @@ def join_game_room(json):
         if json['color'] == Color.WHITE.value:
             game.white_player = player
             game.save_to_db()
-        elif json['color'] == Color.BLACK.value:
+        else:
             game.black_player = player
             game.save_to_db()
 
-        emit('update_game', {'board': str(game)})
+        game_dict = game.to_dict()
+        game_dict['board_string'] = str(game)
+
+        emit('update_game', game_dict)
 
 
 @socketio.on('test', namespace='/chess-game')

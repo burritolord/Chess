@@ -6,18 +6,39 @@ $(document).ready(function() {
         var x = 1;
         console.log(game_data);
 
-        // Update board
-        if (game_data.hasOwnProperty('board')) {
-            $('#game_board').val(game_data['board']);
+        // Game id
+        if (game_data.hasOwnProperty('game_id')) {
+            $('#game_id').val(game_data.game_id)
         }
 
-        // Update users
-
-        // Update player list
+        // Update board
+        if (game_data.hasOwnProperty('board_string')) {
+            $('#game_board').val(game_data.board_string);
+        }
 
         // Update current player
+        if (game_data.hasOwnProperty('current_player')) {
+            $('#current_player').val(game_data.current_player.username);
+        }
+
+        // Update white player
+        if (game_data.hasOwnProperty('white_player')) {
+            $('#white_player_id').val(game_data.white_player.id);
+            $('#white_player_name').val(game_data.white_player.username);
+        }
+
+        // Update black player
+        if (game_data.hasOwnProperty('black_player')) {
+            $('#black_player_id').val(game_data.black_player.id);
+            $('#black_player_name').val(game_data.black_player.username);
+        }
 
         // Update game over
+        if (game_data.hasOwnProperty('game_over')) {
+            $('#game_over').val(game_data.game_over);
+        }
+
+        // Update player list
 
         // Update en passant
 

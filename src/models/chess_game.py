@@ -283,7 +283,8 @@ class ChessGame(db.Model):
         # Check if score obj exist. If so, return winner
         pass
 
-    def get_pawn_promote_types(self):
+    @classmethod
+    def get_pawn_promote_types(cls):
         """
         Retrieve the piece types a pawn can promote to.
 
@@ -334,6 +335,25 @@ class ChessGame(db.Model):
         """
         db.session.delete(self)
         db.session.commit()
+
+    def to_dict(self):
+        """
+        Return dictionary for game.
+        :return:
+        """
+        current_player = self.current_player
+        white_player = self.white_player
+        black_player = self.black_player
+
+        return {
+            'game_id': self.id,
+            'current_player': current_player.to_dict() if current_player else None,
+            'white_player': white_player.to_dict() if white_player else None,
+            'black_player': black_player.to_dict() if black_player else None,
+            'game_over': self.is_over,
+            'board': {position: piece.to_dict() for position, piece in self.board.get_board_pieces().items() if piece}
+        }
+
 
     @classmethod
     def load_by_id(cls, game_id):
