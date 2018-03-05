@@ -3,11 +3,14 @@ from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from src.config import Config
 from flask_sessionstore import Session
+from flask_login import LoginManager
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 socketio = SocketIO(app, manage_session=False)
+login = LoginManager(app)
+login.login_view = 'login'
 # How do i add session model to migrate script?
 session = Session(app)
 session.app.session_interface.db.create_all()
