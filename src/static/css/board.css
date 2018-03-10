@@ -36,3 +36,15 @@
 .row {
     clear: both;;
 }
+
+#piece_sprite {
+    display: none;
+}
+
+.piece {
+    width: 45px;
+    height: 45px;
+    display: block;
+    margin: auto;
+    padding-top: 10px;
+}

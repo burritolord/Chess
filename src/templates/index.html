@@ -1,18 +1,31 @@
 {% extends 'base.html' %}
 
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/board.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+{% endblock %}
+
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/board.css') }}">
 {% endblock %}
 
 {% block content %}
     <h1>Chess game!</h1>
+    <!-- Sprite sheet -->
+    {{ sprite|safe }}
     <object class="board_image" type="image/svg+xml" data="{{ url_for('static', filename='images/Tan_Chess_Board.svg') }}">
     </object>
     <div class="board_overlay">
         {% for column in [8,7,6,5,4,3,2,1] %}
             <div class="row {{ column }}">
                 {% for row in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] %}
-                    <div class="{{ row ~ column }} board_position" data-position="{{ row ~ column }}">{{ row ~ column }}</div>
+                    <div class="board_position" data-position="{{ row ~ column }}">
+                        {% if game and game.board[row ~ column] %}
+                            <svg class="piece" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="45px" height="45px">
+                                <use xlink:href="#{{ game.board[row ~ column].color }}-{{ game.board[row ~ column].type }}" x="0" y="0" ></use>
+                            </svg>
+                        {% endif %}
+                    </div>
                 {% endfor %}
             </div>
         {% endfor %}

@@ -10,13 +10,24 @@ from src.piece.color import Color
 from src.forms.forms import LoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
+import os
 
 
 @app.route('/')
 @app.route('/index')
 @login_required
 def index():
-    return render_template('index.html')
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    file_path = os.path.join(basedir, 'static/images/my_chess_sprites.svg')
+    template_vars = {}
+    with open(file_path, 'r') as f:
+        template_vars['sprite'] = f.read()
+
+    if 'current_game' in session:
+        game = ChessGame.load_by_id(session['current_game'])
+        template_vars['game'] = game.to_dict()
+
+    return render_template('index.html', **template_vars)
 
 
 @app.route('/login', methods=['GET', 'POST'])

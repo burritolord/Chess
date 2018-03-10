@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block scripts %}
-    <!-- Need to learn how to use the url_for function to grab the path -->
     <script src="{{ url_for('static', filename='js/board_test.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
 {% endblock %}
