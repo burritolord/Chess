@@ -54,6 +54,8 @@ class InvalidPositionError(BoardError):
         """
         if not msg:
             msg = 'Invalid position: {}'.format(position)
+        else:
+            msg = msg.format(position)
         super(InvalidPositionError, self).__init__(msg)
         self._position = position
 

@@ -97,8 +97,7 @@ class ChessBoard:
         :return: bool
             True if piece on position, False otherwise
         """
-        if not ChessHelper.is_valid_position(position):
-            raise InvalidPositionError(position)
+        ChessHelper.validate_position(position)
 
         return self._pieces[position] is not None
 
@@ -115,8 +114,8 @@ class ChessBoard:
         :return: bool
             True if king is in check, False otherwise.
         """
-        if position and not ChessHelper.is_valid_position(position):
-            raise InvalidPositionError(position)
+        if position:
+            ChessHelper.validate_position(position)
 
         king_position = position if position else self._king_positions[king_color]
         if not self._king_positions[king_color]:
@@ -225,10 +224,8 @@ class ChessBoard:
         :return: dict
             [position]: Piece. Use None if position is now empty
         """
-        if not ChessHelper.is_valid_position(start_position):
-            raise InvalidPositionError(start_position)
-        if not ChessHelper.is_valid_position(end_position):
-            raise InvalidPositionError(end_position)
+        ChessHelper.validate_position(start_position)
+        ChessHelper.validate_position(end_position)
 
         start_position_piece = self[start_position]
         if not start_position_piece:
@@ -508,8 +505,7 @@ class ChessBoard:
             The coordinates for the position.
             Ex (1,1) from white perspective is B2 but G7 from black perspective.
         """
-        if not ChessHelper.is_valid_position(position):
-            raise InvalidPositionError(position)
+        ChessHelper.validate_position(position)
 
         if piece_color == Color.WHITE:
             column = 'abcdefgh'.index(position[0])
@@ -536,8 +532,7 @@ class ChessBoard:
             List of positions in algebraic notation. Positions in the list are sorted by the offset from the start
             position. Index 0 is the nearest position in the specified direction.
         """
-        if not ChessHelper.is_valid_position(start_position):
-            raise InvalidPositionError(start_position)
+        ChessHelper.validate_position(start_position)
 
         possible_positions = []
         current_index = next_index = self._position_to_index(start_position, piece_color)
@@ -579,8 +574,7 @@ class ChessBoard:
         :return: int
             Number of squares till the edge of the board.
         """
-        if not ChessHelper.is_valid_position(start_position):
-            raise InvalidPositionError(start_position)
+        ChessHelper.validate_position(start_position)
 
         board_length = self.get_dimension()
         max_movement = board_length - 1
@@ -624,8 +618,7 @@ class ChessBoard:
         :return: string
             Algebraic notation position.
         """
-        if not ChessHelper.is_valid_position(position):
-            raise InvalidPositionError(position)
+        ChessHelper.validate_position(position)
 
         index = self._position_to_index(position, piece_color)
         shifted_index = index + self.PIECE_SHIFTING[direction] * offset
@@ -642,8 +635,7 @@ class ChessBoard:
         :return: int
             Index for that position.
         """
-        if not ChessHelper.is_valid_position(position):
-            raise InvalidPositionError(position)
+        ChessHelper.validate_position(position)
 
         return self._indexes[piece_color][position]
 
@@ -677,8 +669,7 @@ class ChessBoard:
         :raises: InvalidPositionError
             If position is not valid, exception will be raised.
         """
-        if not ChessHelper.is_valid_position(position):
-            raise InvalidPositionError(position)
+        ChessHelper.validate_position(position)
 
         # Color does not matter since both indexes point to the same board
         index = self._indexes[Color.WHITE][position]
@@ -703,8 +694,7 @@ class ChessBoard:
             [offset]
             [type]
         """
-        if not ChessHelper.is_valid_position(start_position):
-            raise InvalidPositionError(start_position)
+        ChessHelper.validate_position(start_position)
 
         offset = 0
         positions = self._get_possible_positions(start_position, move_direction, piece_color)
@@ -774,10 +764,8 @@ class ChessBoard:
             end_position is away. Treats start_position as 0,0 on x,y coordinate system. Ex a2 would be (1,1) from a1
         :return: MoveDirection value
         """
-        if not ChessHelper.is_valid_position(start_position):
-            raise InvalidPositionError(start_position)
-        if not ChessHelper.is_valid_position(end_position):
-            raise InvalidPositionError(end_position)
+        ChessHelper.validate_position(start_position)
+        ChessHelper.validate_position(end_position)
 
         start_column, start_row = self.position_to_row_and_column(start_position, color)
         end_column, end_row = self.position_to_row_and_column(end_position, color)
@@ -860,8 +848,7 @@ class ChessBoard:
             Piece object.
         :return:
         """
-        if not ChessHelper.is_valid_position(position):
-            raise InvalidPositionError(position)
+        ChessHelper.validate_position(position)
 
         self._pieces[position] = copy.deepcopy(piece)
         if piece.type == Type.KING:
