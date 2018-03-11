@@ -1,6 +1,5 @@
 .board_image {
-    width: 600px;
-    height: 600px;
+    width: 828px;
     position: absolute;
     top:0;
     bottom: 0;
@@ -11,8 +10,8 @@
 }
 
 .board_overlay {
-    width: 592px;
-    height: 592px;
+    width: 736px;
+    height: 736px;
     position: absolute;
     top:0;
     bottom: 0;
@@ -23,8 +22,8 @@
 }
 
 .board_position {
-    height: 74px;
-    width: 74px;
+    height: 92px;
+    width: 92px;
     float: left;
 }
 
@@ -46,5 +45,5 @@
     height: 45px;
     display: block;
     margin: auto;
-    padding-top: 10px;
+    padding-top: 20px;
 }

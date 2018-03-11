@@ -29,6 +29,11 @@ $(document).ready(function() {
         }
     });
 
+    // Log errors
+    socket.on('error', function (error_data) {
+       console.log(error_data.error)
+    });
+
     $('.join-game .submit').on('click', function () {
         var game_id = $('.join-game #join_game_id').val();
         var user_id = $('.join-game #user_id').val();
@@ -41,16 +46,19 @@ $(document).ready(function() {
     function move_piece(event) {
         var $target = $(this);
         var temp_start_pos = '';
+        var has_svg;
         var data;
 
         if (typeof move_piece.start_position == 'undefined') {
             move_piece.start_position = '';
         }
 
-        if (!move_piece.start_position) {
+        // Ignore click if it is the first one and it is on a black position
+        has_svg = $target.has('svg').length;
+        if (!move_piece.start_position && has_svg) {
             move_piece.start_position = $target.data('position');
         }
-        else {
+        else if(move_piece.start_position) {
             temp_start_pos = move_piece.start_position;
             move_piece.start_position = '';
             data = {start_position: temp_start_pos, end_position: $target.data('position')};

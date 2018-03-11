@@ -1,11 +1,12 @@
 from src import app, socketio
 from flask import render_template, redirect, url_for, request, session, flash
-from src import db
+from src.utils.chess_helper import ChessHelper
+from src.board.exception import *
 from src.models.player import Player
 from src.models.chess_game import ChessGame
 from src.models.game_score import GameScore
 from src.forms.test_forms import RemoveGame, JoinGame, MovePiece, CurrentGame, CreateGame
-from flask_socketio import SocketIO, emit, join_room, leave_room, close_room, rooms, disconnect
+from flask_socketio import emit, join_room, leave_room, close_room, rooms, disconnect
 from src.piece.color import Color
 from src.forms.forms import LoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user, login_required
@@ -132,17 +133,29 @@ def connect():
 
 
 @socketio.on('move_piece', namespace='/chess-game')
-def move_piece_test(json):
+def move_piece(json):
     if 'current_game' in session and 'game_room' in session:
         game = ChessGame.load_by_id(session['current_game'])
-        result = game.move_piece(json['start_position'], json['end_position'])
-        game.save_to_db()
+        try:
+            ChessHelper.validate_position(json['start_position'])
+            ChessHelper.validate_position(json['end_position'])
+        except InvalidPositionError as e:
+            data = {'error': str(e)}
+            emit('error', data, room=session['game_room'])
+        else:
+            try:
+                result = game.move_piece(json['start_position'], json['end_position'])
+            except EmptyPositionError as e:
+                data = {'error': str(e)}
+                emit('error', data, room=session['game_room'])
+            else:
+                game.save_to_db()
 
-        game_dict = game.to_dict()
-        game_dict['result'] = result.to_dict()
-        game_dict['board_string'] = str(game)
+                game_dict = game.to_dict()
+                game_dict['result'] = result.to_dict()
+                game_dict['board_string'] = str(game)
 
-        emit('update_game', game_dict, room=session['game_room'])
+                emit('update_game', game_dict, room=session['game_room'])
 
 
 @socketio.on('join_game', namespace='/chess-game')

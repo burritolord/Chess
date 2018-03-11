@@ -13,7 +13,7 @@
     <h1>Chess game!</h1>
     <!-- Sprite sheet -->
     {{ sprite|safe }}
-    <object class="board_image" type="image/svg+xml" data="{{ url_for('static', filename='images/Tan_Chess_Board.svg') }}">
+    <object class="board_image" type="image/svg+xml" data="{{ url_for('static', filename='images/ChessBoardWhite.svg') }}">
     </object>
     <div class="board_overlay">
         {% for column in [8,7,6,5,4,3,2,1] %}
